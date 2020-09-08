@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Api_CreatePlanReq>
+    <plan>
+        <inheritance isSealed="1" />
+        <storage enableBackupCopy="1">
+            <copy copyType="1" active="1" isDefault="1">
+                <dedupeFlags enableDASHFull="1" />
+                <retentionRules retainArchiverDataForDays="-1" retainBackupDataForDays="1">
+                    <retentionFlags enableDataAging="1" />
+                </retentionRules>
+                <StoragePolicyCopy copyName="Primary" />
+                <extendedFlags useGlobalStoragePolicy="1" />
+                <useGlobalPolicy storagePolicyName="Storage1" storagePolicyId="3" />
+            </copy>
+            <copy copyType="3" active="1" isDefault="0" isSnapCopy="1" copyPrecedence="1">
+                <retentionRules retainBackupDataForCycles="1" retainArchiverDataForDays="-1" retainBackupDataForDays="15">
+                    <retentionFlags />
+                </retentionRules>
+                <extendedFlags useGlobalStoragePolicy="1" />
+                <useGlobalPolicy storagePolicyName="Storage1" storagePolicyId="3" />
+            </copy>
+        </storage>
+        <laptop>
+            <content>
+                <backupContent idatype="2">
+                    <subClientPolicy>
+                        <backupSetEntity backupsetName="Windows subclient policy" />
+                        <subClientList contentOperationType="1">
+                            <fsSubClientProp useVSSForSystemState="1" backupSystemState="1" useVSS="1" keepAtLeastPreviousVersions="5" catalogACL="1" backupSystemStateforFullBkpOnly="0" scanOption="2" />
+                            <content path="\" />
+                            <commonProperties numberOfBackupStreams="4" readBuffersize="512">
+                                <storageDevice softwareCompression="2">
+                                    <deDuplicationOptions enableDeduplication="1" generateSignature="1" />
+                                </storageDevice>
+                            </commonProperties>
+                        </subClientList>
+                    </subClientPolicy>
+                </backupContent>
+                <backupContent idatype="3">
+                    <subClientPolicy>
+                        <backupSetEntity backupsetName="Linux subclient policy" />
+                        <subClientList contentOperationType="1">
+                            <fsSubClientProp useVSS="1" keepAtLeastPreviousVersions="5" catalogACL="1" scanOption="1" />
+                            <content path="/" />
+                            <commonProperties numberOfBackupStreams="4" readBuffersize="512">
+                                <storageDevice softwareCompression="2">
+                                    <deDuplicationOptions enableDeduplication="1" generateSignature="1" />
+                                </storageDevice>
+                            </commonProperties>
+                        </subClientList>
+                    </subClientPolicy>
+                </backupContent>
+                <backupContent idatype="4">
+                    <subClientPolicy>
+                        <backupSetEntity backupsetName="Mac subclient policy" />
+                        <subClientList contentOperationType="1">
+                            <fsSubClientProp useVSS="1" keepAtLeastPreviousVersions="5" catalogACL="1" scanOption="1" />
+                            <content path="/" />
+                            <commonProperties numberOfBackupStreams="4" readBuffersize="512">
+                                <storageDevice softwareCompression="2">
+                                    <deDuplicationOptions enableDeduplication="1" generateSignature="1" />
+                                </storageDevice>
+                            </commonProperties>
+                        </subClientList>
+                    </subClientPolicy>
+                </backupContent>
+            </content>
+        </laptop>
+        <database slaInMinutes="240" rpoInMinutes="240">
+            <scheduleLog>
+                <task description="Automatic schedules for the log backup" taskType="4" policyType="0" taskName="Log schedule policy for the database clients">
+                    <taskFlags isEdgeDrive="0" />
+                </task>
+                <appGroup>
+                    <appGroups appGroupName="APPGRP_Sybase" appGroupId="13" />
+                    <appGroups appGroupName="APPGRP_POSTGRES" appGroupId="114" />
+                    <appGroups appGroupName="APPGRP_SAP_HANA" appGroupId="129" />
+                    <appGroups appGroupName="APPGRP_MySql" appGroupId="100" />
+                    <appGroups appGroupName="APPGRP_DB2" appGroupId="11" />
+                    <appGroups appGroupName="APPGRP_INFORMIX" appGroupId="111" />
+                    <appGroups appGroupName="APPGRP_SAP_FOR_ORACLE" appGroupId="101" />
+                    <appGroups appGroupName="APPGRP_SQL_POLICY" appGroupId="90" />
+                    <appGroups appGroupName="APPGRP_AppTypeIndexedBased" appGroupId="83" />
+                    <appGroups appGroupName="APPGRP_NotesDb" appGroupId="12" />
+                    <appGroups appGroupName="PACKAGEGRP_DB" appGroupId="10" />
+                    <appGroups appGroupName="APPGRP_ORACLE" appGroupId="10" />
+                    <appGroups appGroupName="APPGRP_XchangeDB" appGroupId="14" />
+                    <appGroups appGroupName="APPGRP_NotesDb_Transaction_Log" appGroupId="104" />
+                </appGroup>
+                <subTasks>
+                    <subTask subTaskName="Incremental automatic schedule for logs" subTaskType="2" flags="65536" operationType="2" />
+                    <pattern freq_type="1024">
+                        <timeZone />
+                    </pattern>
+                    <options>
+                        <backupOpts truncateLogsOnSource="0" sybaseSkipFullafterLogBkp="0" backupLevel="2" incLevel="1" runIncrementalBackup="1" cumulative="0" doNotTruncateLog="0">
+                            <dataOpt useCatalogServer="1" followMountPoints="1" enforceTransactionLogUsage="0" skipConsistencyCheck="0" daysBetweenSyntheticBackup="7" autoCopy="0" />
+                            <oracleOptions>
+                                <deleteArchLogOptions backupArchiveLogCriteria="0" />
+                                <backupArchLogOptions backupArchiveLogCriteria="7" startLSN="1" endLSN="1" backupArchiveLog="1" />
+                            </oracleOptions>
+                        </backupOpts>
+                        <commonOpts>
+                            <perfJobOpts />
+                            <automaticSchedulePattern maxBackupInterval="4" sweepStartTime="86400" useStorageSpaceFromMA="0" minBackupIntervalMinutes="15" maxBackupIntervalMinutes="0" minBackupInterval="0">
+                                <logFileNum threshold="50" enabled="1" />
+                                <diskUsedPercent threshold="80" enabled="1" />
+                                <logPercent threshold="80" enabled="1" />
+                            </automaticSchedulePattern>
+                        </commonOpts>
+                    </options>
+                </subTasks>
+            </scheduleLog>
+        </database>
+        <options quota="0" />
+        <definition basePlanSubtype="0">
+            <possible val="1" />
+            <possible val="2" />
+            <possible val="4" />
+            <possible val="8" />
+            <possible val="16" />
+            <possible val="32" />
+            <possible val="64" />
+            <possible val="128" />
+            <possible val="256" />
+            <possible val="512" />
+            <possible val="1024" />
+            <possible val="2048" />
+            <possible val="4096" />
+            <possible val="8192" />
+            <possible val="16384" />
+            <possible val="32768" />
+            <possible val="65536" />
+            <possible val="65537" />
+            <possible val="65538" />
+            <possible val="65539" />
+            <possible val="65540" />
+            <possible val="65541" />
+            <possible val="65542" />
+            <possible val="65543" />
+            <possible val="65544" />
+            <possible val="65545" />
+            <possible val="65546" />
+            <possible val="65547" />
+            <possible val="65548" />
+            <possible val="65549" />
+            <possible val="65550" />
+            <possible val="65551" />
+            <possible val="65552" />
+            <possible val="65553" />
+            <possible val="65554" />
+            <possible val="65555" />
+            <possible val="65556" />
+            <possible val="65557" />
+            <possible val="65558" />
+            <required val="1" />
+            <required val="4" />
+        </definition>
+        <summary description="Server plan44" type="2" slaInterval="0" subtype="33554437" restrictions="1" rpoInMinutes="1440">
+            <addons database="1" filesystem="1" snap="1" />
+            <plan planName="Server plan44" />
+            <planOwner userGUID="0e367a28-6cb0-4a14-b6c4-6388b9f9c166" userName="Administrator" userId="1" />
+        </summary>
+        <schedule>
+            <task taskType="4">
+                <taskFlags isEdgeDrive="0" isEZOperation="0" disabled="0" />
+            </task>
+            <subTasks>
+                <subTask subTaskName="Incremental backup schedule" subTaskType="2" flags="65536" operationType="2" subTaskId="1" />
+                <pattern active_end_occurence="0" freq_subday_interval="0" freq_type="4" description="Every day at 9:00 PM  " active_end_time="86340" active_start_time="75600" active_start_date="0" freq_interval="1" name="Incremental backup schedule" freq_recurrence_factor="1">
+                    <timeZone TimeZoneID="1001" TimeZoneName="Client Time Zone" />
+                </pattern>
+                <options>
+                    <backupOpts sybaseSkipFullafterLogBkp="0" backupLevel="2" incLevel="1" runIncrementalBackup="1" isSpHasInLineCopy="0" runSILOBackup="0" doNotTruncateLog="0">
+                        <dataOpt daysBetweenSyntheticBackup="0" />
+                    </backupOpts>
+                </options>
+            </subTasks>
+            <subTasks>
+                <subTask subTaskName="Synthetic Fulls" subTaskType="2" flags="0" operationType="2" subTaskId="1" />
+                <pattern freq_subday_interval="0" freq_type="1024" description="Based on automatic schedule settings" active_end_time="0" name="Synthetic Fulls" freq_recurrence_factor="0">
+                    <timeZone />
+                </pattern>
+                <options>
+                    <backupOpts truncateLogsOnSource="0" backupLevel="4" incLevel="0" runIncrementalBackup="0" doNotTruncateLog="0">
+                        <vsaBackupOptions backupFailedVMsOnly="0" />
+                        <dataOpt useCatalogServer="1" followMountPoints="1" useMultiStream="1" useMaximumStreams="1" enforceTransactionLogUsage="0" skipConsistencyCheck="0" maxNumberOfStreams="1" createNewIndex="1" daysBetweenSyntheticBackup="1" autoCopy="1" />
+                    </backupOpts>
+                    <commonOpts>
+                        <automaticSchedulePattern maxBackupInterval="72" ignoreOpWindowPastMaxInterval="1" minBackupIntervalMinutes="15" maxBackupIntervalMinutes="0" minSyncInterval="0" minBackupInterval="0" minSyncIntervalMinutes="0">
+                            <stopIfOnBattery enabled="0" />
+                            <acPower enabled="0" />
+                            <specfificNetwork enabled="0">
+                                <ipAddress subnet="24" address="0.0.0.0" />
+                            </specfificNetwork>
+                            <stopSleepIfBackUp enabled="0" />
+                            <newOrModifiedFile enabled="0" />
+                            <wiredNetworkConnection enabled="0" />
+                            <minNetworkBandwidth enabled="0" />
+                        </automaticSchedulePattern>
+                    </commonOpts>
+                </options>
+            </subTasks>
+        </schedule>
+        <snapInfo>
+            <snapToTapeSchedule>
+                <subTask subTaskOrder="0" subTaskName="Snap to tape" subTaskType="1" flags="0" operationType="4028" />
+                <pattern freq_type="4096" active_start_time="79200" freq_interval="240" name="Automatic backup copy" freq_recurrence_factor="1">
+                    <timeZone TimeZoneName="Client Time Zone" />
+                </pattern>
+                <options>
+                    <backupOpts sybaseSkipFullafterLogBkp="0" backupLevel="0" runIncrementalBackup="1" isSpHasInLineCopy="0" runSILOBackup="0" doNotTruncateLog="0">
+                        <dataOpt daysBetweenSyntheticBackup="0" />
+                        <mediaOpt markMediaFullOnSuccess="0" startNewMedia="0">
+                            <auxcopyJobOption autoCopy="1" />
+                        </mediaOpt>
+                    </backupOpts>
+                    <adminOpts>
+                        <snapToTapeOption allowMaximum="1" />
+                    </adminOpts>
+                </options>
+            </snapToTapeSchedule>
+        </snapInfo>
+    </plan>
+</Api_CreatePlanReq>
