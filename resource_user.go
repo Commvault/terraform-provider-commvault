@@ -53,7 +53,7 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 	userResp := handler.UserCreate(createUserRequest)
 	errorString := userResp.Response.ErrorString
 	if errorString != "Successful" {
-		return nil
+		return fmt.Errorf("User creation failed")
 	}
 	userId := userResp.Response.Entity.UserId
 	d.SetId(string(userId))
