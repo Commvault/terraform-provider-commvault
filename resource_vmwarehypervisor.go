@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/TerraformProvider/handler"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
-
 
 func resourceVMWareHypervisor() *schema.Resource {
 	return &schema.Resource{
@@ -23,17 +23,17 @@ func resourceVMWareHypervisor() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"username":&schema.Schema{
-				Type:schema.TypeString,
-				Required:true,
+			"username": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
 			},
-			"password":&schema.Schema{
-				Type:schema.TypeString,
-				Required:true,
+			"password": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
 			},
-			"accessnodes":&schema.Schema{
-				Type:schema.TypeString,
-				Required:true,
+			"accessnodes": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
 			},
 		},
 	}
@@ -45,9 +45,9 @@ func resourceVMWareHypervisorCreate(d *schema.ResourceData, m interface{}) error
 	username := d.Get("username").(string)
 	password := d.Get("password").(string)
 	accessnodes := d.Get("accessnodes").(string)
-	apiResp := handler.VMWareHypCreateHandler(displayname,hostname,username,password,accessnodes)
+	apiResp := handler.VMWareHypCreateHandler(displayname, hostname, username, password, accessnodes)
 	d.SetId(string(apiResp.Response.Entity.ClientId))
-	return resourceVMWareHypervisorRead(d,m)
+	return resourceVMWareHypervisorRead(d, m)
 }
 
 func resourceVMWareHypervisorRead(d *schema.ResourceData, m interface{}) error {
@@ -67,6 +67,3 @@ func resourceVMWareHypervisorDelete(d *schema.ResourceData, m interface{}) error
 	d.SetId("")
 	return nil
 }
-
-
-
