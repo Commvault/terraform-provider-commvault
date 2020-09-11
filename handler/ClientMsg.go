@@ -43,7 +43,6 @@ type AppCreatePseudoClientRequest struct {
 	} `xml:"entity"`
 }
 
-
 type AppCreatePseudoClientResponse struct {
 	XMLName                   xml.Name `xml:"App_CreatePseudoClientResponse"`
 	Text                      string   `xml:",chardata"`
@@ -66,7 +65,6 @@ type AppCreatePseudoClientResponse struct {
 		} `xml:"entity"`
 	} `xml:"response"`
 }
-
 
 type AppRetireClientResponse struct {
 	XMLName  xml.Name `xml:"App_RetireClientResponse"`

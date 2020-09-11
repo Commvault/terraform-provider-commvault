@@ -1,8 +1,8 @@
 package main
 
-import(
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+import (
 	"github.com/TerraformProvider/handler"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourcePlan() *schema.Resource {
@@ -17,35 +17,33 @@ func resourcePlan() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"rpoinminutes": &schema.Schema{
+			"retentionperioddays": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"backupdestname": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-			},			
-			"slainminutes":&schema.Schema{
-				Type:schema.TypeString,
-				Optional:true,
 			},
-			"backupdestname":&schema.Schema{
-				Type:schema.TypeString,
-				Optional:true,
+			"backupdeststorage": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
 			},
-			"backupdeststorage":&schema.Schema{
-				Type:schema.TypeString,
-				Optional:true,
-			},			
 		},
 	}
 }
 
-
 func resourcePlanCreate(d *schema.ResourceData, m interface{}) error {
-	planName := d.Get("planname").(string)
-	backupDestName := d.Get("backupdestname").(string)
-	backupDestStorage := d.Get("backupdeststorage").(string)
-	rpoinmin := d.Get("rpoinminutes").(string)
-	apiResp := handler.PlanCreate(planName,backupDestName,backupDestStorage,rpoinmin)
-	d.SetId(string(apiResp.Plan.Summary.Plan.PlanId))
-	return resourcePlanRead(d,m)
+	var createPlanRequest handler.ApiCreatePlanReq
+	var backupDestination handler.BackupDestinations
+	createPlanRequest.PlanName = d.Get("planname").(string)
+	backupDestination.BackupDestinationName = d.Get("backupdestname").(string)
+	backupDestination.StoragePool.Name = d.Get("backupdeststorage").(string)
+	backupDestination.RetentionPeriodDays = d.Get("retentionperioddays").(int64)
+	createPlanRequest.BackupDestinations = append(createPlanRequest.BackupDestinations, backupDestination)
+	apiResp := handler.PlanCreate(createPlanRequest)
+	d.SetId(string(apiResp.Plan.ID))
+	return resourcePlanRead(d, m)
 }
 
 func resourcePlanRead(d *schema.ResourceData, m interface{}) error {
@@ -56,7 +54,7 @@ func resourcePlanUpdate(d *schema.ResourceData, m interface{}) error {
 	rpoinmin := d.Get("rpoinminutes").(string)
 	slainminutes := d.Get("slainminutes").(string)
 	id := d.Id()
-	handler.PlanUpdate(rpoinmin,slainminutes,id)
+	handler.PlanUpdate(rpoinmin, slainminutes, id)
 	return resourcePlanRead(d, m)
 }
 
@@ -66,6 +64,3 @@ func resourcePlanDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 	return nil
 }
-
-
-
