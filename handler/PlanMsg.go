@@ -1,15 +1,17 @@
 package handler
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+)
 
 type ApiCreatePlanReq struct {
-	PlanName           string               `json:"planName"`
-	BackupDestinations []BackupDestinations `json:"backupDestinations"`
+	PlanName           string              `json:"planName"`
+	BackupDestinations []BackupDestination `json:"backupDestinations"`
 }
 
-type BackupDestinations struct {
+type BackupDestination struct {
 	BackupDestinationName string `json:"backupDestinationName"`
-	RetentionPeriodDays   int64  `json:"retentionPeriodDays"`
+	RetentionPeriodDays   int    `json:"retentionPeriodDays"`
 	StoragePool           struct {
 		Name string `json:"name"`
 	} `json:"storagePool"`
@@ -19,7 +21,7 @@ type ApiCreatePlanResp struct {
 	Plan struct {
 		Name string `json:"name"`
 		ID   int    `json:"id"`
-	} `json:"paln"`
+	} `json:"plan"`
 }
 
 type ApiUpdatePlanReq struct {

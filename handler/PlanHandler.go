@@ -39,18 +39,17 @@ func PlanUpdate(rpoinmin string, slaInMinutes string, id string) {
 }
 
 func PlanCreate(createPlanRequest ApiCreatePlanReq) *ApiCreatePlanResp {
-	panCreateJson, _ := json.Marshal(createPlanRequest)
-	fmt.Print(panCreateJson)
-	url := os.Getenv("CV_CSIP") + "v3/ServerPlan"
+	planCreateJSON, _ := json.Marshal(createPlanRequest)
+	url := os.Getenv("CV_CSIP") + "/v3/ServerPlan"
 	token := os.Getenv("AuthToken")
-	respBody := makeHttpRequest(url, http.MethodPost, JSON, panCreateJson, JSON, token)
+	respBody := makeHttpRequest(url, http.MethodPost, JSON, planCreateJSON, JSON, token)
 	var apiCreatePlanResp ApiCreatePlanResp
 	json.Unmarshal(respBody, &apiCreatePlanResp)
 	return &apiCreatePlanResp
 }
 
 func PlanDelete(id string) *GenericResp {
-	url := os.Getenv("CV_CSIP") + "/plan/" + id + "?confirmDelete=yes"
+	url := os.Getenv("CV_CSIP") + "/v2/plan/" + id + "?confirmDelete=yes"
 	token := os.Getenv("AuthToken")
 	respBody := makeHttpRequest(url, http.MethodDelete, JSON, nil, JSON, token)
 	var genericResp GenericResp
