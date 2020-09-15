@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/TerraformProvider/handler"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -34,16 +37,22 @@ func resourcePlan() *schema.Resource {
 }
 
 func resourcePlanCreate(d *schema.ResourceData, m interface{}) error {
+
 	var createPlanRequest handler.ApiCreatePlanReq
-	var backupDestination handler.BackupDestinations
 	createPlanRequest.PlanName = d.Get("planname").(string)
+	var backupDestination handler.BackupDestination
 	backupDestination.BackupDestinationName = d.Get("backupdestname").(string)
+	backupDestination.RetentionPeriodDays = d.Get("retentionperioddays").(int)
 	backupDestination.StoragePool.Name = d.Get("backupdeststorage").(string)
-	backupDestination.RetentionPeriodDays = d.Get("retentionperioddays").(int64)
 	createPlanRequest.BackupDestinations = append(createPlanRequest.BackupDestinations, backupDestination)
 	apiResp := handler.PlanCreate(createPlanRequest)
-	d.SetId(string(apiResp.Plan.ID))
-	return resourcePlanRead(d, m)
+	if apiResp.Plan.ID > 0 {
+		d.SetId(strconv.Itoa(apiResp.Plan.ID))
+		return resourcePlanRead(d, m)
+	} else {
+		return fmt.Errorf("error in creation of plan")
+	}
+
 }
 
 func resourcePlanRead(d *schema.ResourceData, m interface{}) error {
@@ -60,7 +69,10 @@ func resourcePlanUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourcePlanDelete(d *schema.ResourceData, m interface{}) error {
 	planId := d.Id()
-	handler.PlanDelete(planId)
+	genericResp := handler.PlanDelete(planId)
+	if genericResp.ErrorCode != 0 {
+		return fmt.Errorf("Error in deletion of plan")
+	}
 	d.SetId("")
 	return nil
 }
