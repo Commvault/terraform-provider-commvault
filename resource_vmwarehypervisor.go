@@ -15,15 +15,15 @@ func resourceVMWareHypervisor() *schema.Resource {
 		Delete: resourceVMWareHypervisorDelete,
 
 		Schema: map[string]*schema.Schema{
-			"displayname": &schema.Schema{
+			"display_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"hostname": &schema.Schema{
+			"host_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"username": &schema.Schema{
+			"user_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -31,7 +31,7 @@ func resourceVMWareHypervisor() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"accessnodes": &schema.Schema{
+			"access_nodes": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -40,11 +40,11 @@ func resourceVMWareHypervisor() *schema.Resource {
 }
 
 func resourceVMWareHypervisorCreate(d *schema.ResourceData, m interface{}) error {
-	displayname := d.Get("displayname").(string)
-	hostname := d.Get("hostname").(string)
-	username := d.Get("username").(string)
+	displayname := d.Get("display_name").(string)
+	hostname := d.Get("host_name").(string)
+	username := d.Get("user_name").(string)
 	password := d.Get("password").(string)
-	accessnodes := d.Get("accessnodes").(string)
+	accessnodes := d.Get("access_nodes").(string)
 	apiResp := handler.VMWareHypCreateHandler(displayname, hostname, username, password, accessnodes)
 	d.SetId(string(apiResp.Response.Entity.ClientId))
 	return resourceVMWareHypervisorRead(d, m)
@@ -59,8 +59,8 @@ func resourceVMWareHypervisorUpdate(d *schema.ResourceData, m interface{}) error
 }
 
 func resourceVMWareHypervisorDelete(d *schema.ResourceData, m interface{}) error {
-	clientId := d.Id()
-	resp := handler.VMWareHypDeleteHandler(clientId)
+	clientID := d.Id()
+	resp := handler.VMWareHypDeleteHandler(clientID)
 	if resp.Response.ErrorCode != "0" {
 		return fmt.Errorf("Error retiring the VMWare Hypervisor")
 	}

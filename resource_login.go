@@ -13,7 +13,7 @@ func resourceLogin() *schema.Resource {
 		Delete: resourceLoginDelete,
 
 		Schema: map[string]*schema.Schema{
-			"username": &schema.Schema{
+			"user_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -26,7 +26,7 @@ func resourceLogin() *schema.Resource {
 }
 
 func resourceLoginCreate(d *schema.ResourceData, m interface{}) error {
-	username := d.Get("username").(string)
+	username := d.Get("user_name").(string)
 	password := d.Get("password").(string)
 	handler.GenerateAuthToken(username, password)
 	d.SetId(username)
@@ -38,7 +38,7 @@ func resourceLoginRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceLoginUpdate(d *schema.ResourceData, m interface{}) error {
-	username := d.Get("username").(string)
+	username := d.Get("user_name").(string)
 	password := d.Get("password").(string)
 	handler.GenerateAuthToken(username, password)
 	d.SetId(username)

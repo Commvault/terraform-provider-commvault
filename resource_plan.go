@@ -16,19 +16,19 @@ func resourcePlan() *schema.Resource {
 		Delete: resourcePlanDelete,
 
 		Schema: map[string]*schema.Schema{
-			"planname": &schema.Schema{
+			"plan_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"retentionperioddays": &schema.Schema{
+			"retention_period_days": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"backupdestname": &schema.Schema{
+			"backup_destination_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"backupdeststorage": &schema.Schema{
+			"backup_destination_storage": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -39,19 +39,18 @@ func resourcePlan() *schema.Resource {
 func resourcePlanCreate(d *schema.ResourceData, m interface{}) error {
 
 	var createPlanRequest handler.ApiCreatePlanReq
-	createPlanRequest.PlanName = d.Get("planname").(string)
+	createPlanRequest.PlanName = d.Get("plan_name").(string)
 	var backupDestination handler.BackupDestination
-	backupDestination.BackupDestinationName = d.Get("backupdestname").(string)
-	backupDestination.RetentionPeriodDays = d.Get("retentionperioddays").(int)
-	backupDestination.StoragePool.Name = d.Get("backupdeststorage").(string)
+	backupDestination.BackupDestinationName = d.Get("backup_destination_name").(string)
+	backupDestination.RetentionPeriodDays = d.Get("retention_period_days").(int)
+	backupDestination.StoragePool.Name = d.Get("backup_destination_storage").(string)
 	createPlanRequest.BackupDestinations = append(createPlanRequest.BackupDestinations, backupDestination)
 	apiResp := handler.PlanCreate(createPlanRequest)
 	if apiResp.Plan.ID > 0 {
 		d.SetId(strconv.Itoa(apiResp.Plan.ID))
 		return resourcePlanRead(d, m)
-	} else {
-		return fmt.Errorf("error in creation of plan")
 	}
+	return fmt.Errorf("error in creation of plan")
 
 }
 
@@ -68,8 +67,8 @@ func resourcePlanUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePlanDelete(d *schema.ResourceData, m interface{}) error {
-	planId := d.Id()
-	genericResp := handler.PlanDelete(planId)
+	planID := d.Id()
+	genericResp := handler.PlanDelete(planID)
 	if genericResp.ErrorCode != 0 {
 		return fmt.Errorf("Error in deletion of plan")
 	}

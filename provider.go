@@ -10,12 +10,12 @@ import (
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"cs_ip": {
+			"web_service_url": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CV_CSIP", os.Getenv("CV_CSIP")),
 			},
-			"username": {
+			"user_name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CV_USERNAME", os.Getenv("CV_USERNAME")),
@@ -27,22 +27,22 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"commvault_plan":       resourcePlan(),
-			"commvault_user":       resourceUser(),
-			"commvault_login":      resourceLogin(),
-			"commvault_vmgroup":    resourceVMGroup(),
-			"commvault_vmwarehyp":  resourceVMWareHypervisor(),
-			"commvault_plan_to_vm": resourceAssociateVMToPlan(),
+			"commvault_plan":          resourcePlan(),
+			"commvault_user":          resourceUser(),
+			"commvault_login":         resourceLogin(),
+			"commvault_vm_group":      resourceVMGroup(),
+			"commvault_vmware_hyperv": resourceVMWareHypervisor(),
+			"commvault_plan_to_vm":    resourceAssociateVMToPlan(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
 }
 
 func providerConfigure(data *schema.ResourceData) (i interface{}, err error) {
-	cv_csip := data.Get("cs_ip").(string)
-	username := data.Get("username").(string)
+	cvCsip := data.Get("web_service_url").(string)
+	username := data.Get("user_name").(string)
 	password := data.Get("password").(string)
-	os.Setenv("CV_CSIP", cv_csip)
+	os.Setenv("CV_CSIP", cvCsip)
 	os.Setenv("CV_USERNAME", username)
 	os.Setenv("CV_PASSWORD", password)
 	handler.LoginWithProviderCredentials(username, password)
