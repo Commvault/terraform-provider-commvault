@@ -15,7 +15,7 @@ func resourceUser() *schema.Resource {
 		Delete: resourceUserDelete,
 
 		Schema: map[string]*schema.Schema{
-			"username": &schema.Schema{
+			"user_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -23,9 +23,9 @@ func resourceUser() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"fullname": &schema.Schema{
+			"full_name": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"email": &schema.Schema{
 				Type:     schema.TypeString,
@@ -33,9 +33,9 @@ func resourceUser() *schema.Resource {
 			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
-			"newname": &schema.Schema{
+			"new_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -45,8 +45,8 @@ func resourceUser() *schema.Resource {
 
 func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 	var createUserRequest handler.AppCreateUserRequest
-	createUserRequest.Users.UserEntity.UserName = d.Get("username").(string)
-	createUserRequest.Users.FullName = d.Get("fullname").(string)
+	createUserRequest.Users.UserEntity.UserName = d.Get("user_name").(string)
+	createUserRequest.Users.FullName = d.Get("full_name").(string)
 	createUserRequest.Users.Password = d.Get("password").(string)
 	createUserRequest.Users.Email = d.Get("email").(string)
 	createUserRequest.Users.Description = d.Get("description").(string)
@@ -55,38 +55,37 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 	if errorString != "Successful" {
 		return fmt.Errorf("User creation failed")
 	}
-	userId := userResp.Response.Entity.UserId
-	d.SetId(string(userId))
+	userID := userResp.Response.Entity.UserId
+	d.SetId(string(userID))
 	return resourceUserRead(d, m)
 }
 
 func resourceUserRead(d *schema.ResourceData, m interface{}) error {
-	userId := d.Id()
-	userProperties := handler.ReadUser(userId)
+	userID := d.Id()
+	userProperties := handler.ReadUser(userID)
 	email := userProperties.Users.Email
 	if email != "" {
 		return fmt.Errorf("Cannot find the user")
-		d.SetId("")
 	}
 	return nil
 }
 
 func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 	var updateUserRequest handler.AppUpdateUserPropertiesRequest
-	newName := d.Get("newname").(string)
+	newName := d.Get("new_name").(string)
 	if newName == "" {
-		updateUserRequest.Users.UserEntity.NewName = d.Get("fullname").(string)
+		updateUserRequest.Users.UserEntity.NewName = d.Get("full_name").(string)
 	} else {
 		updateUserRequest.Users.UserEntity.NewName = newName
 	}
-	updateUserRequest.Users.FullName = d.Get("fullname").(string)
+	updateUserRequest.Users.FullName = d.Get("full_name").(string)
 	updateUserRequest.Users.Email = d.Get("email").(string)
-	updateUserRequest.Users.UserEntity.UserName = d.Get("username").(string)
+	updateUserRequest.Users.UserEntity.UserName = d.Get("user_name").(string)
 	updateUserRequest.Users.UserEntity.UserId = d.Id()
 	userResp := handler.UpdateUser(updateUserRequest, d.Id())
 	errorCode := userResp.Response.ErrorCode
 	if errorCode != "0" {
-		fmt.Errorf("unable to update the user")
+		return fmt.Errorf("unable to update the user")
 	}
 	d.SetId(d.Id())
 	return resourceUserRead(d, m)

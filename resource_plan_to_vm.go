@@ -17,11 +17,11 @@ func resourceAssociateVMToPlan() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"cname": &schema.Schema{
+			"vm_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"nplan": &schema.Schema{
+			"new_plan": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -31,8 +31,8 @@ func resourceAssociateVMToPlan() *schema.Resource {
 
 func resourceAssociateVMToPlanUpdate(data *schema.ResourceData, i interface{}) error {
 	planName := data.Get("plan").(string)
-	newPlanName := data.Get("nplan").(string)
-	vmname := data.Get("cname").(string)
+	newPlanName := data.Get("new_plan").(string)
+	vmname := data.Get("vm_name").(string)
 	handler.AssociatePlanToVM(newPlanName, vmname)
 	sid := planName + vmname
 	data.SetId(sid)
@@ -45,7 +45,7 @@ func resourceAssociateVMToPlanRead(data *schema.ResourceData, i interface{}) err
 
 func resourceAssociateVMToPlanCreate(data *schema.ResourceData, i interface{}) error {
 	planName := data.Get("plan").(string)
-	vmname := data.Get("cname").(string)
+	vmname := data.Get("vm_name").(string)
 	handler.AssociatePlanToVM(planName, vmname)
 	sid := planName + vmname
 	data.SetId(sid)

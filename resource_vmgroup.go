@@ -15,15 +15,15 @@ func resourceVMGroup() *schema.Resource {
 		Delete: resourceVMGroupDelete,
 
 		Schema: map[string]*schema.Schema{
-			"vmgroupname": &schema.Schema{
+			"vm_group_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"clientid": &schema.Schema{
+			"client_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"planid": &schema.Schema{
+			"plan_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Required: true,
 			},
@@ -37,12 +37,12 @@ func resourceVMGroup() *schema.Resource {
 }
 
 func resourceVMGroupCreate(d *schema.ResourceData, m interface{}) error {
-	vmGroupName := d.Get("vmgroupname").(string)
+	vmGroupName := d.Get("vm_group_name").(string)
 	if vmGroupName == "" {
 		return fmt.Errorf("vmgroup Name cannot be empty")
 	}
-	clientid := d.Get("clientid").(int)
-	planid := d.Get("planid").(int)
+	clientid := d.Get("client_id").(int)
+	planid := d.Get("plan_id").(int)
 	vms := d.Get("vms").(*schema.Set).List()
 	vmnames := make([]string, len(vms))
 	for i, n := range vms {
@@ -50,7 +50,7 @@ func resourceVMGroupCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	apiResp := handler.VMGroupCreate(vmGroupName, planid, clientid, vmnames)
 	if apiResp.Response.ErrorCode != "0" {
-		return fmt.Errorf("Error creating vmgroup.")
+		return fmt.Errorf("Error creating vmgroup")
 	}
 	d.SetId(apiResp.Response.Entity.SubclientId)
 	return resourceVMGroupRead(d, m)
