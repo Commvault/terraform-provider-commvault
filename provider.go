@@ -27,12 +27,12 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"commvault_plan":          resourcePlan(),
-			"commvault_user":          resourceUser(),
-			"commvault_login":         resourceLogin(),
-			"commvault_vm_group":      resourceVMGroup(),
-			"commvault_vmware_hyperv": resourceVMWareHypervisor(),
-			"commvault_plan_to_vm":    resourceAssociateVMToPlan(),
+			"commvault_plan":       resourcePlan(),
+			"commvault_user":       resourceUser(),
+			"commvault_login":      resourceLogin(),
+			"commvault_vm_group":   resourceVMGroup(),
+			"commvault_hypervisor": resourceVMWareHypervisor(),
+			"commvault_plan_to_vm": resourceAssociateVMToPlan(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
