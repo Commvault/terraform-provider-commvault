@@ -18,18 +18,21 @@ func securityAssociation() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"client_list": &schema.Schema{
-				Type:     schema.TypeSet,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeSet,
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "Specifies the list of clients for association.",
 			},
 			"user_group_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the user group name used for association.",
 			},
 			"permissions_list": &schema.Schema{
-				Type:     schema.TypeSet,
-				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeSet,
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "Specifies the permission names list used for the association.",
 			},
 		},
 	}

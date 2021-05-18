@@ -19,25 +19,30 @@ func resourceInstallMA() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"mediaagent_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the Media Agent name used for installation.",
 			},
 			"hostname": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the Media Agent Hostname user for the installation",
 			},
 			"user_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the User name of the host computer for the installation.",
 			},
 			"password": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the password for the host computer for the installation.",
 			},
 			"company_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "Specifies the company id to which the installed MA should be associated with.",
 			},
 		},
 	}

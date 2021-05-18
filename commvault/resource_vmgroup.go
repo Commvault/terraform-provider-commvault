@@ -17,31 +17,37 @@ func resourceVMGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"vm_group_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The name of the VM group.",
 			},
 			"client_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Specifies The ID of the hypervisor client.",
 			},
 			"plan_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Specifies The ID of the plan that you want to associate with the VM group.",
 			},
 			"vms": &schema.Schema{
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "Specifies The VMs that you want to back up in a VM group.",
 			},
 			"tags": &schema.Schema{
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "Specifies The Tags that you want to back up in a VM group.",
 			},
 			"company_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "Specifies the company id to which the vm group should be associated with.",
 			},
 		},
 	}

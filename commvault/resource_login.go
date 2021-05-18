@@ -15,12 +15,14 @@ func resourceLogin() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"user_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the username used for login",
 			},
 			"password": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the password for user login",
 			},
 		},
 	}
