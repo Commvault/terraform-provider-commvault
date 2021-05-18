@@ -17,29 +17,35 @@ func resourceVMWareHypervisor() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"display_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The display name of the hypervisor.",
 			},
 			"host_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The host name of the hypervisor.",
 			},
 			"user_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The user name for the account.",
 			},
 			"password": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The password for the account.",
 			},
 			"access_nodes": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The clients that have the VSA package installed and that act as proxy clients for hypervisors.",
 			},
 			"company_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "Specifies the company id to which the Vmware Hypervisor should be associated with.",
 			},
 		},
 	}

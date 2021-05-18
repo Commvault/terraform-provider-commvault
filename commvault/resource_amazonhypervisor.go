@@ -17,34 +17,41 @@ func resourceAmazonHypervisor() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"client_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The name of the Amazon hypervisor.",
 			},
 			"regions": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "default",
+				Description: "Specifies the regions used for the Hypervisor",
 			},
 			"use_iam_role": &schema.Schema{
-				Type:     schema.TypeBool,
-				Required: true,
+				Type:        schema.TypeBool,
+				Required:    true,
+				Description: "Specifies whether you want to use IAM role.",
 			},
 			"access_key": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies The access key ID for your Amazon account.",
 			},
 			"secret_key": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies The secret key ID for your Amazon account.",
 			},
 			"access_nodes": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Sepcifies The clients that have the VSA package installed and that act as proxy clients for Amazon hypervisors.",
 			},
 			"company_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "Specifies the company id to which the Amazon Hypervisor should be associated with.",
 			},
 		},
 	}

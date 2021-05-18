@@ -17,33 +17,40 @@ func resourceAzureHypervisor() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"hypervisor_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The name of the hypervisor.",
 			},
 			"subscription_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The subscription ID for your Azure account.",
 			},
 			"tenant_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The tenant ID for your Azure account.",
 			},
 			"application_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The application ID of the tenant.",
 			},
 			"application_password": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The password for the application ID of the tenant.",
 			},
 			"access_nodes": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies The clients that have the VSA package installed and that act as proxy clients for Azure hypervisors.",
 			},
 			"company_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "Specifies the company id to which the Azure Hypervisor should be associated with.",
 			},
 		},
 	}

@@ -15,16 +15,19 @@ func resourceAssociateVMToPlan() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"plan": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the plan name to associate.",
 			},
 			"vm_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the vm name to associate.",
 			},
 			"new_plan": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies the new plan name for association",
 			},
 		},
 	}

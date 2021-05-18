@@ -18,26 +18,31 @@ func resourceDiskStorage() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"storage_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the Name of the Disk Storage.",
 			},
 			"mediaagent": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the Media agent used for the Disk Storage.",
 			},
 			"backup_location": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the full path to the storage location.",
 			},
 			"ddb_location": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Description: "Specifies the Deduplication path for the storage",
 			},
 			"company_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "Specifies the company id to which the created disk storage should be associated with.",
 			},
 		},
 	}

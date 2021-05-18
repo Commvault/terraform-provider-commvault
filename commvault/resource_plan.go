@@ -18,25 +18,30 @@ func resourcePlan() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"plan_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Specifies the Plan name used for creation of the plan.",
 			},
 			"retention_period_days": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Specifies the number of days that the software retains the data.",
 			},
 			"backup_destination_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies the destination name for the backup.",
 			},
 			"backup_destination_storage": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Specifies the backup destination storage used for the plan.",
 			},
 			"company_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  0,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     0,
+				Description: "Specifies the companyid to which the created plan needs to be associated with.",
 			},
 		},
 	}

@@ -15,16 +15,19 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CV_CSIP", os.Getenv("CV_CSIP")),
+				Description: "Specifies the Web Server URL of the commserver for performing Terraform Operations.",
 			},
 			"user_name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CV_USERNAME", os.Getenv("CV_USERNAME")),
+				Description: "Specifies the User name used for authentication to Web Server",
 			},
 			"password": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CV_PASSWORD", os.Getenv("CV_PASSWORD")),
+				Description: "Specifies the Password for the user name to authentication to Web Server.",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
