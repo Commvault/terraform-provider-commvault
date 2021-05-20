@@ -1,6 +1,6 @@
 ---
 page_title: "Commvault : commvault_amazon_hypervisor Resource"
-subcategory: "Hypervisors"
+subcategory: "Virtualization"
 description: |-
  Use the commvault_amazon_hypervisor resource type to create or delete an Amazon hypervisor in the CommCell environment.
 ---
@@ -38,7 +38,7 @@ resource "commvault_amazon_hypervisor" "Amazonhyp1"
 ```
 ### Required
 
-- **access_nodes** (String) Sepcifies The clients that have the VSA package installed and that act as proxy clients for Amazon hypervisors.
+- **access_nodes** (String) Specifies The clients that have the VSA package installed and that act as proxy clients for Amazon hypervisors.
 - **client_name** (String) Specifies The name of the Amazon hypervisor.
 - **use_iam_role** (Boolean) Specifies whether you want to use IAM role.
 

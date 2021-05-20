@@ -19,7 +19,7 @@ provider "commvault" {
 	password = "password in base 64 encoded format"
 }
 ```
-## Exampale Usage
+## Example Usage
 
 ```
 provider "commvault" {

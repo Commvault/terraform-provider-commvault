@@ -51,13 +51,13 @@ func resourceCompany() *schema.Resource {
 			"send_email": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Specifies whethere email needs to be sent ot not",
+				Description: "Specifies whether  email needs to be sent ot not",
 			},
 			"company_id": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Default:     0,
-				Description: "Sepcifies the company id to which the child company should be associated with.",
+				Description: "Specifies  the company id to which the child company should be associated with.",
 			},
 		},
 	}

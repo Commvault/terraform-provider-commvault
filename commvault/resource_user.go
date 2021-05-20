@@ -19,12 +19,12 @@ func resourceUser() *schema.Resource {
 			"user_name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Specifies the The user name for the account.",
+				Description: "Specifies The user name for the account.",
 			},
 			"password": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Specifies the The password for the account.",
+				Description: "Specifies The password for the account.",
 			},
 			"full_name": &schema.Schema{
 				Type:        schema.TypeString,

@@ -48,7 +48,7 @@ resource "commvault_aws_storage" "CAWS"{
 
 ### Optional
 
-- **credentials_name** (String) Sepcifies the saved creation name for creating AWS Storage.
+- **credentials_name** (String) Specifies the saved creation name for creating AWS Storage.
 - **access_key_id** (String) Specifies the access key id for the AWS Storage.
 - **secret_access_key** (String) Specifies the secret access key for the AWS Storage.
 - **ddb_location** (String) Specifies the Deduplication path for the AWS Storage.

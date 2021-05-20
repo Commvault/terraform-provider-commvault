@@ -50,11 +50,7 @@ resource "commvault_company" "Company1"{
 ### Optional
 
 - **associated_smtp** (String) Specifies the SMTP address of the company.
-- **send_email** (Boolean) Specifies whethere email needs to be sent ot not
+- **send_email** (Boolean) Specifies whether email needs to be sent ot not
 - **plans** (Set of String) Specifies the data protection plans to use for the company. The plans you select are the plans that the tenant administrator can choose from.
-- **company_id** (Number) Sepcifies the company id to which the child company should be associated with.
+- **company_id** (Number) Specifies the company id to which the child company should be associated with.
 - **id** (String) The ID of this resource.
-
-
-
-
