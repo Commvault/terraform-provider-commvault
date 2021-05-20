@@ -1,6 +1,6 @@
 ---
 page_title: " Commvault : commvault_company Resource"
-subcategory: "Company's"
+subcategory: "Company"
 description: |-
   Use the commvault_company resource type to create or delete a Company in the Commcell environment.
 ---
