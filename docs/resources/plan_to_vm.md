@@ -9,7 +9,7 @@ description: |-
 
 Use the commvault_plan_to_vm resource type to associate plan to a VM in the Commcell environment.
 
-##Syntax
+## Syntax
 
 ```
 resource "commvault_plan_to_vm" "<local name>"{
@@ -18,7 +18,7 @@ resource "commvault_plan_to_vm" "<local name>"{
 }
 ```
 
-##Example Usage
+## Example Usage
 
 ```
 resource "commvault_plan_to_vm" "assoc1"{

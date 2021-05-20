@@ -9,7 +9,8 @@ description: |-
 
 Use the commvault_install_ma resource type to Install or Uninstall a Media Agent in the Commcell environment.
 
-##Syntax
+## Syntax
+
 ```
 resource "commvault_install_ma" "<local name>"{
 	mediaagent_name = “<MA name>”
@@ -19,7 +20,7 @@ resource "commvault_install_ma" "<local name>"{
 }
 ```
 
-##Example Usage
+## Example Usage
 
 ```
 resource "commvault_install_ma" "installma"{

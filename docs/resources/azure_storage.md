@@ -10,7 +10,8 @@ description: |-
 Use the commvault_azure_storage resource type to create or delete a Azure Cloud Storage in the Commcell environment.
 
 
-##Syntax
+## Syntax
+
 ```
 resource "commvault_azure_storage" "<local name>"{
 	storage_name = “<Storage name>”
@@ -26,6 +27,7 @@ resource "commvault_azure_storage" "<local name>"{
 ```
 
 ## Example Usage
+
 ```
 resource "commvault_azure_storage" "CAWS1"{
 	storage_name = “StorageName”

@@ -10,7 +10,8 @@ description: |-
 Use the commvault_google_storage resource type to create or delete a Google Cloud Storage in the Commcell environment.
 
 
-##Syntax
+## Syntax
+
 ```
 resource "commvault_google_storage" "<local name>"{
 	storage_name = “<Storage Name>”
@@ -27,6 +28,7 @@ resource "commvault_google_storage" "<local name>"{
 ```
 
 ## Example Usage
+
 ```
 resource "commvault_google_storage" "CAWS1"{
 	storage_name = “StorageName”

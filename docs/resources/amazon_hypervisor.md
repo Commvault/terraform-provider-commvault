@@ -24,7 +24,8 @@ resource "commvault_amazon_hypervisor" "<local name>"
 	access_nodes = "<access nodes>"
 }
 ```
-##Example Usage
+## Example Usage
+
 ```
 resource "commvault_amazon_hypervisor" "Amazonhyp1"
 {
