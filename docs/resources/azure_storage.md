@@ -19,7 +19,7 @@ resource "commvault_azure_storage" "<local name>"{
 	service_host = “<Azure service host>”
 	account_name = “<Azure account name>”
 	access_key_id = “<Azure access key password>”  //Base64 encoded password
-	credentials_name = “<azure credentails>”
+	credentials_name = “<azure credentials>”
 	container = “<container name>”
 	ddb_location = “<Location>”
 	company_id = <company ID>
@@ -35,7 +35,7 @@ resource "commvault_azure_storage" "CAWS1"{
 	service_host = “service host”
 	account_name = “account name”
 	access_key_id = “access key password”  //Base64 encoded password
-	credentials_name = “azure_credentails”
+	credentials_name = “azure_credentials”
 	container = “container name”
 	ddb_location = “c:\\Location”
 	company_id = 22
@@ -52,11 +52,9 @@ resource "commvault_azure_storage" "CAWS1"{
 
 ### Optional
 
-- **credentials_name** (String) Sepcifies the saved creation name for creating Azure Storage.
+- **credentials_name** (String) Specifies the saved creation name for creating Azure Storage.
 - **account_name** (String) Specifies the Account name for the Azure Storage.
 - **access_key_id** (String) Specifies the access key id for the Azure Storage.
 - **ddb_location** (String) Specifies the Deduplication path for the Azure Storage
 - **company_id** (Number) Specifies the company id to which the created Azure storage should be associated with.
 - **id** (String) The ID of this resource.
-
-

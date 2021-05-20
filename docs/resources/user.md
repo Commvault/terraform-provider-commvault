@@ -38,8 +38,8 @@ resource "commvault_user" "user1"
 
 ### Required
 
-- **user_name** (String) Specifies the The user name for the account.
-- **password** (String) Specifies the The password for the account.
+- **user_name** (String) Specifies the user name for the account.
+- **password** (String) Specifies the password for the account.
 - **email** (String) Specifies The email address of the user.
 
 ### Optional
@@ -48,3 +48,4 @@ resource "commvault_user" "user1"
 - **full_name** (String) Specifies The first, middle, and last names of the user.
 - **company_id** (Number) Specifies the company id for which the created user will be associated with.
 - **id** (String) The ID of this resource.
+

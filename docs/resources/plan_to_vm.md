@@ -1,6 +1,6 @@
 ---
 page_title: " Commvault : commvault_plan_to_vm Resource"
-subcategory: "Plan to VM Association"
+subcategory: "Virtualization"
 description: |-
     Use the commvault_plan_to_vm resource type to associate plan to a VM in the Commcell environment.
 ---

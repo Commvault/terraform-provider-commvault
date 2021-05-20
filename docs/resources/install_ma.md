@@ -1,6 +1,6 @@
 ---
 page_title: " Commvault : commvault_install_ma Resource"
-subcategory: "Instal"
+subcategory: "Install"
 description: |-
     Use the commvault_install_ma resource type to Install or Uninstall a Media Agent in the Commcell environment.
 ---

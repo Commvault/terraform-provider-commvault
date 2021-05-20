@@ -19,7 +19,7 @@ resource "commvault_google_storage" "<local name>"{
 	service_host = “<Googleservice host>”
 	secret_access_key = “<Google access key>”
 	access_key_id = “<Google access key password>”  //Base64 encoded password
-	credentials_name = “<Google credentails Name>”
+	credentials_name = “<Google credentials Name>”
 	container = “<Google container name>”
 	ddb_location = “<DDB Location>”
 	company_id = <Company ID>
@@ -36,7 +36,7 @@ resource "commvault_google_storage" "CAWS1"{
 	service_host = “service host”
 	secret_access_key = “access key”
 	access_key_id = “access key password”  //Base64 encoded password
-	credentials_name = “azure_credentails”
+	credentials_name = “azure_credentials”
 	container = “container name”
 	ddb_location = “c:\\Location”
 	company_id = 22
@@ -53,12 +53,9 @@ resource "commvault_google_storage" "CAWS1"{
 
 ### Optional
 
-- **credentials_name** (String) Sepcifies the saved creation name for creating Google Storage.
+- **credentials_name** (String) Specifies the saved creation name for creating Google Storage.
 - **access_key_id** (String) Specifies the access key id for the Google Storage.
 - **secret_access_key** (String) Specifies the secret access key for Google Storage.
 - **ddb_location** (String) Specifies the Deduplication path for the Google Storage
 - **company_id** (Number) Specifies the company id to which the created Google storage should be associated with.
 - **id** (String) The ID of this resource.
-
-
-

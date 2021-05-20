@@ -1,6 +1,6 @@
 ---
 page_title: " Commvault : commvault_vmware_hypervisor Resource"
-subcategory: "Hypervisors"
+subcategory: "Virtualization"
 description: |-
   Use the commvault_vmware_hypervisor resource type to create and delete a VMware hypervisor in the CommCell environment.
 

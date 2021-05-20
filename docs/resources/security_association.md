@@ -1,6 +1,6 @@
 ---
 page_title: " Commvault : commvault_security_association Resource "
-subcategory: "Security Association"
+subcategory: "Security"
 description: |-
     Use the commvault_security_association resource type to Security Associations in the Commcell environment.  
 ---
@@ -16,7 +16,7 @@ Use the commvault_security_association resource type to Security Associations in
 resource "commvault_security_association" "<local name>"{
 	client_list = ["<Client Name>"]
 	user_group_name = "<User group name>"
-	permissions_list = ["<Pemission name>"]
+	permissions_list = ["<Permission name>"]
 }
 ```
 
@@ -39,5 +39,3 @@ resource "commvault_security_association" "asso"{
 ### Optional
 
 - **id** (String) The ID of this resource.
-
-

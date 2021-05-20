@@ -45,7 +45,7 @@ func resourceAmazonHypervisor() *schema.Resource {
 			"access_nodes": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Sepcifies The clients that have the VSA package installed and that act as proxy clients for Amazon hypervisors.",
+				Description: "Specifies The clients that have the VSA package installed and that act as proxy clients for Amazon hypervisors.",
 			},
 			"company_id": &schema.Schema{
 				Type:        schema.TypeInt,

@@ -48,7 +48,7 @@ func resourceAzureStorage() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
-				Description: "Sepcifies the saved creation name for creating Azure Storage.",
+				Description: "Specifies the saved creation name for creating Azure Storage.",
 			},
 			"container": &schema.Schema{
 				Type:        schema.TypeString,
