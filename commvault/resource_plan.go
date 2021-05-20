@@ -24,17 +24,17 @@ func resourcePlan() *schema.Resource {
 			},
 			"retention_period_days": &schema.Schema{
 				Type:        schema.TypeInt,
-				Optional:    true,
+				Required:    true,
 				Description: "Specifies the number of days that the software retains the data.",
 			},
 			"backup_destination_name": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Description: "Specifies the destination name for the backup.",
 			},
 			"backup_destination_storage": &schema.Schema{
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Description: "Specifies the backup destination storage used for the plan.",
 			},
 			"company_id": &schema.Schema{
