@@ -29,17 +29,17 @@ This provider plugin is maintained by [Commvault](https://www.commvault.com/)
 - Clone the Repository to local machine. 
 - Navigate to the Cloned Repository.
 
-	For Windows:
+######For Windows:
 
-- Open Command Prompt in the Cloned Repository locatoion and use below command to build Executable.
+Open Command Prompt in the Cloned Repository locatoion and use below command to build Executable.
 
 ```sh
 go build -o terraform-provider-commvault.exe
 ```
 
-	For Linux:
+######For Linux:
 
-- Open Terminal in the Cloned Repository locatoion and use below command to build Executable.
+Open Terminal in the Cloned Repository locatoion and use below command to build Executable.
 
 ```sh
 go build -o terraform-provider-commvault
