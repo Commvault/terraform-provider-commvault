@@ -9,9 +9,7 @@ description: |-
 
  Use the commvault_plan resource type to create or delete a Plans in the Commcell environment.
 
-
-
-##Syntax
+## Syntax
 
 ```
 resource "commvault_plan" "<local name>"{

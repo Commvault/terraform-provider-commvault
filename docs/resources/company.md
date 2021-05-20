@@ -10,7 +10,8 @@ description: |-
 Use the commvault_company resource type to create or delete a Company in the Commcell environment.
 
 
-##Syntax
+## Syntax
+
 ```
 resource "commvault_company" "<local name>"{
 	company_name = "<Company Name>"
@@ -25,6 +26,7 @@ resource "commvault_company" "<local name>"{
 ```
 
 ## Example Usage
+
 ```
 resource "commvault_company" "Company1"{
 	company_name = "CompanyName"

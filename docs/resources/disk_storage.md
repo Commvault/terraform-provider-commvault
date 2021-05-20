@@ -10,7 +10,8 @@ description: |-
 Use the commvault_disk_storage resource type to create or delete a Disk Storage in the Commcell environment.
 
 
-##Syntax
+## Syntax
+
 ```
 resource "commvault_disk_storage" "<local name>"{
 	storage_name = "<Storage Name>"
@@ -23,6 +24,7 @@ resource "commvault_disk_storage" "<local name>"{
 ```
 
 ## Example Usage
+
 ```
 resource "commvault_disk_storage" "DSD"{
 	storage_name = "DemoDiskStorage-Dedup"
