@@ -38,7 +38,7 @@ func PlanUpdate(rpoinmin string, slaInMinutes string, id string) {
 	makeHttpRequest(url, http.MethodPut, XML, appUpdatePlanXml, XML, token, 0)
 }
 
-func PlanCreate(createPlanRequest ApiCreatePlanReq, companyID int) *ApiCreatePlanResp {
+/*  func PlanCreate(createPlanRequest ApiCreatePlanReq, companyID int) *ApiCreatePlanResp {
 	planCreateJSON, _ := json.Marshal(createPlanRequest)
 	url := os.Getenv("CV_CSIP") + "/v3/ServerPlan"
 	token := os.Getenv("AuthToken")
@@ -46,6 +46,24 @@ func PlanCreate(createPlanRequest ApiCreatePlanReq, companyID int) *ApiCreatePla
 	var apiCreatePlanResp ApiCreatePlanResp
 	json.Unmarshal(respBody, &apiCreatePlanResp)
 	return &apiCreatePlanResp
+} */
+
+func PlanCreate(planCreateJSON string, companyID int) *V2CreatePlanResp {
+	url := os.Getenv("CV_CSIP") + "/v2/Plan"
+	token := os.Getenv("AuthToken")
+	respBody := makeHttpRequest(url, http.MethodPost, JSON, []byte(planCreateJSON), JSON, token, companyID)
+	var v2CreatePlanResp V2CreatePlanResp
+	json.Unmarshal(respBody, &v2CreatePlanResp)
+	return &v2CreatePlanResp
+}
+
+func GetStoragePools() *GetStoragePoolListResp {
+	url := os.Getenv("CV_CSIP") + "/StoragePool"
+	token := os.Getenv("AuthToken")
+	respBody := makeHttpRequest(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var getStoragePoolListResp GetStoragePoolListResp
+	json.Unmarshal(respBody, &getStoragePoolListResp)
+	return &getStoragePoolListResp
 }
 
 func PlanDelete(id string) *GenericResp {

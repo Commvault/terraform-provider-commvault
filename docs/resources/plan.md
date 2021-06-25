@@ -18,6 +18,7 @@ resource "commvault_plan" "<local name>"{
 	backup_destination_name = "<Backup Destination Name>"
 	backup_destination_storage = "<Backup Destination Storage>"
 	company_id = <Company ID>
+	rpo_in_days = <RPO in days>
 }
 ```
 
@@ -30,6 +31,7 @@ resource "commvault_plan" "Plan1"{
 	backup_destination_name = "Plan1Dest"
 	backup_destination_storage = "storagePool1"
 	company_id = 22
+	rpo_in_days = 5
 }
 ```
 
@@ -43,6 +45,7 @@ resource "commvault_plan" "Plan1"{
 ### Optional
 
 - **company_id** (Number) Specifies the companyid to which the created plan needs to be associated with.
+- **rpo_in_days** (Number) Specifies the rpo in Days for created plan. default value is 1.
 - **id** (String) The ID of this resource.
 
 
