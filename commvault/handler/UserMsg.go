@@ -1,7 +1,9 @@
 package handler
 
 type AppCreateUserResponse struct {
-	Response struct {
+	Text         string `xml:",chardata"`
+	ErrorMessage string `xml:"errorMessage,attr"`
+	Response     struct {
 		Text           string `xml:",chardata"`
 		ErrorString    string `xml:"errorString,attr"`
 		ErrorCode      string `xml:"errorCode,attr"`

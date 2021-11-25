@@ -66,7 +66,7 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 	userResp := handler.UserCreate(createUserRequest, d.Get("company_id").(int))
 	errorString := userResp.Response.ErrorString
 	if errorString != "Successful" {
-		return fmt.Errorf("User creation failed")
+		return fmt.Errorf("User creation failed with Error: " + userResp.ErrorMessage)
 	}
 	userID := userResp.Response.Entity.UserId
 	d.SetId(string(userID))
