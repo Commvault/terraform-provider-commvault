@@ -38,6 +38,12 @@ func resourceInstallMA() *schema.Resource {
 				Required:    true,
 				Description: "Specifies the password for the host computer for the installation.",
 			},
+			"is_unix": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Specifies whether OS is Unix or not",
+			},
 			"company_id": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -58,8 +64,15 @@ func resourceInstallMACreate(d *schema.ResourceData, m interface{}) error {
 	installMAReq.ClientAuthForJob.Password = d.Get("password").(string)
 	installMAReq.RebootClient = true
 	installMAReq.CreatePseudoClientRequest.RegisterClient = true
+	isunix := d.Get("is_unix").(bool)
 	var packages handler.Packages
-	packages.PackageID = 51
+	if isunix {
+		installMAReq.CreatePseudoClientRequest.ClientInfo.ClientType = 1
+		packages.PackageID = 1301
+	} else {
+		installMAReq.CreatePseudoClientRequest.ClientInfo.ClientType = 0
+		packages.PackageID = 51
+	}
 	installMAReq.Packages = append(installMAReq.Packages, packages)
 	InstallMAResp := handler.InstallMA(installMAReq, d.Get("company_id").(int))
 	errorCode := InstallMAResp.Response.ErrorCode
