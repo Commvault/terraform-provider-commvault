@@ -41,6 +41,7 @@ resource "commvault_install_ma" "installma"{
 
 ### Optional
 
+- **is_unix** (Boolean) Specifies whether OS is Unix or not.
 - **company_id** (Number) Specifies the company id to which the installed MA should be associated with.
 - **id** (String) The ID of this resource.
 
