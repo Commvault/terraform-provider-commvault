@@ -104,7 +104,7 @@ func resourceCreateDiskStorage(d *schema.ResourceData, m interface{}) error {
 	storageResp := handler.CreateStorage(createStorageReq, d.Get("company_id").(int))
 	errorCode := storageResp.Error.ErrorCode
 	if errorCode != 0 {
-		return fmt.Errorf("Disk Storage creation failed")
+		return fmt.Errorf("Disk Storage creation failed with Error: " + storageResp.Error.ErrorMessage)
 	}
 	storageID := strconv.Itoa(storageResp.ArchiveGroupCopy.StoragePolicyID)
 	d.SetId(storageID)
