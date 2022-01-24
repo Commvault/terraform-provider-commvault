@@ -5,6 +5,9 @@ import (
 
 	"terraform-provider-commvault/commvault/handler"
 
+	"net/url"
+	"regexp"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -28,6 +31,12 @@ func Provider() *schema.Provider {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CV_PASSWORD", os.Getenv("CV_PASSWORD")),
 				Description: "Specifies the Password for the user name to authentication to Web Server.",
+			},
+			"secured": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Specifies if the connection should be secured https or non secured http",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -55,9 +64,45 @@ func providerConfigure(data *schema.ResourceData) (i interface{}, err error) {
 	cvCsip := data.Get("web_service_url").(string)
 	username := data.Get("user_name").(string)
 	password := data.Get("password").(string)
-	os.Setenv("CV_CSIP", cvCsip)
+	secured := data.Get("secured").(bool)
+
+	CSUrl := ""
+	if isValidUrl(cvCsip) {
+		u, err := url.Parse(cvCsip)
+		if err != nil {
+			panic(err)
+		}
+		CSUrl = u.Hostname()
+	} else {
+		re := regexp.MustCompile(`^(?:http?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/\n]+)`)
+		submatchall := re.FindAllString(cvCsip, -1)
+		for _, element := range submatchall {
+			CSUrl = CSUrl + element
+		}
+	}
+
+	if secured {
+		CSUrl = "https://" + CSUrl + ":81/SearchSvc/CVWebService.svc"
+	} else {
+		CSUrl = "http://" + CSUrl + ":81/SearchSvc/CVWebService.svc"
+	}
+	os.Setenv("CV_CSIP", CSUrl)
 	os.Setenv("CV_USERNAME", username)
 	os.Setenv("CV_PASSWORD", password)
 	handler.LoginWithProviderCredentials(username, password)
 	return i, nil
+}
+
+func isValidUrl(toTest string) bool {
+	_, err := url.ParseRequestURI(toTest)
+	if err != nil {
+		return false
+	}
+
+	u, err := url.Parse(toTest)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
+	return true
 }
