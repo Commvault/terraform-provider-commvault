@@ -16,7 +16,7 @@ func VMGroupCreate(vmgroupName string, planID int, clientid int, vms []string, t
 	subclientReq.SubClientProperties.SubClientEntity.ClientID = clientid
 	subclientReq.SubClientProperties.PlanEntity.PlanID = planID
 	subclientReq.SubClientProperties.SubClientEntity.ApplicationID = 106
-	subclientReq.SubClientProperties.VMContentOperationType = 2
+	subclientReq.SubClientProperties.VMContentOperationType = 2    
 	subclientReq.SubClientProperties.VsaSubclientProp.AutoDetectVMOwner = false
 	subclientReq.SubClientProperties.VsaSubclientProp.QuiesceGuestFileSystemAndApplications = true
 	subClientReqXML, _ := json.Marshal(subclientReq)
