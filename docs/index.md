@@ -30,6 +30,10 @@ provider "commvault" {
 
 ### Required
 
-- **password** (String) Specifies the Password for the user name to authentication to Web Server.
-- **user_name** (String) Specifies the User name used for authentication to Web Server
 - **web_service_url** (String) Specifies the Web Server URL of the commserver for performing Terraform Operations.
+
+### Optional
+
+- `api_token` (String) Specifies the encrypted token for the user to authentication to Web Server. If this is sent, password/username wont be required. Alternatively set CV_TER_TOKEN environment variable for terraform to pick it.
+- `password` (String) Specifies the Password for the user name to authentication to Web Server. Alternatively set CV_TER_PASSWORD environment variable for terraform to pick it.
+- `user_name` (String) Specifies the User name used for authentication to Web Server.
