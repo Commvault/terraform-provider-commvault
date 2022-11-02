@@ -12,7 +12,10 @@ func GenerateAuthToken(username string, password string) string {
 	url := os.Getenv("CV_CSIP") + "/Login"
 	loginReq := LoginReq{Mode: 5, Username: username, Password: password}
 	loginJson, _ := json.Marshal(&loginReq)
-	respBody := makeHttpRequest(url, http.MethodPost, XML, loginJson, JSON, "", 0)
+	respBody, err := makeHttpRequestErr(url, http.MethodPost, XML, loginJson, JSON, "", 0)
+	if err != nil {
+		panic(err)
+	}
 	var loginResponse DM2ContentIndexingCheckCredentialResp
 	xml.Unmarshal(respBody, &loginResponse)
 	os.Setenv("AuthToken", loginResponse.Token)
@@ -28,7 +31,10 @@ func LoginWithProviderCredentials(username string, password string) {
 		TimeOut:  "10000",
 	}
 	loginXML, _ := xml.Marshal(&loginReq)
-	respBody := makeHttpRequest(url, http.MethodPost, XML, loginXML, XML, "", 0)
+	respBody, err := makeHttpRequestErr(url, http.MethodPost, XML, loginXML, XML, "", 0)
+	if err != nil {
+		panic(err)
+	}
 	var loginResponse DM2ContentIndexingCheckCredentialResp
 	xml.Unmarshal(respBody, &loginResponse)
 	os.Setenv("AuthToken", loginResponse.Token)
