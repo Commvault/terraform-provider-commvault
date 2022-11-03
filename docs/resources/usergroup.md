@@ -23,10 +23,10 @@ description: |-
 - `azureguid` (String) Azure Object ID used to link this user group to Azure AD group and manage group membership of the user during SAML login
 - `description` (String)
 - `enabled` (Boolean) allows the enabling/disabling of the user group.
-- `enabletwofactorauthentication` (String) Allows two-factor authentication to be enabled for the specific types of usergroups. it can be turned on or off based on user preferences. There will be usergroups that will not have this option.
+- `enabletwofactorauthentication` (String) Allows two-factor authentication to be enabled for the specific types of usergroups. it can be turned on or off based on user preferences. There will be usergroups that will not have this option. [ ON, OFF, DISABLED_AT_COMPANY ]
 - `enforcefsquota` (Boolean) Used to determine if a backup data limit will be set for the user group being created
 - `laptopadmins` (Boolean) When set to true, users in this group cannot activate or be set as server owner
-- `planoperationtype` (String) determines if an existing user has to be added to the user group or removed from the user group
+- `planoperationtype` (String) determines if an existing user has to be added to the user group or removed from the user group. [ ADD, DELETE ]
 - `quotalimitingb` (Number) if enforceFSQuota is set to true, the quota limit can be set in GBs
 - `restrictconsoletypes` (Block List) (see [below for nested schema](#nestedblock--restrictconsoletypes))
 - `users` (Block Set) (see [below for nested schema](#nestedblock--users))
@@ -48,7 +48,7 @@ Read-Only:
 
 Optional:
 
-- `consoletype` (Set of String)
+- `consoletype` (Set of String) [ COMMANDCENTER, WEBCONSOLE, COMMCELLCONSOLE, API, MOBILE ]
 
 
 <a id="nestedblock--users"></a>
