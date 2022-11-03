@@ -1,6 +1,6 @@
 ---
 page_title: "commvault_usergroup Resource"
-subcategory: ""
+subcategory: "Security"
 description: |-
   
 ---

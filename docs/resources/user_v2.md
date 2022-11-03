@@ -1,6 +1,6 @@
 ---
 page_title: "commvault_user_v2 Resource"
-subcategory: ""
+subcategory: "Security"
 description: |-
   
 ---
