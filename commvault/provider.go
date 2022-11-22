@@ -7,7 +7,6 @@ import (
 	"terraform-provider-commvault/commvault/handler"
 
 	"net/url"
-	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -86,32 +85,10 @@ func providerConfigure(data *schema.ResourceData) (i interface{}, err error) {
 	cvCsip := data.Get("web_service_url").(string)
 	username := data.Get("user_name").(string)
 	password := data.Get("password").(string)
-	secured := data.Get("secured").(bool)
 	api_token := data.Get("api_token").(string)
 	logging := data.Get("logging").(bool)
 
-	CSUrl := ""
-	if isValidUrl(cvCsip) {
-		u, err := url.Parse(cvCsip)
-		if err != nil {
-			panic(err)
-		}
-		CSUrl = u.Hostname()
-	} else {
-		re := regexp.MustCompile(`^(?:http?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/\n]+)`)
-		submatchall := re.FindAllString(cvCsip, -1)
-		for _, element := range submatchall {
-			CSUrl = CSUrl + element
-		}
-	}
-
-	if secured {
-		CSUrl = "https://" + CSUrl + ":81/SearchSvc/CVWebService.svc"
-	} else {
-		CSUrl = "http://" + CSUrl + ":81/SearchSvc/CVWebService.svc"
-	}
-
-	os.Setenv("CV_CSIP", CSUrl)
+	os.Setenv("CV_CSIP", cvCsip)
 	os.Setenv("CV_USERNAME", username)
 	os.Setenv("CV_PASSWORD", password)
 	os.Setenv("CV_LOGGING", strconv.FormatBool(logging))
