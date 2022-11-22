@@ -14,7 +14,7 @@ The Commvault Terraform module provides a set of named resource types, and speci
 ## Syntax
 ```
 provider "commvault" {
-	web_service_url = "URL of the commserver webservice"
+	web_service_url = "URL of the commserver webservice/webconsole api endpoint"
 	user_name = "username that is used to call APIs" 
 	password = "password in base 64 encoded format"
 }
@@ -23,7 +23,7 @@ provider "commvault" {
 
 ```
 provider "commvault" {
-	web_service_url = "http://CommCellBkp.domain.com:81/SearchSvc/CVWebService.svc/"
+	web_service_url = "https://webconsole.domain.com/webconsole/api"
 	user_name = "admin" 
 	password = "QnVebFRgciEoMg=="
 ```
@@ -34,6 +34,5 @@ provider "commvault" {
 
 ### Optional
 
-- `api_token` (String) Specifies the encrypted token for the user to authentication to Web Server. If this is sent, password/username wont be required. Alternatively set CV_TER_TOKEN environment variable for terraform to pick it.
 - `password` (String) Specifies the Password for the user name to authentication to Web Server. Alternatively set CV_TER_PASSWORD environment variable for terraform to pick it.
 - `user_name` (String) Specifies the User name used for authentication to Web Server.
