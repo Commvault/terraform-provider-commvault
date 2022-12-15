@@ -7,9 +7,9 @@ description: |-
 
 # Commvault Terraform Provider
 
-With the Commvault Terraform module, you can use Terraform to manage endpoints (called resources). Terraform is a configuration language for safely and efficiently managing infrastructure.
+With the Commvault Terraform provider, you can use Terraform to manage endpoints (called resources). Terraform is a configuration language for safely and efficiently managing infrastructure.
 
-The Commvault Terraform module provides a set of named resource types, and specifies which arguments are allowed for each resource type. Using the resource types, you can create a configuration file, and apply changes to the Commvault REST APIs. For example, you can use the commvault_user resource type to add and delete users in your CommCell environment. You use the GO programming language to execute the APIs.
+The Commvault Terraform provider provides a set of named resource types, and specifies which arguments are allowed for each resource type. Using the resource types, you can create a configuration file, and apply changes to the Commvault REST APIs. For example, you can use the commvault_user resource type to add and delete users in your CommCell environment. You use the GO programming language to execute the APIs.
 
 ## Syntax
 ```
