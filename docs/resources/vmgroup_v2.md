@@ -1,3 +1,10 @@
+---
+page_title: "Commvault : commvault_vmgroup_v2 Resource"
+subcategory: "Virtualization"
+description: |-
+ Use the commvault_vmgroup_v2 resource type to create update or delete a vmgroup.
+---
+
 # commvault_vmgroup_v2 (Resource)
 
 Use the commvault_vmgroup_v2 resource type to create or delete a VM Group in the Commcell environment.

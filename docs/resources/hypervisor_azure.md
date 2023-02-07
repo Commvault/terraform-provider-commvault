@@ -1,3 +1,10 @@
+---
+page_title: "Commvault : commvault_hypervisor_azure Resource"
+subcategory: "Virtualization"
+description: |-
+ Use the commvault_hypervisor_azure resource type to create update or delete a azure hypervisor.
+---
+
 # commvault_hypervisor_azure (Resource)
 
 Use the commvault_hypervisor_azure resource type to create or delete an Azure hypervisor in the CommCell environment.
