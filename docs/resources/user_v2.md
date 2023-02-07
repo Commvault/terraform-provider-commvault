@@ -1,3 +1,10 @@
+---
+page_title: " Commvault : commvault_user_v2 Resource "
+subcategory: "Security"
+description: |-
+  Use the commvault_user_v2 resource type to create, update or delete a User in the CommCell environment.
+---
+
 # commvault_user_v2 (Resource)
 
 Use the commvault_user_v2 resource type to create or delete an User in the CommCell environment.
