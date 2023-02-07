@@ -17,32 +17,32 @@ func resourceHypervisor_AWS() *schema.Resource {
         Delete: resourceDeleteHypervisor_AWS,
 
         Schema: map[string]*schema.Schema{
-            "skipcredentialvalidation": &schema.Schema{
-                Type:        schema.TypeBool,
+            "skipcredentialvalidation": {
+                Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
                 Description: "if credential validation has to be skipped.",
             },
-            "etcdprotection": &schema.Schema{
-                Type:        schema.TypeBool,
+            "etcdprotection": {
+                Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
                 Description: "Flag to create an application group etcd (system generated) with pre-defined content",
             },
-            "credentials": &schema.Schema{
+            "credentials": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "name": &schema.Schema{
+                        "name": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                         },
-                        "id": &schema.Schema{
+                        "id": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
@@ -51,184 +51,231 @@ func resourceHypervisor_AWS() *schema.Resource {
                     },
                 },
             },
-            "name": &schema.Schema{
+            "name": {
                 Type:        schema.TypeString,
                 Required:    true,
                 Description: "The name of the hypervisor group being created",
             },
-            "accessnodes": &schema.Schema{
+            "accessnodes": {
                 Type:        schema.TypeSet,
-                Required:    true,
+                Optional:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "id": &schema.Schema{
+                        "id": {
                             Type:        schema.TypeInt,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
+                        },
+                        "type": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Description: "Type of access node , Ex: 3 - access Node , 28 - Access Node Groups",
                         },
                     },
                 },
             },
-            "planentity": &schema.Schema{
-                Type:        schema.TypeList,
+            "secretkey": {
+                Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "name": &schema.Schema{
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                        "id": &schema.Schema{
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                    },
-                },
-            },
-            "secretkey": &schema.Schema{
-                Type:        schema.TypeString,
-                Required:    true,
                 Description: "secret Key of Amazon login",
             },
-            "accesskey": &schema.Schema{
+            "accesskey": {
                 Type:        schema.TypeString,
-                Required:    true,
+                Optional:    true,
+                Computed:    true,
                 Description: "Access Key of Amazon login",
             },
-            "region": &schema.Schema{
+            "region": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
                 Description: "AWS region if Iam role is used",
             },
-            "useserviceaccount": &schema.Schema{
+            "useserviceaccount": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
                 Description: "Clientname to be used as Admin Account",
             },
-            "useiamrole": &schema.Schema{
-                Type:        schema.TypeBool,
-                Required:    true,
+            "useiamrole": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
                 Description: "if Iam Role is used",
             },
-            "rolearn": &schema.Schema{
+            "rolearn": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
                 Description: "Role ARN for STS assume role with IAM policy",
             },
-            "activitycontrol": &schema.Schema{
+            "enableawsadminaccount": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "",
+            },
+            "activitycontrol": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "restoreactivitycontroloptions": &schema.Schema{
+                        "restoreactivitycontroloptions": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "timezone": &schema.Schema{
+                                    "delaytime": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "name": &schema.Schema{
-                                                    Type:        schema.TypeString,
+                                                "timezone": {
+                                                    Type:        schema.TypeList,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
+                                                    Elem: &schema.Resource{
+                                                        Schema: map[string]*schema.Schema{
+                                                            "name": {
+                                                                Type:        schema.TypeString,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "",
+                                                            },
+                                                            "id": {
+                                                                Type:        schema.TypeInt,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "",
+                                                            },
+                                                        },
+                                                    },
                                                 },
-                                                "id": &schema.Schema{
+                                                "time": {
                                                     Type:        schema.TypeInt,
                                                     Optional:    true,
                                                     Computed:    true,
-                                                    Description: "",
+                                                    Description: "delay time in unix timestamp",
+                                                },
+                                                "value": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "actual delay time value in string format according to the timezone",
                                                 },
                                             },
                                         },
                                     },
-                                    "enableafterdelay": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "activitytype": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]",
+                                    },
+                                    "enableafteradelay": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if the activity will be enabled after a delay time interval",
                                     },
-                                    "delaytime": &schema.Schema{
+                                    "enableactivitytype": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "Delayed by n Hrs",
+                                        Description: "True if the activity type is enabled",
                                     },
                                 },
                             },
                         },
-                        "backupactivitycontroloptions": &schema.Schema{
+                        "backupactivitycontroloptions": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "timezone": &schema.Schema{
+                                    "delaytime": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "name": &schema.Schema{
-                                                    Type:        schema.TypeString,
+                                                "timezone": {
+                                                    Type:        schema.TypeList,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
+                                                    Elem: &schema.Resource{
+                                                        Schema: map[string]*schema.Schema{
+                                                            "name": {
+                                                                Type:        schema.TypeString,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "",
+                                                            },
+                                                            "id": {
+                                                                Type:        schema.TypeInt,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "",
+                                                            },
+                                                        },
+                                                    },
                                                 },
-                                                "id": &schema.Schema{
+                                                "time": {
                                                     Type:        schema.TypeInt,
                                                     Optional:    true,
                                                     Computed:    true,
-                                                    Description: "",
+                                                    Description: "delay time in unix timestamp",
+                                                },
+                                                "value": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "actual delay time value in string format according to the timezone",
                                                 },
                                             },
                                         },
                                     },
-                                    "enableafterdelay": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "activitytype": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]",
+                                    },
+                                    "enableafteradelay": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if the activity will be enabled after a delay time interval",
                                     },
-                                    "delaytime": &schema.Schema{
+                                    "enableactivitytype": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "Delayed by n Hrs",
+                                        Description: "True if the activity type is enabled",
                                     },
                                 },
                             },
                         },
-                        "enablebackup": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "enablebackup": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "true if Backup is enabled",
                         },
-                        "enablerestore": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "enablerestore": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "true if Restore is enabled",
@@ -236,33 +283,33 @@ func resourceHypervisor_AWS() *schema.Resource {
                     },
                 },
             },
-            "settings": &schema.Schema{
+            "settings": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "metricsmonitoringpolicy": &schema.Schema{
+                        "metricsmonitoringpolicy": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "isenabled": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "isenabled": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if Metrics Monioring policy is enabled",
                                     },
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Metrics Moitoring Policy Name",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
@@ -271,20 +318,66 @@ func resourceHypervisor_AWS() *schema.Resource {
                                 },
                             },
                         },
-                        "applicationcredentials": &schema.Schema{
+                        "applicationcredentials": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
+                                    "password": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Sensitive:    true,
+                                        Description: "password to access the network path",
+                                    },
+                                    "name": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "username to access the network path",
+                                    },
+                                },
+                            },
+                        },
+                        "guestcredentials": {
+                            Type:        schema.TypeList,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "password": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Sensitive:    true,
+                                        Description: "password to access the network path",
+                                    },
+                                    "name": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "username to access the network path",
+                                    },
+                                },
+                            },
+                        },
+                        "mountaccessnode": {
+                            Type:        schema.TypeList,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
@@ -293,82 +386,38 @@ func resourceHypervisor_AWS() *schema.Resource {
                                 },
                             },
                         },
-                        "guestcredentials": &schema.Schema{
+                        "regioninfo": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                    },
-                                    "id": &schema.Schema{
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                    },
-                                },
-                            },
-                        },
-                        "mountaccessnode": &schema.Schema{
-                            Type:        schema.TypeList,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                    },
-                                    "id": &schema.Schema{
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                    },
-                                },
-                            },
-                        },
-                        "regioninfo": &schema.Schema{
-                            Type:        schema.TypeList,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "displayname": &schema.Schema{
+                                    "displayname": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Display Name of Region",
                                     },
-                                    "latitude": &schema.Schema{
+                                    "latitude": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Geolocation Latitude",
                                     },
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Region Name",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Region Id",
                                     },
-                                    "longitude": &schema.Schema{
+                                    "longitude": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
@@ -377,20 +426,20 @@ func resourceHypervisor_AWS() *schema.Resource {
                                 },
                             },
                         },
-                        "timezone": &schema.Schema{
+                        "timezone": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
@@ -399,20 +448,20 @@ func resourceHypervisor_AWS() *schema.Resource {
                                 },
                             },
                         },
-                        "customattributes": &schema.Schema{
+                        "customattributes": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "type": &schema.Schema{
+                                    "type": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "client custom attribute type . Ex- 3 - For client 8- For clientGroup",
                                     },
-                                    "value": &schema.Schema{
+                                    "value": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
@@ -424,27 +473,27 @@ func resourceHypervisor_AWS() *schema.Resource {
                     },
                 },
             },
-            "security": &schema.Schema{
+            "security": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "clientowners": &schema.Schema{
+                        "clientowners": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Client owners for the Hypervisor",
                         },
-                        "associatedusergroups": &schema.Schema{
+                        "associatedusergroups": {
                             Type:        schema.TypeSet,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
@@ -456,42 +505,26 @@ func resourceHypervisor_AWS() *schema.Resource {
                     },
                 },
             },
-            "newname": &schema.Schema{
+            "displayname": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
                 Description: "The name of the hypervisor that has to be changed",
             },
-            "accessnode": &schema.Schema{
-                Type:        schema.TypeSet,
-                Optional:    true,
-                Computed:    true,
-                Description: "",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "id": &schema.Schema{
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                    },
-                },
-            },
-            "fbrunixmediaagent": &schema.Schema{
+            "fbrunixmediaagent": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "name": &schema.Schema{
+                        "name": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                         },
-                        "id": &schema.Schema{
+                        "id": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
@@ -500,11 +533,11 @@ func resourceHypervisor_AWS() *schema.Resource {
                     },
                 },
             },
-            "hypervisortype": &schema.Schema{
+            "hypervisortype": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "",
+                Description: "[Amazon]",
             },
         },
     }
@@ -514,82 +547,60 @@ func resourceCreateHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     //API: (POST) /V4/Hypervisor
     var response_id = strconv.Itoa(0)
     var t_skipcredentialvalidation *bool
-    if v, ok := d.GetOkExists("skipcredentialvalidation"); ok {
-        val := v.(bool)
-        t_skipcredentialvalidation = new(bool)
-        t_skipcredentialvalidation = &val
+    if val, ok := d.GetOk("skipcredentialvalidation"); ok {
+        t_skipcredentialvalidation = handler.ToBooleanValue(val, false)
     }
     var t_etcdprotection *bool
-    if v, ok := d.GetOkExists("etcdprotection"); ok {
-        val := v.(bool)
-        t_etcdprotection = new(bool)
-        t_etcdprotection = &val
+    if val, ok := d.GetOk("etcdprotection"); ok {
+        t_etcdprotection = handler.ToBooleanValue(val, false)
     }
     var t_credentials *handler.MsgIdName
-    if v, ok := d.GetOk("credentials"); ok {
-        val := v.([]interface{})
-        t_credentials = build_hypervisor_aws_msgidname(d, val)
+    if val, ok := d.GetOk("credentials"); ok {
+        t_credentials = build_hypervisor_aws_msgidname(d, val.([]interface{}))
     }
     var t_name *string
-    if v, ok := d.GetOk("name"); ok {
-        val := v.(string)
-        t_name = new(string)
-        t_name = &val
+    if val, ok := d.GetOk("name"); ok {
+        t_name = handler.ToStringValue(val, false)
     }
-    var t_accessnodes []handler.MsgIdNameSet
-    if v, ok := d.GetOk("accessnodes"); ok {
-        val := v.(*schema.Set)
-        t_accessnodes = build_hypervisor_aws_msgidnameset_array(d, val.List())
-    }
-    var t_planentity *handler.MsgIdName
-    if v, ok := d.GetOk("planentity"); ok {
-        val := v.([]interface{})
-        t_planentity = build_hypervisor_aws_msgidname(d, val)
+    var t_accessnodes []handler.MsgaccessNodeModelSet
+    if val, ok := d.GetOk("accessnodes"); ok {
+        t_accessnodes = build_hypervisor_aws_msgaccessnodemodelset_array(d, val.(*schema.Set).List())
     }
     var t_secretkey *string
-    if v, ok := d.GetOk("secretkey"); ok {
-        val := v.(string)
-        t_secretkey = new(string)
-        t_secretkey = &val
+    if val, ok := d.GetOk("secretkey"); ok {
+        t_secretkey = handler.ToStringValue(val, false)
     }
     var t_accesskey *string
-    if v, ok := d.GetOk("accesskey"); ok {
-        val := v.(string)
-        t_accesskey = new(string)
-        t_accesskey = &val
+    if val, ok := d.GetOk("accesskey"); ok {
+        t_accesskey = handler.ToStringValue(val, false)
     }
     var t_region *string
-    if v, ok := d.GetOk("region"); ok {
-        val := v.(string)
-        t_region = new(string)
-        t_region = &val
+    if val, ok := d.GetOk("region"); ok {
+        t_region = handler.ToStringValue(val, false)
     }
     var t_hypervisortype *string
     var c_hypervisortype string = "AMAZON"
-    t_hypervisortype = new(string)
     t_hypervisortype = &c_hypervisortype
     var t_useserviceaccount *string
-    if v, ok := d.GetOk("useserviceaccount"); ok {
-        val := v.(string)
-        t_useserviceaccount = new(string)
-        t_useserviceaccount = &val
+    if val, ok := d.GetOk("useserviceaccount"); ok {
+        t_useserviceaccount = handler.ToStringValue(val, false)
     }
     var t_useiamrole *bool
-    if v, ok := d.GetOk("useiamrole"); ok {
-        val := v.(bool)
-        t_useiamrole = new(bool)
-        t_useiamrole = &val
+    if val, ok := d.GetOk("useiamrole"); ok {
+        t_useiamrole = handler.ToBooleanValue(val, false)
     }
     var t_rolearn *string
-    if v, ok := d.GetOk("rolearn"); ok {
-        val := v.(string)
-        t_rolearn = new(string)
-        t_rolearn = &val
+    if val, ok := d.GetOk("rolearn"); ok {
+        t_rolearn = handler.ToStringValue(val, false)
     }
-    var req = handler.MsgCreateHypervisorAWSRequest{SkipCredentialValidation:t_skipcredentialvalidation, EtcdProtection:t_etcdprotection, Credentials:t_credentials, Name:t_name, AccessNodes:t_accessnodes, PlanEntity:t_planentity, SecretKey:t_secretkey, AccessKey:t_accesskey, Region:t_region, HypervisorType:t_hypervisortype, UseServiceAccount:t_useserviceaccount, UseIamRole:t_useiamrole, RoleARN:t_rolearn}
+    var t_enableawsadminaccount *bool
+    if val, ok := d.GetOk("enableawsadminaccount"); ok {
+        t_enableawsadminaccount = handler.ToBooleanValue(val, false)
+    }
+    var req = handler.MsgCreateHypervisorAWSRequest{SkipCredentialValidation:t_skipcredentialvalidation, EtcdProtection:t_etcdprotection, Credentials:t_credentials, Name:t_name, AccessNodes:t_accessnodes, SecretKey:t_secretkey, AccessKey:t_accesskey, Region:t_region, HypervisorType:t_hypervisortype, UseServiceAccount:t_useserviceaccount, UseIamRole:t_useiamrole, RoleARN:t_rolearn, EnableAWSAdminAccount:t_enableawsadminaccount}
     resp, err := handler.CvCreateHypervisorAWS(req)
     if err != nil {
-        return fmt.Errorf("Operation [CreateHypervisorAWS] failed, Error %s", err)
+        return fmt.Errorf("operation [CreateHypervisorAWS] failed, Error %s", err)
     }
     if resp.Response != nil {
         if resp.Response.HypervisorId != nil {
@@ -597,7 +608,7 @@ func resourceCreateHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
         }
     }
     if response_id == "0" {
-        return fmt.Errorf("Operation [CreateHypervisorAWS] failed")
+        return fmt.Errorf("operation [CreateHypervisorAWS] failed")
     } else {
         d.SetId(response_id)
         return resourceCreateUpdateHypervisor_AWS(d, m)
@@ -608,20 +619,28 @@ func resourceReadHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     //API: (GET) /V4/Hypervisor/{hypervisorId}
     resp, err := handler.CvGetHypervisors(d.Id())
     if err != nil {
-        return fmt.Errorf("Operation [GetHypervisors] failed, Error %s", err)
+        return fmt.Errorf("operation [GetHypervisors] failed, Error %s", err)
     }
-    if resp.ActivityControl != nil {
-        d.Set("activitycontrol", serialize_hypervisor_aws_msgactivitycontroloptions(resp.ActivityControl))
+    if rtn, ok := serialize_hypervisor_aws_msgactivitycontroloptions(d, resp.ActivityControl); ok {
+        d.Set("activitycontrol", rtn)
     } else {
         d.Set("activitycontrol", make([]map[string]interface{}, 0))
     }
-    if resp.Settings != nil {
-        d.Set("settings", serialize_hypervisor_aws_msghypervisorsettings(resp.Settings))
+    if rtn, ok := serialize_hypervisor_aws_msghypervisorsettings(d, resp.Settings); ok {
+        d.Set("settings", rtn)
     } else {
         d.Set("settings", make([]map[string]interface{}, 0))
     }
+    if resp.DisplayName != nil {
+        d.Set("displayname", resp.DisplayName)
+    }
     if resp.Name != nil {
         d.Set("name", resp.Name)
+    }
+    if rtn, ok := serialize_hypervisor_aws_msgaccessnodemodelset_array(d, resp.AccessNodeList.AccessNode); ok {
+        d.Set("accessnodes", rtn)
+    } else {
+        d.Set("accessnodes", make([]map[string]interface{}, 0))
     }
     return nil
 }
@@ -630,87 +649,83 @@ func resourceUpdateHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     //API: (PUT) /V4/Hypervisor/{hypervisorId}
     var t_activitycontrol *handler.MsgActivityControlOptions
     if d.HasChange("activitycontrol") {
-        val := d.Get("activitycontrol").([]interface{})
-        t_activitycontrol = build_hypervisor_aws_msgactivitycontroloptions(d, val)
+        val := d.Get("activitycontrol")
+        t_activitycontrol = build_hypervisor_aws_msgactivitycontroloptions(d, val.([]interface{}))
     }
     var t_settings *handler.MsghypervisorSettings
     if d.HasChange("settings") {
-        val := d.Get("settings").([]interface{})
-        t_settings = build_hypervisor_aws_msghypervisorsettings(d, val)
+        val := d.Get("settings")
+        t_settings = build_hypervisor_aws_msghypervisorsettings(d, val.([]interface{}))
     }
     var t_security *handler.MsgVMHypervisorSecurityProp
     if d.HasChange("security") {
-        val := d.Get("security").([]interface{})
-        t_security = build_hypervisor_aws_msgvmhypervisorsecurityprop(d, val)
+        val := d.Get("security")
+        t_security = build_hypervisor_aws_msgvmhypervisorsecurityprop(d, val.([]interface{}))
     }
     var t_newname *string
-    if d.HasChange("newname") {
-        val := d.Get("newname").(string)
-        t_newname = new(string)
-        t_newname = &val
+    if d.HasChange("displayname") {
+        val := d.Get("displayname")
+        t_newname = handler.ToStringValue(val, false)
     }
     var t_skipcredentialvalidation *bool
     if d.HasChange("skipcredentialvalidation") {
-        val := d.Get("skipcredentialvalidation").(bool)
-        t_skipcredentialvalidation = new(bool)
-        t_skipcredentialvalidation = &val
+        val := d.Get("skipcredentialvalidation")
+        t_skipcredentialvalidation = handler.ToBooleanValue(val, false)
     }
-    var t_accessnode []handler.MsgaccessNodeModelSet
-    if d.HasChange("accessnode") {
-        val := d.Get("accessnode").(*schema.Set)
-        t_accessnode = build_hypervisor_aws_msgaccessnodemodelset_array(d, val.List())
+    var t_credentials *handler.MsgIdName
+    if d.HasChange("credentials") {
+        val := d.Get("credentials")
+        t_credentials = build_hypervisor_aws_msgidname(d, val.([]interface{}))
+    }
+    var t_accessnodes []handler.MsgaccessNodeModelSet
+    if d.HasChange("accessnodes") {
+        val := d.Get("accessnodes")
+        t_accessnodes = build_hypervisor_aws_msgaccessnodemodelset_array(d, val.(*schema.Set).List())
     }
     var t_fbrunixmediaagent *handler.MsgIdName
     if d.HasChange("fbrunixmediaagent") {
-        val := d.Get("fbrunixmediaagent").([]interface{})
-        t_fbrunixmediaagent = build_hypervisor_aws_msgidname(d, val)
+        val := d.Get("fbrunixmediaagent")
+        t_fbrunixmediaagent = build_hypervisor_aws_msgidname(d, val.([]interface{}))
     }
     var t_secretkey *string
     if d.HasChange("secretkey") {
-        val := d.Get("secretkey").(string)
-        t_secretkey = new(string)
-        t_secretkey = &val
+        val := d.Get("secretkey")
+        t_secretkey = handler.ToStringValue(val, false)
     }
     var t_accesskey *string
     if d.HasChange("accesskey") {
-        val := d.Get("accesskey").(string)
-        t_accesskey = new(string)
-        t_accesskey = &val
+        val := d.Get("accesskey")
+        t_accesskey = handler.ToStringValue(val, false)
     }
     var t_region *string
     if d.HasChange("region") {
-        val := d.Get("region").(string)
-        t_region = new(string)
-        t_region = &val
+        val := d.Get("region")
+        t_region = handler.ToStringValue(val, false)
     }
     var t_hypervisortype *string
     if d.HasChange("hypervisortype") {
-        val := d.Get("hypervisortype").(string)
-        t_hypervisortype = new(string)
-        t_hypervisortype = &val
+        val := d.Get("hypervisortype")
+        t_hypervisortype = handler.ToStringValue(val, false)
     }
     var t_useserviceaccount *string
     if d.HasChange("useserviceaccount") {
-        val := d.Get("useserviceaccount").(string)
-        t_useserviceaccount = new(string)
-        t_useserviceaccount = &val
+        val := d.Get("useserviceaccount")
+        t_useserviceaccount = handler.ToStringValue(val, false)
     }
     var t_useiamrole *bool
     if d.HasChange("useiamrole") {
-        val := d.Get("useiamrole").(bool)
-        t_useiamrole = new(bool)
-        t_useiamrole = &val
+        val := d.Get("useiamrole")
+        t_useiamrole = handler.ToBooleanValue(val, false)
     }
     var t_rolearn *string
     if d.HasChange("rolearn") {
-        val := d.Get("rolearn").(string)
-        t_rolearn = new(string)
-        t_rolearn = &val
+        val := d.Get("rolearn")
+        t_rolearn = handler.ToStringValue(val, false)
     }
-    var req = handler.MsgupdateHypervisorAWSRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, SkipCredentialValidation:t_skipcredentialvalidation, AccessNode:t_accessnode, FbrUnixMediaAgent:t_fbrunixmediaagent, SecretKey:t_secretkey, AccessKey:t_accesskey, Region:t_region, HypervisorType:t_hypervisortype, UseServiceAccount:t_useserviceaccount, UseIamRole:t_useiamrole, RoleARN:t_rolearn}
+    var req = handler.MsgupdateHypervisorAWSRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, SkipCredentialValidation:t_skipcredentialvalidation, Credentials:t_credentials, AccessNodes:t_accessnodes, FbrUnixMediaAgent:t_fbrunixmediaagent, SecretKey:t_secretkey, AccessKey:t_accesskey, Region:t_region, HypervisorType:t_hypervisortype, UseServiceAccount:t_useserviceaccount, UseIamRole:t_useiamrole, RoleARN:t_rolearn}
     _, err := handler.CvupdateHypervisorAWS(req, d.Id())
     if err != nil {
-        return fmt.Errorf("Operation [updateHypervisorAWS] failed, Error %s", err)
+        return fmt.Errorf("operation [updateHypervisorAWS] failed, Error %s", err)
     }
     return resourceReadHypervisor_AWS(d, m)
 }
@@ -719,47 +734,35 @@ func resourceCreateUpdateHypervisor_AWS(d *schema.ResourceData, m interface{}) e
     //API: (PUT) /V4/Hypervisor/{hypervisorId}
     var execUpdate bool = false
     var t_activitycontrol *handler.MsgActivityControlOptions
-    if v, ok := d.GetOk("activitycontrol"); ok {
-        val := v.([]interface{})
-        t_activitycontrol = build_hypervisor_aws_msgactivitycontroloptions(d, val)
+    if val, ok := d.GetOk("activitycontrol"); ok {
+        t_activitycontrol = build_hypervisor_aws_msgactivitycontroloptions(d, val.([]interface{}))
         execUpdate = true
     }
     var t_settings *handler.MsghypervisorSettings
-    if v, ok := d.GetOk("settings"); ok {
-        val := v.([]interface{})
-        t_settings = build_hypervisor_aws_msghypervisorsettings(d, val)
+    if val, ok := d.GetOk("settings"); ok {
+        t_settings = build_hypervisor_aws_msghypervisorsettings(d, val.([]interface{}))
         execUpdate = true
     }
     var t_security *handler.MsgVMHypervisorSecurityProp
-    if v, ok := d.GetOk("security"); ok {
-        val := v.([]interface{})
-        t_security = build_hypervisor_aws_msgvmhypervisorsecurityprop(d, val)
+    if val, ok := d.GetOk("security"); ok {
+        t_security = build_hypervisor_aws_msgvmhypervisorsecurityprop(d, val.([]interface{}))
         execUpdate = true
     }
     var t_newname *string
-    if v, ok := d.GetOk("newname"); ok {
-        val := v.(string)
-        t_newname = new(string)
-        t_newname = &val
-        execUpdate = true
-    }
-    var t_accessnode []handler.MsgaccessNodeModelSet
-    if v, ok := d.GetOk("accessnode"); ok {
-        val := v.(*schema.Set)
-        t_accessnode = build_hypervisor_aws_msgaccessnodemodelset_array(d, val.List())
+    if val, ok := d.GetOk("displayname"); ok {
+        t_newname = handler.ToStringValue(val, false)
         execUpdate = true
     }
     var t_fbrunixmediaagent *handler.MsgIdName
-    if v, ok := d.GetOk("fbrunixmediaagent"); ok {
-        val := v.([]interface{})
-        t_fbrunixmediaagent = build_hypervisor_aws_msgidname(d, val)
+    if val, ok := d.GetOk("fbrunixmediaagent"); ok {
+        t_fbrunixmediaagent = build_hypervisor_aws_msgidname(d, val.([]interface{}))
         execUpdate = true
     }
     if execUpdate {
-        var req = handler.MsgupdateHypervisorAWSRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, AccessNode:t_accessnode, FbrUnixMediaAgent:t_fbrunixmediaagent}
+        var req = handler.MsgupdateHypervisorAWSRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, FbrUnixMediaAgent:t_fbrunixmediaagent}
         _, err := handler.CvupdateHypervisorAWS(req, d.Id())
         if err != nil {
-            return fmt.Errorf("Operation [updateHypervisorAWS] failed, Error %s", err)
+            return fmt.Errorf("operation [updateHypervisorAWS] failed, Error %s", err)
         }
     }
     return resourceReadHypervisor_AWS(d, m)
@@ -769,25 +772,21 @@ func resourceDeleteHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     //API: (DELETE) /V4/Hypervisor/{hypervisorId}
     _, err := handler.CvDeleteHypervisor(d.Id())
     if err != nil {
-        return fmt.Errorf("Operation [DeleteHypervisor] failed, Error %s", err)
+        return fmt.Errorf("operation [DeleteHypervisor] failed, Error %s", err)
     }
     return nil
 }
 
 func build_hypervisor_aws_msgidname(d *schema.ResourceData, r []interface{}) *handler.MsgIdName {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_name *string
-        if val, ok := tmp["name"].(string); ok {
-            t_name = new(string)
-            t_name = &val
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
         }
         var t_id *int
-        if val, ok := tmp["id"].(int); ok {
-            if !handler.IsEmptyInt(val) {
-                t_id = new(int)
-                t_id = &val
-            }
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
         }
         return &handler.MsgIdName{Name:t_name, Id:t_id}
     } else {
@@ -795,35 +794,16 @@ func build_hypervisor_aws_msgidname(d *schema.ResourceData, r []interface{}) *ha
     }
 }
 
-func build_hypervisor_aws_msgaccessnodemodelset_array(d *schema.ResourceData, r []interface{}) []handler.MsgaccessNodeModelSet {
-    if r != nil {
-        tmp := make([]handler.MsgaccessNodeModelSet, len(r))
-        for a, iter_a := range r {
-            raw_a := iter_a.(map[string]interface{})
-            var t_id *int
-            if val, ok := raw_a["id"].(int); ok {
-                t_id = new(int)
-                t_id = &val
-            }
-            tmp[a] = handler.MsgaccessNodeModelSet{Id:t_id}
-        }
-        return tmp
-    } else {
-        return nil
-    }
-}
-
 func build_hypervisor_aws_msgvmhypervisorsecurityprop(d *schema.ResourceData, r []interface{}) *handler.MsgVMHypervisorSecurityProp {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_clientowners *string
-        if val, ok := tmp["clientowners"].(string); ok {
-            t_clientowners = new(string)
-            t_clientowners = &val
+        if val, ok := tmp["clientowners"]; ok {
+            t_clientowners = handler.ToStringValue(val, true)
         }
         var t_associatedusergroups []handler.MsgIdNameSet
-        if val, ok := tmp["associatedusergroups"].(*schema.Set); ok {
-            t_associatedusergroups = build_hypervisor_aws_msgidnameset_array(d, val.List())
+        if val, ok := tmp["associatedusergroups"]; ok {
+            t_associatedusergroups = build_hypervisor_aws_msgidnameset_array(d, val.(*schema.Set).List())
         }
         return &handler.MsgVMHypervisorSecurityProp{ClientOwners:t_clientowners, AssociatedUserGroups:t_associatedusergroups}
     } else {
@@ -837,11 +817,8 @@ func build_hypervisor_aws_msgidnameset_array(d *schema.ResourceData, r []interfa
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
             var t_id *int
-            if val, ok := raw_a["id"].(int); ok {
-                if !handler.IsEmptyInt(val) {
-                    t_id = new(int)
-                    t_id = &val
-                }
+            if val, ok := raw_a["id"]; ok {
+                t_id = handler.ToIntValue(val, true)
             }
             tmp[a] = handler.MsgIdNameSet{Id:t_id}
         }
@@ -852,35 +829,35 @@ func build_hypervisor_aws_msgidnameset_array(d *schema.ResourceData, r []interfa
 }
 
 func build_hypervisor_aws_msghypervisorsettings(d *schema.ResourceData, r []interface{}) *handler.MsghypervisorSettings {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_metricsmonitoringpolicy *handler.MsghypervisorMonitoringPolicy
-        if val, ok := tmp["metricsmonitoringpolicy"].([]interface{}); ok {
-            t_metricsmonitoringpolicy = build_hypervisor_aws_msghypervisormonitoringpolicy(d, val)
+        if val, ok := tmp["metricsmonitoringpolicy"]; ok {
+            t_metricsmonitoringpolicy = build_hypervisor_aws_msghypervisormonitoringpolicy(d, val.([]interface{}))
         }
-        var t_applicationcredentials *handler.MsgIdName
-        if val, ok := tmp["applicationcredentials"].([]interface{}); ok {
-            t_applicationcredentials = build_hypervisor_aws_msgidname(d, val)
+        var t_applicationcredentials *handler.MsgUserNamePassword
+        if val, ok := tmp["applicationcredentials"]; ok {
+            t_applicationcredentials = build_hypervisor_aws_msgusernamepassword(d, val.([]interface{}))
         }
-        var t_guestcredentials *handler.MsgIdName
-        if val, ok := tmp["guestcredentials"].([]interface{}); ok {
-            t_guestcredentials = build_hypervisor_aws_msgidname(d, val)
+        var t_guestcredentials *handler.MsgUserNamePassword
+        if val, ok := tmp["guestcredentials"]; ok {
+            t_guestcredentials = build_hypervisor_aws_msgusernamepassword(d, val.([]interface{}))
         }
         var t_mountaccessnode *handler.MsgIdName
-        if val, ok := tmp["mountaccessnode"].([]interface{}); ok {
-            t_mountaccessnode = build_hypervisor_aws_msgidname(d, val)
+        if val, ok := tmp["mountaccessnode"]; ok {
+            t_mountaccessnode = build_hypervisor_aws_msgidname(d, val.([]interface{}))
         }
         var t_regioninfo *handler.MsgRegionInfo
-        if val, ok := tmp["regioninfo"].([]interface{}); ok {
-            t_regioninfo = build_hypervisor_aws_msgregioninfo(d, val)
+        if val, ok := tmp["regioninfo"]; ok {
+            t_regioninfo = build_hypervisor_aws_msgregioninfo(d, val.([]interface{}))
         }
         var t_timezone *handler.MsgIdName
-        if val, ok := tmp["timezone"].([]interface{}); ok {
-            t_timezone = build_hypervisor_aws_msgidname(d, val)
+        if val, ok := tmp["timezone"]; ok {
+            t_timezone = build_hypervisor_aws_msgidname(d, val.([]interface{}))
         }
         var t_customattributes *handler.MsghypervisorCustomAttribute
-        if val, ok := tmp["customattributes"].([]interface{}); ok {
-            t_customattributes = build_hypervisor_aws_msghypervisorcustomattribute(d, val)
+        if val, ok := tmp["customattributes"]; ok {
+            t_customattributes = build_hypervisor_aws_msghypervisorcustomattribute(d, val.([]interface{}))
         }
         return &handler.MsghypervisorSettings{MetricsMonitoringPolicy:t_metricsmonitoringpolicy, ApplicationCredentials:t_applicationcredentials, GuestCredentials:t_guestcredentials, MountAccessNode:t_mountaccessnode, RegionInfo:t_regioninfo, TimeZone:t_timezone, CustomAttributes:t_customattributes}
     } else {
@@ -889,17 +866,15 @@ func build_hypervisor_aws_msghypervisorsettings(d *schema.ResourceData, r []inte
 }
 
 func build_hypervisor_aws_msghypervisorcustomattribute(d *schema.ResourceData, r []interface{}) *handler.MsghypervisorCustomAttribute {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_type *int
-        if val, ok := tmp["type"].(int); ok {
-            t_type = new(int)
-            t_type = &val
+        if val, ok := tmp["type"]; ok {
+            t_type = handler.ToIntValue(val, true)
         }
         var t_value *string
-        if val, ok := tmp["value"].(string); ok {
-            t_value = new(string)
-            t_value = &val
+        if val, ok := tmp["value"]; ok {
+            t_value = handler.ToStringValue(val, true)
         }
         return &handler.MsghypervisorCustomAttribute{Type:t_type, Value:t_value}
     } else {
@@ -908,32 +883,27 @@ func build_hypervisor_aws_msghypervisorcustomattribute(d *schema.ResourceData, r
 }
 
 func build_hypervisor_aws_msgregioninfo(d *schema.ResourceData, r []interface{}) *handler.MsgRegionInfo {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_displayname *string
-        if val, ok := tmp["displayname"].(string); ok {
-            t_displayname = new(string)
-            t_displayname = &val
+        if val, ok := tmp["displayname"]; ok {
+            t_displayname = handler.ToStringValue(val, true)
         }
         var t_latitude *string
-        if val, ok := tmp["latitude"].(string); ok {
-            t_latitude = new(string)
-            t_latitude = &val
+        if val, ok := tmp["latitude"]; ok {
+            t_latitude = handler.ToStringValue(val, true)
         }
         var t_name *string
-        if val, ok := tmp["name"].(string); ok {
-            t_name = new(string)
-            t_name = &val
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
         }
         var t_id *int
-        if val, ok := tmp["id"].(int); ok {
-            t_id = new(int)
-            t_id = &val
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
         }
         var t_longitude *string
-        if val, ok := tmp["longitude"].(string); ok {
-            t_longitude = new(string)
-            t_longitude = &val
+        if val, ok := tmp["longitude"]; ok {
+            t_longitude = handler.ToStringValue(val, true)
         }
         return &handler.MsgRegionInfo{DisplayName:t_displayname, Latitude:t_latitude, Name:t_name, Id:t_id, Longitude:t_longitude}
     } else {
@@ -941,23 +911,37 @@ func build_hypervisor_aws_msgregioninfo(d *schema.ResourceData, r []interface{})
     }
 }
 
-func build_hypervisor_aws_msghypervisormonitoringpolicy(d *schema.ResourceData, r []interface{}) *handler.MsghypervisorMonitoringPolicy {
-    if r != nil && len(r) > 0 {
+func build_hypervisor_aws_msgusernamepassword(d *schema.ResourceData, r []interface{}) *handler.MsgUserNamePassword {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
-        var t_isenabled *bool
-        if val, ok := tmp["isenabled"].(bool); ok {
-            t_isenabled = new(bool)
-            t_isenabled = &val
+        var t_password *string
+        if val, ok := tmp["password"]; ok {
+            t_password = handler.ToStringValue(val, true)
         }
         var t_name *string
-        if val, ok := tmp["name"].(string); ok {
-            t_name = new(string)
-            t_name = &val
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
+        }
+        return &handler.MsgUserNamePassword{Password:t_password, Name:t_name}
+    } else {
+        return nil
+    }
+}
+
+func build_hypervisor_aws_msghypervisormonitoringpolicy(d *schema.ResourceData, r []interface{}) *handler.MsghypervisorMonitoringPolicy {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_isenabled *bool
+        if val, ok := tmp["isenabled"]; ok {
+            t_isenabled = handler.ToBooleanValue(val, true)
+        }
+        var t_name *string
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
         }
         var t_id *int
-        if val, ok := tmp["id"].(int); ok {
-            t_id = new(int)
-            t_id = &val
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
         }
         return &handler.MsghypervisorMonitoringPolicy{IsEnabled:t_isenabled, Name:t_name, Id:t_id}
     } else {
@@ -966,25 +950,23 @@ func build_hypervisor_aws_msghypervisormonitoringpolicy(d *schema.ResourceData, 
 }
 
 func build_hypervisor_aws_msgactivitycontroloptions(d *schema.ResourceData, r []interface{}) *handler.MsgActivityControlOptions {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
-        var t_restoreactivitycontroloptions *handler.MsgbackupActivityControlOptionsProp
-        if val, ok := tmp["restoreactivitycontroloptions"].([]interface{}); ok {
-            t_restoreactivitycontroloptions = build_hypervisor_aws_msgbackupactivitycontroloptionsprop(d, val)
+        var t_restoreactivitycontroloptions *handler.MsgActivityControlOptionsProp
+        if val, ok := tmp["restoreactivitycontroloptions"]; ok {
+            t_restoreactivitycontroloptions = build_hypervisor_aws_msgactivitycontroloptionsprop(d, val.([]interface{}))
         }
-        var t_backupactivitycontroloptions *handler.MsgbackupActivityControlOptionsProp
-        if val, ok := tmp["backupactivitycontroloptions"].([]interface{}); ok {
-            t_backupactivitycontroloptions = build_hypervisor_aws_msgbackupactivitycontroloptionsprop(d, val)
+        var t_backupactivitycontroloptions *handler.MsgActivityControlOptionsProp
+        if val, ok := tmp["backupactivitycontroloptions"]; ok {
+            t_backupactivitycontroloptions = build_hypervisor_aws_msgactivitycontroloptionsprop(d, val.([]interface{}))
         }
         var t_enablebackup *bool
-        if val, ok := tmp["enablebackup"].(bool); ok {
-            t_enablebackup = new(bool)
-            t_enablebackup = &val
+        if val, ok := tmp["enablebackup"]; ok {
+            t_enablebackup = handler.ToBooleanValue(val, true)
         }
         var t_enablerestore *bool
-        if val, ok := tmp["enablerestore"].(bool); ok {
-            t_enablerestore = new(bool)
-            t_enablerestore = &val
+        if val, ok := tmp["enablerestore"]; ok {
+            t_enablerestore = handler.ToBooleanValue(val, true)
         }
         return &handler.MsgActivityControlOptions{RestoreActivityControlOptions:t_restoreactivitycontroloptions, BackupActivityControlOptions:t_backupactivitycontroloptions, EnableBackup:t_enablebackup, EnableRestore:t_enablerestore}
     } else {
@@ -992,138 +974,370 @@ func build_hypervisor_aws_msgactivitycontroloptions(d *schema.ResourceData, r []
     }
 }
 
-func build_hypervisor_aws_msgbackupactivitycontroloptionsprop(d *schema.ResourceData, r []interface{}) *handler.MsgbackupActivityControlOptionsProp {
-    if r != nil && len(r) > 0 {
+func build_hypervisor_aws_msgactivitycontroloptionsprop(d *schema.ResourceData, r []interface{}) *handler.MsgActivityControlOptionsProp {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
-        var t_timezone *handler.MsgIdName
-        if val, ok := tmp["timezone"].([]interface{}); ok {
-            t_timezone = build_hypervisor_aws_msgidname(d, val)
+        var t_delaytime *handler.MsgActivityControlTileDelayTime
+        if val, ok := tmp["delaytime"]; ok {
+            t_delaytime = build_hypervisor_aws_msgactivitycontroltiledelaytime(d, val.([]interface{}))
         }
-        var t_enableafterdelay *bool
-        if val, ok := tmp["enableafterdelay"].(bool); ok {
-            t_enableafterdelay = new(bool)
-            t_enableafterdelay = &val
+        var t_activitytype *string
+        if val, ok := tmp["activitytype"]; ok {
+            t_activitytype = handler.ToStringValue(val, true)
         }
-        var t_delaytime *string
-        if val, ok := tmp["delaytime"].(string); ok {
-            t_delaytime = new(string)
-            t_delaytime = &val
+        var t_enableafteradelay *bool
+        if val, ok := tmp["enableafteradelay"]; ok {
+            t_enableafteradelay = handler.ToBooleanValue(val, true)
         }
-        return &handler.MsgbackupActivityControlOptionsProp{TimeZone:t_timezone, EnableAfterDelay:t_enableafterdelay, DelayTime:t_delaytime}
+        var t_enableactivitytype *bool
+        if val, ok := tmp["enableactivitytype"]; ok {
+            t_enableactivitytype = handler.ToBooleanValue(val, true)
+        }
+        return &handler.MsgActivityControlOptionsProp{DelayTime:t_delaytime, ActivityType:t_activitytype, EnableAfterADelay:t_enableafteradelay, EnableActivityType:t_enableactivitytype}
     } else {
         return nil
     }
 }
 
-func serialize_hypervisor_aws_msghypervisorsettings(data *handler.MsghypervisorSettings) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.MetricsMonitoringPolicy != nil {
-        val["metricsmonitoringpolicy"] = serialize_hypervisor_aws_msghypervisormonitoringpolicy(data.MetricsMonitoringPolicy)
+func build_hypervisor_aws_msgactivitycontroltiledelaytime(d *schema.ResourceData, r []interface{}) *handler.MsgActivityControlTileDelayTime {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_timezone *handler.MsgIdName
+        if val, ok := tmp["timezone"]; ok {
+            t_timezone = build_hypervisor_aws_msgidname(d, val.([]interface{}))
+        }
+        var t_time *int
+        if val, ok := tmp["time"]; ok {
+            t_time = handler.ToIntValue(val, true)
+        }
+        var t_value *string
+        if val, ok := tmp["value"]; ok {
+            t_value = handler.ToStringValue(val, true)
+        }
+        return &handler.MsgActivityControlTileDelayTime{TimeZone:t_timezone, Time:t_time, Value:t_value}
+    } else {
+        return nil
     }
-    if data.ApplicationCredentials != nil {
-        val["applicationcredentials"] = serialize_hypervisor_aws_msgidname(data.ApplicationCredentials)
-    }
-    if data.GuestCredentials != nil {
-        val["guestcredentials"] = serialize_hypervisor_aws_msgidname(data.GuestCredentials)
-    }
-    if data.MountAccessNode != nil {
-        val["mountaccessnode"] = serialize_hypervisor_aws_msgidname(data.MountAccessNode)
-    }
-    if data.RegionInfo != nil {
-        val["regioninfo"] = serialize_hypervisor_aws_msgregioninfo(data.RegionInfo)
-    }
-    if data.TimeZone != nil {
-        val["timezone"] = serialize_hypervisor_aws_msgidname(data.TimeZone)
-    }
-    if data.CustomAttributes != nil {
-        val["customattributes"] = serialize_hypervisor_aws_msghypervisorcustomattribute(data.CustomAttributes)
-    }
-    return val
 }
 
-func serialize_hypervisor_aws_msghypervisorcustomattribute(data *handler.MsghypervisorCustomAttribute) map[string]interface{} {
-    val := make(map[string]interface{})
+func build_hypervisor_aws_msgaccessnodemodelset_array(d *schema.ResourceData, r []interface{}) []handler.MsgaccessNodeModelSet {
+    if r != nil {
+        tmp := make([]handler.MsgaccessNodeModelSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_id *int
+            if val, ok := raw_a["id"]; ok {
+                t_id = handler.ToIntValue(val, true)
+            }
+            var t_type *int
+            if val, ok := raw_a["type"]; ok {
+                t_type = handler.ToIntValue(val, true)
+            }
+            tmp[a] = handler.MsgaccessNodeModelSet{Id:t_id, Type:t_type}
+        }
+        return tmp
+    } else {
+        return nil
+    }
+}
+
+func serialize_hypervisor_aws_msgaccessnodemodelset_array(d *schema.ResourceData, data []handler.MsgaccessNodeModelSet) ([]map[string]interface{}, bool) {
+    //MsgaccessNodeModelSet
+    //MsgaccessNodeModelSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
+    for i := range data {
+        tmp := make(map[string]interface{})
+        added := false
+        if data[i].Id != nil {
+            tmp["id"] = data[i].Id
+            added = true
+        }
+        if data[i].Type != nil {
+            tmp["type"] = data[i].Type
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
+        }
+    }
+    return val, true
+}
+
+func serialize_hypervisor_aws_msghypervisorsettings(d *schema.ResourceData, data *handler.MsghypervisorSettings) ([]map[string]interface{}, bool) {
+    //MsghypervisorSettings
+    //MsghypervisorSettings
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_hypervisor_aws_msghypervisormonitoringpolicy(d, data.MetricsMonitoringPolicy); ok {
+        val[0]["metricsmonitoringpolicy"] = rtn
+        added = true
+    }
+    if rtn, ok := statecopy_hypervisor_aws_settings_applicationcredentials(d); ok {
+        val[0]["applicationcredentials"] = rtn
+        added = true
+    }
+    if rtn, ok := statecopy_hypervisor_aws_settings_guestcredentials(d); ok {
+        val[0]["guestcredentials"] = rtn
+        added = true
+    }
+    if rtn, ok := serialize_hypervisor_aws_msgidname(d, data.MountAccessNode); ok {
+        val[0]["mountaccessnode"] = rtn
+        added = true
+    }
+    if rtn, ok := serialize_hypervisor_aws_msgregioninfo(d, data.RegionInfo); ok {
+        val[0]["regioninfo"] = rtn
+        added = true
+    }
+    if rtn, ok := serialize_hypervisor_aws_msgidname(d, data.TimeZone); ok {
+        val[0]["timezone"] = rtn
+        added = true
+    }
+    if rtn, ok := serialize_hypervisor_aws_msghypervisorcustomattribute(d, data.CustomAttributes); ok {
+        val[0]["customattributes"] = rtn
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
+func serialize_hypervisor_aws_msghypervisorcustomattribute(d *schema.ResourceData, data *handler.MsghypervisorCustomAttribute) ([]map[string]interface{}, bool) {
+    //MsghypervisorSettings -> MsghypervisorCustomAttribute
+    //MsghypervisorSettings -> MsghypervisorCustomAttribute
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.Type != nil {
-        val["type"] = data.Type
+        val[0]["type"] = data.Type
+        added = true
     }
     if data.Value != nil {
-        val["value"] = data.Value
+        val[0]["value"] = data.Value
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_hypervisor_aws_msgidname(data *handler.MsgIdName) map[string]interface{} {
-    val := make(map[string]interface{})
+func serialize_hypervisor_aws_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
+    //MsghypervisorSettings -> MsgIdName
+    //MsghypervisorSettings -> MsgIdName
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.Name != nil {
-        val["name"] = data.Name
+        val[0]["name"] = data.Name
+        added = true
     }
     if data.Id != nil {
-        val["id"] = data.Id
+        val[0]["id"] = data.Id
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_hypervisor_aws_msgregioninfo(data *handler.MsgRegionInfo) map[string]interface{} {
-    val := make(map[string]interface{})
+func serialize_hypervisor_aws_msgregioninfo(d *schema.ResourceData, data *handler.MsgRegionInfo) ([]map[string]interface{}, bool) {
+    //MsghypervisorSettings -> MsgRegionInfo
+    //MsghypervisorSettings -> MsgRegionInfo
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.DisplayName != nil {
-        val["displayname"] = data.DisplayName
+        val[0]["displayname"] = data.DisplayName
+        added = true
     }
     if data.Latitude != nil {
-        val["latitude"] = data.Latitude
+        val[0]["latitude"] = data.Latitude
+        added = true
     }
     if data.Name != nil {
-        val["name"] = data.Name
+        val[0]["name"] = data.Name
+        added = true
     }
     if data.Id != nil {
-        val["id"] = data.Id
+        val[0]["id"] = data.Id
+        added = true
     }
     if data.Longitude != nil {
-        val["longitude"] = data.Longitude
+        val[0]["longitude"] = data.Longitude
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_hypervisor_aws_msghypervisormonitoringpolicy(data *handler.MsghypervisorMonitoringPolicy) map[string]interface{} {
-    val := make(map[string]interface{})
+func statecopy_hypervisor_aws_settings_guestcredentials(d *schema.ResourceData) ([]interface{}, bool) {
+    //STATE COPY
+    var_a := d.Get("settings").([]interface{})
+    if len(var_a) > 0 {
+        tmp_a := var_a[0].(map[string]interface{})
+        if var_b, ok := tmp_a["guestcredentials"].([]interface{}); ok {
+            if len(var_b) > 0 {
+                return var_b, true
+            }
+        }
+    }
+    return nil, false
+}
+
+func statecopy_hypervisor_aws_settings_applicationcredentials(d *schema.ResourceData) ([]interface{}, bool) {
+    //STATE COPY
+    var_a := d.Get("settings").([]interface{})
+    if len(var_a) > 0 {
+        tmp_a := var_a[0].(map[string]interface{})
+        if var_b, ok := tmp_a["applicationcredentials"].([]interface{}); ok {
+            if len(var_b) > 0 {
+                return var_b, true
+            }
+        }
+    }
+    return nil, false
+}
+
+func serialize_hypervisor_aws_msghypervisormonitoringpolicy(d *schema.ResourceData, data *handler.MsghypervisorMonitoringPolicy) ([]map[string]interface{}, bool) {
+    //MsghypervisorSettings -> MsghypervisorMonitoringPolicy
+    //MsghypervisorSettings -> MsghypervisorMonitoringPolicy
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.IsEnabled != nil {
-        val["isenabled"] = data.IsEnabled
+        val[0]["isenabled"] = strconv.FormatBool(*data.IsEnabled)
+        added = true
     }
     if data.Name != nil {
-        val["name"] = data.Name
+        val[0]["name"] = data.Name
+        added = true
     }
     if data.Id != nil {
-        val["id"] = data.Id
+        val[0]["id"] = data.Id
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_hypervisor_aws_msgactivitycontroloptions(data *handler.MsgActivityControlOptions) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.RestoreActivityControlOptions != nil {
-        val["restoreactivitycontroloptions"] = serialize_hypervisor_aws_msgbackupactivitycontroloptionsprop(data.RestoreActivityControlOptions)
+func serialize_hypervisor_aws_msgactivitycontroloptions(d *schema.ResourceData, data *handler.MsgActivityControlOptions) ([]map[string]interface{}, bool) {
+    //MsgActivityControlOptions
+    //MsgActivityControlOptions
+    if data == nil {
+        return nil, false
     }
-    if data.BackupActivityControlOptions != nil {
-        val["backupactivitycontroloptions"] = serialize_hypervisor_aws_msgbackupactivitycontroloptionsprop(data.BackupActivityControlOptions)
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_hypervisor_aws_msgactivitycontroloptionsprop(d, data.RestoreActivityControlOptions); ok {
+        val[0]["restoreactivitycontroloptions"] = rtn
+        added = true
+    }
+    if rtn, ok := serialize_hypervisor_aws_msgactivitycontroloptionsprop(d, data.BackupActivityControlOptions); ok {
+        val[0]["backupactivitycontroloptions"] = rtn
+        added = true
     }
     if data.EnableBackup != nil {
-        val["enablebackup"] = data.EnableBackup
+        val[0]["enablebackup"] = strconv.FormatBool(*data.EnableBackup)
+        added = true
     }
     if data.EnableRestore != nil {
-        val["enablerestore"] = data.EnableRestore
+        val[0]["enablerestore"] = strconv.FormatBool(*data.EnableRestore)
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_hypervisor_aws_msgbackupactivitycontroloptionsprop(data *handler.MsgbackupActivityControlOptionsProp) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.TimeZone != nil {
-        val["timezone"] = serialize_hypervisor_aws_msgidname(data.TimeZone)
+func serialize_hypervisor_aws_msgactivitycontroloptionsprop(d *schema.ResourceData, data *handler.MsgActivityControlOptionsProp) ([]map[string]interface{}, bool) {
+    //MsgActivityControlOptions -> MsgActivityControlOptionsProp
+    //MsgActivityControlOptions -> MsgActivityControlOptionsProp
+    if data == nil {
+        return nil, false
     }
-    if data.EnableAfterDelay != nil {
-        val["enableafterdelay"] = data.EnableAfterDelay
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_hypervisor_aws_msgactivitycontroltiledelaytime(d, data.DelayTime); ok {
+        val[0]["delaytime"] = rtn
+        added = true
     }
-    if data.DelayTime != nil {
-        val["delaytime"] = data.DelayTime
+    if data.ActivityType != nil {
+        val[0]["activitytype"] = data.ActivityType
+        added = true
     }
-    return val
+    if data.EnableAfterADelay != nil {
+        val[0]["enableafteradelay"] = strconv.FormatBool(*data.EnableAfterADelay)
+        added = true
+    }
+    if data.EnableActivityType != nil {
+        val[0]["enableactivitytype"] = strconv.FormatBool(*data.EnableActivityType)
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
+func serialize_hypervisor_aws_msgactivitycontroltiledelaytime(d *schema.ResourceData, data *handler.MsgActivityControlTileDelayTime) ([]map[string]interface{}, bool) {
+    //MsgActivityControlOptions -> MsgActivityControlOptionsProp -> MsgActivityControlTileDelayTime
+    //MsgActivityControlOptions -> MsgActivityControlOptionsProp -> MsgActivityControlTileDelayTime
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_hypervisor_aws_msgidname(d, data.TimeZone); ok {
+        val[0]["timezone"] = rtn
+        added = true
+    }
+    if data.Time != nil {
+        val[0]["time"] = data.Time
+        added = true
+    }
+    if data.Value != nil {
+        val[0]["value"] = data.Value
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }

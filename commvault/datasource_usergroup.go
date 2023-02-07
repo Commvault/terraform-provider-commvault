@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func datasourceUser() *schema.Resource {
+func datasourceUserGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: datasourceReadUser,
+		Read: datasourceReadUserGroup,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -23,11 +23,11 @@ func datasourceUser() *schema.Resource {
 	}
 }
 
-func datasourceReadUser(d *schema.ResourceData, m interface{}) error {
-	resp, _ := handler.CvGetUserByName(d.Get("name").(string))
+func datasourceReadUserGroup(d *schema.ResourceData, m interface{}) error {
+	resp, _ := handler.CvUserGroupIdByName(d.Get("name").(string))
 
-	if resp.Users != nil && len(resp.Users) > 0 && resp.Users[0].UserEntity.UserId > 0 {
-		d.SetId(strconv.Itoa(resp.Users[0].UserEntity.UserId))
+	if resp.UserGroups != nil && len(resp.UserGroups) > 0 && resp.UserGroups[0].UserGroupEntity.UserGroupId > 0 {
+		d.SetId(strconv.Itoa(resp.UserGroups[0].UserGroupEntity.UserGroupId))
 	} else {
 		return fmt.Errorf("unknown user %s", d.Get("name").(string))
 	}

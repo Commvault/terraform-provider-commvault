@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func datasourceCredential() *schema.Resource {
+func datasourceRole() *schema.Resource {
 	return &schema.Resource{
-		Read: datasourceReadCredential,
+		Read: datasourceReadRole,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -23,13 +23,13 @@ func datasourceCredential() *schema.Resource {
 	}
 }
 
-func datasourceReadCredential(d *schema.ResourceData, m interface{}) error {
-	resp, _ := handler.CvCredentialByName(d.Get("name").(string))
+func datasourceReadRole(d *schema.ResourceData, m interface{}) error {
+	resp, _ := handler.CvRoleIdByName(d.Get("name").(string))
 
-	if resp.Id > 0 {
-		d.SetId(strconv.Itoa(resp.Id))
+	if resp.RoleId > 0 {
+		d.SetId(strconv.Itoa(resp.RoleId))
 	} else {
-		return fmt.Errorf("unknown credential %s", d.Get("name").(string))
+		return fmt.Errorf("unknown plan %s", d.Get("name").(string))
 	}
 
 	return nil

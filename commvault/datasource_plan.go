@@ -14,9 +14,14 @@ func datasourcePlan() *schema.Resource {
 		Read: datasourceReadPlan,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Description: "",
+			},
+			"type": {
+				Type:        schema.TypeInt,
+				Computed:    true,
 				Description: "",
 			},
 		},
@@ -25,6 +30,8 @@ func datasourcePlan() *schema.Resource {
 
 func datasourceReadPlan(d *schema.ResourceData, m interface{}) error {
 	resp, _ := handler.CvPlanIdByName(d.Get("name").(string))
+	
+	d.Set("type", 158)
 
 	if resp.Plans != nil && len(resp.Plans) > 0 && resp.Plans[0].Plan.PlanId > 0 {
 		d.SetId(strconv.Itoa(resp.Plans[0].Plan.PlanId))

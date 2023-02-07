@@ -9,14 +9,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func datasourceClientGroup() *schema.Resource { 
+func datasourceClientGroup() *schema.Resource {
 	return &schema.Resource{
 		Read: datasourceReadClientGroup,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Description: "",
+			},
+			"type": {
+				Type:        schema.TypeInt,
+				Computed:    true,
 				Description: "",
 			},
 		},
@@ -25,6 +30,8 @@ func datasourceClientGroup() *schema.Resource {
 
 func datasourceReadClientGroup(d *schema.ResourceData, m interface{}) error {
 	resp, _ := handler.CvClientGroupIdByName(d.Get("name").(string))
+
+	d.Set("type", 28)
 
 	if resp.Groups != nil && len(resp.Groups) > 0 && resp.Groups[0].ClientGroup.ClientGroupId > 0 {
 		d.SetId(strconv.Itoa(resp.Groups[0].ClientGroup.ClientGroupId))

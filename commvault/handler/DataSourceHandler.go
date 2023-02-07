@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 type MsgReadUserDS struct {
@@ -109,4 +110,75 @@ func CvPlanIdByName(name string) (*MsgReadPlanDS, error) {
 	var respObj MsgReadPlanDS
 	json.Unmarshal(respBody, &respObj)
 	return &respObj, err
+}
+
+type MsgReadUserGroupDS struct {
+	UserGroups []struct {
+		UserGroupEntity struct {
+			UserGroupId int `json:"userGroupId"`
+		} `json:"userGroupEntity"`
+	} `json:"userGroups"`
+}
+
+func CvUserGroupIdByName(name string) (*MsgReadUserGroupDS, error) {
+	url := os.Getenv("CV_CSIP") + "/UserGroup?fq=" + url.QueryEscape("name:eq:") + url.QueryEscape(name)
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgReadUserGroupDS
+	json.Unmarshal(respBody, &respObj)
+	return &respObj, err
+}
+
+type MsgReadRoleDSResp struct {
+	Roles []MsgReadRoleDS `json:"roles"`
+}
+
+type MsgReadRoleDS struct {
+	RoleId   int    `json:"id"`
+	RoleName string `json:"name"`
+}
+
+func CvRoleIdByName(name string) (MsgReadRoleDS, error) {
+	url := os.Getenv("CV_CSIP") + "/V4/Role"
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgReadRoleDSResp
+	json.Unmarshal(respBody, &respObj)
+	var obj MsgReadRoleDS
+
+	for _, r := range respObj.Roles {
+		if strings.EqualFold(r.RoleName, name) {
+			obj = r
+		}
+	}
+
+	return obj, err
+}
+
+type MsgReadStoragePoolDSResp struct {
+	StoragePoolList []MsgReadStoragePoolDS `json:"storagePoolList"`
+}
+
+type MsgReadStoragePoolDS struct {
+	StoragePolicyEntity struct {
+		StoragePolicyName string `json:"storagePolicyName"`
+		StoragePolicyId   int    `json:"storagePolicyId"`
+	} `json:"storagePolicyEntity"`
+}
+
+func CvStoragePoolIdByName(name string) (MsgReadStoragePoolDS, error) {
+	url := os.Getenv("CV_CSIP") + "/StoragePool?storageSubType=2"
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgReadStoragePoolDSResp
+	json.Unmarshal(respBody, &respObj)
+	var obj MsgReadStoragePoolDS
+
+	for _, r := range respObj.StoragePoolList {
+		if strings.EqualFold(r.StoragePolicyEntity.StoragePolicyName, name) {
+			obj = r
+		}
+	}
+
+	return obj, err
 }
