@@ -17,39 +17,40 @@ func resourceVMGroup_V2() *schema.Resource {
         Delete: resourceDeleteVMGroup_V2,
 
         Schema: map[string]*schema.Schema{
-            "meditech": &schema.Schema{
+            "meditech": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "systemname": &schema.Schema{
+                        "systemname": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Meditech system name",
                         },
-                        "listenerip": &schema.Schema{
+                        "listenerip": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Meditech Listener IP of FQDN name",
                         },
-                        "useraccount": &schema.Schema{
+                        "useraccount": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "password": &schema.Schema{
+                                    "password": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
+                                        Sensitive:    true,
                                         Description: "password to access the network path",
                                     },
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
@@ -58,13 +59,13 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "listenerport": &schema.Schema{
+                        "listenerport": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
                             Description: "Meditech Listener Port",
                         },
-                        "mbftimeout": &schema.Schema{
+                        "mbftimeout": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
@@ -73,19 +74,19 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "hypervisor": &schema.Schema{
+            "hypervisor": {
                 Type:        schema.TypeList,
                 Required:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "name": &schema.Schema{
+                        "name": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                         },
-                        "id": &schema.Schema{
+                        "id": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
@@ -94,25 +95,25 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "name": &schema.Schema{
+            "name": {
                 Type:        schema.TypeString,
                 Required:    true,
                 Description: "subclient name ",
             },
-            "storage": &schema.Schema{
+            "storage": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "name": &schema.Schema{
+                        "name": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                         },
-                        "id": &schema.Schema{
+                        "id": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
@@ -121,26 +122,19 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "enableintellisnap": &schema.Schema{
-                Type:        schema.TypeBool,
-                Optional:    true,
-                Computed:    true,
-                Description: "True if Intellisnap has to be  enabled",
-            },
-            "plan": &schema.Schema{
+            "plan": {
                 Type:        schema.TypeList,
-                Optional:    true,
-                Computed:    true,
+                Required:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "name": &schema.Schema{
+                        "name": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                         },
-                        "id": &schema.Schema{
+                        "id": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
@@ -149,68 +143,43 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "content": &schema.Schema{
+            "content": {
                 Type:        schema.TypeList,
-                Optional:    true,
-                Computed:    true,
+                Required:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "rulegroups": &schema.Schema{
+                        "rulegroups": {
                             Type:        schema.TypeSet,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "matchrule": &schema.Schema{
+                                    "matchrule": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
-                                        Description: "Enum which specifies the whether to match all rules or any of the rules",
+                                        Description: "Enum which specifies the whether to match all rules or any of the rules [ALL, ANY]",
                                     },
-                                    "rules": &schema.Schema{
+                                    "rules": {
                                         Type:        schema.TypeSet,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "condition": &schema.Schema{
+                                                "condition": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "Operation type for VM rules/filters",
+                                                    Description: "Operation type for VM rules/filters [CONTAINS, DOES_NOT_CONTAIN, DOES_NOT_EQUAL, ENDS_WITH, EQUALS, STARTS_WITH]",
                                                 },
-                                                "displayname": &schema.Schema{
+                                                "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "The display name of the entity to be added",
-                                                },
-                                                "name": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
                                                     Description: "name of the VM to be added as content",
                                                 },
-                                                "guid": &schema.Schema{
+                                                "type": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "GUID of the entity to be added as content",
-                                                },
-                                                "type": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                                "value": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "value for the few type of VM Content like powerstate",
+                                                    Description: "[NONE, SERVER, RES_POOL, VAPP, DATACENTER, FOLDER, CLUSTER, DATASTORE, DATASTORE_CLUSTER, VM, VM_NAME, VM_GUEST_OS, VM_GUEST_HOST_NAME, CLUSTER_SHARED_VOLUMES, LOCAL_DISK, CLUSTER_DISK, UNPROTECTED_VMS, ROOT, FILE_SERVER, SMB_SHARE, TYPES_FOLDER, VM_FOLDER, SERVER_FOLDER, TEMPLATE_FOLDER, STORAGE_REPOSITORY_FOLDER, VAPPFOLDER, DATACENTER_FOLDER, CLUSTER_FOLDER, VM_POWER_STATE, VM_NOTES, VM_CUSTOM_ATTRIBUTE, NETWORK, USER, VM_TEMPLATE, TAG, TAG_CATEGORY, SUBCLIENT, CLIENT_GROUP, PROTECTION_DOMAIN, CONSISTENCY_GROUP, INSTANCE_SIZE, ORGANIZATION, IMAGES, STORAGE_POLICY, DATABASE, TABLE, PROJECT, SELECTOR, MANAGED_BY, REPLICATION_MODE, METADATATAG, CATALOG, VAPPTEMPLATE, VOLUME]",
                                                 },
                                             },
                                         },
@@ -218,86 +187,8 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "virtualmachines": &schema.Schema{
-                            Type:        schema.TypeSet,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "guestcredentialassocid": &schema.Schema{
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Credential association ID given to link entity with credential id.",
-                                    },
-                                    "guestcredentials": &schema.Schema{
-                                        Type:        schema.TypeList,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                        Elem: &schema.Resource{
-                                            Schema: map[string]*schema.Schema{
-                                                "password": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                                "username": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                            },
-                                        },
-                                    },
-                                    "name": &schema.Schema{
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "name of the VM to be added as content",
-                                    },
-                                    "guid": &schema.Schema{
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "GUID of the VM to be added as content",
-                                    },
-                                    "type": &schema.Schema{
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                    },
-                                    "existingcredential": &schema.Schema{
-                                        Type:        schema.TypeList,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                        Elem: &schema.Resource{
-                                            Schema: map[string]*schema.Schema{
-                                                "credentialid": &schema.Schema{
-                                                    Type:        schema.TypeInt,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                                "credentialname": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                        "overwrite": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "overwrite": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if content in vmgroup has to be overwritten, by default it will append the content",
@@ -305,109 +196,165 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "activitycontrol": &schema.Schema{
+            "activitycontrol": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "restoreactivitycontroloptions": &schema.Schema{
+                        "restoreactivitycontroloptions": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "timezone": &schema.Schema{
+                                    "delaytime": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "name": &schema.Schema{
-                                                    Type:        schema.TypeString,
+                                                "timezone": {
+                                                    Type:        schema.TypeList,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
+                                                    Elem: &schema.Resource{
+                                                        Schema: map[string]*schema.Schema{
+                                                            "name": {
+                                                                Type:        schema.TypeString,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "",
+                                                            },
+                                                            "id": {
+                                                                Type:        schema.TypeInt,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "",
+                                                            },
+                                                        },
+                                                    },
                                                 },
-                                                "id": &schema.Schema{
+                                                "time": {
                                                     Type:        schema.TypeInt,
                                                     Optional:    true,
                                                     Computed:    true,
-                                                    Description: "",
+                                                    Description: "delay time in unix timestamp",
+                                                },
+                                                "value": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "actual delay time value in string format according to the timezone",
                                                 },
                                             },
                                         },
                                     },
-                                    "enableafterdelay": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "activitytype": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]",
+                                    },
+                                    "enableafteradelay": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if the activity will be enabled after a delay time interval",
                                     },
-                                    "delaytime": &schema.Schema{
+                                    "enableactivitytype": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "Delayed by n Hrs",
+                                        Description: "True if the activity type is enabled",
                                     },
                                 },
                             },
                         },
-                        "backupactivitycontroloptions": &schema.Schema{
+                        "backupactivitycontroloptions": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "timezone": &schema.Schema{
+                                    "delaytime": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "name": &schema.Schema{
-                                                    Type:        schema.TypeString,
+                                                "timezone": {
+                                                    Type:        schema.TypeList,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
+                                                    Elem: &schema.Resource{
+                                                        Schema: map[string]*schema.Schema{
+                                                            "name": {
+                                                                Type:        schema.TypeString,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "",
+                                                            },
+                                                            "id": {
+                                                                Type:        schema.TypeInt,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "",
+                                                            },
+                                                        },
+                                                    },
                                                 },
-                                                "id": &schema.Schema{
+                                                "time": {
                                                     Type:        schema.TypeInt,
                                                     Optional:    true,
                                                     Computed:    true,
-                                                    Description: "",
+                                                    Description: "delay time in unix timestamp",
+                                                },
+                                                "value": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "actual delay time value in string format according to the timezone",
                                                 },
                                             },
                                         },
                                     },
-                                    "enableafterdelay": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "activitytype": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]",
+                                    },
+                                    "enableafteradelay": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if the activity will be enabled after a delay time interval",
                                     },
-                                    "delaytime": &schema.Schema{
+                                    "enableactivitytype": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "Delayed by n Hrs",
+                                        Description: "True if the activity type is enabled",
                                     },
                                 },
                             },
                         },
-                        "enablebackup": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "enablebackup": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "true if Backup is enabled",
                         },
-                        "enablerestore": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "enablerestore": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "true if Restore is enabled",
@@ -415,82 +362,83 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "settings": &schema.Schema{
+            "settings": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "autodetectvmowner": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "autodetectvmowner": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if auto detect VM Owner enabled",
                         },
-                        "collectfiledetailsforgranularrecovery": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "collectfiledetailsforgranularrecovery": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if metadata collection is enabled. Only applicable for Indexing v1",
                         },
-                        "noofreaders": &schema.Schema{
+                        "noofreaders": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
                             Description: "Number of readers for backup",
                         },
-                        "usechangedblocktrackingonvm": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "usechangedblocktrackingonvm": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if Changed Block Tracking is enabled",
                         },
-                        "jobstarttime": &schema.Schema{
+                        "jobstarttime": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
                             Description: "Start Time for the VM Group Job",
                         },
-                        "usevmcheckpointsetting": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "usevmcheckpointsetting": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if use VM CheckPoint setting is enabled",
                         },
-                        "customsnapshotresourcegroup": &schema.Schema{
+                        "customsnapshotresourcegroup": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Custom snapshot resource group name for Azure",
                         },
-                        "regionalsnapshot": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "regionalsnapshot": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True when snapshot storage location is regional",
                         },
-                        "guestcredentials": &schema.Schema{
+                        "guestcredentials": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "credentials": &schema.Schema{
+                                    "credentials": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "password": &schema.Schema{
+                                                "password": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
+                                                    Sensitive:    true,
                                                     Description: "password to access the network path",
                                                 },
-                                                "name": &schema.Schema{
+                                                "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
@@ -499,14 +447,14 @@ func resourceVMGroup_V2() *schema.Resource {
                                             },
                                         },
                                     },
-                                    "savedcredentials": &schema.Schema{
+                                    "savedcredentials": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "name": &schema.Schema{
+                                                "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
@@ -518,38 +466,38 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "vmbackuptype": &schema.Schema{
+                        "vmbackuptype": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
-                            Description: "",
+                            Description: "[APPLICATION_AWARE, FILE_SYSTEM_AND_APPLICATION_CONSISTENT, CRASH_CONSISTENT, APP_BASED_BACKUP, INHERITED]",
                         },
-                        "datastorefreespacecheck": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "datastorefreespacecheck": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if Datastore Free space check is enabled",
                         },
-                        "datastorefreespacerequired": &schema.Schema{
+                        "datastorefreespacerequired": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
                             Description: "precentage of datastore free space check value",
                         },
-                        "customsnapshottags": &schema.Schema{
+                        "customsnapshottags": {
                             Type:        schema.TypeSet,
                             Optional:    true,
                             Computed:    true,
                             Description: "represents custom tags to be set on snapshots",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "represents name of the tag",
                                     },
-                                    "value": &schema.Schema{
+                                    "value": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
@@ -558,57 +506,57 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "isapplicationaware": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "isapplicationaware": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Is the VM App Aware",
                         },
-                        "transportmode": &schema.Schema{
+                        "transportmode": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
-                            Description: "transport mode based on environment. Values are case sensitive",
+                            Description: "transport mode based on environment. Values are case sensitive [AUTO, SAN, HOT_ADD, NAS, NBD_SSL, NBD]",
                         },
-                        "collectfiledetailsfromsnapshotcopy": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "collectfiledetailsfromsnapshotcopy": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if metadata collection is enabled for intellisnap jobs. Only applicable for Indexing v1",
                         },
-                        "crossaccount": &schema.Schema{
+                        "crossaccount": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "shareonly": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "shareonly": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if replicate and copy or sharing of amazon snapshot to different amazon account in same or different geographic location is enabled",
                                     },
-                                    "fullcopy": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "fullcopy": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if full copy of amazon snapshot to different amazon account is enabled",
                                     },
-                                    "destinationaccount": &schema.Schema{
+                                    "destinationaccount": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "name": &schema.Schema{
+                                                "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
                                                 },
-                                                "id": &schema.Schema{
+                                                "id": {
                                                     Type:        schema.TypeInt,
                                                     Optional:    true,
                                                     Computed:    true,
@@ -623,57 +571,57 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "diskfilters": &schema.Schema{
+            "diskfilters": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "rules": &schema.Schema{
+                        "rules": {
                             Type:        schema.TypeSet,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "condition": &schema.Schema{
+                                    "condition": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "Operation type for VM rules/filters",
+                                        Description: "Operation type for VM rules/filters [CONTAINS, DOES_NOT_CONTAIN, DOES_NOT_EQUAL, ENDS_WITH, EQUALS, STARTS_WITH]",
                                     },
-                                    "vmname": &schema.Schema{
+                                    "vmname": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "VM Name of the Virtual Machine whose disk has to be filtered . This is optional. if not given, all disks of name and type from all Vms added in content will be filtered",
                                     },
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "The string to be filtered",
                                     },
-                                    "filtertype": &schema.Schema{
+                                    "filtertype": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "",
+                                        Description: "[NONE, DISK_PATH, DISK_PATTERN, DISK_VIRTUAL_DEVICE_NODE, DISK_DATASTORE, DISK_LABEL, DISK_TYPE, DISK_ADDRESS, CONTAINER_PATTERN, DISK_TAG]",
                                     },
-                                    "overwrite": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "overwrite": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if disk filter in vmgroup has to be overwritten, by default it will append the content",
                                     },
-                                    "value": &schema.Schema{
+                                    "value": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "The value string to be filtered, in case of disk tag , value of tag to be filtered",
                                     },
-                                    "vmguid": &schema.Schema{
+                                    "vmguid": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
@@ -682,8 +630,8 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "overwrite": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "overwrite": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if content in vmgroup has to be overwritten, by default it will append the content",
@@ -691,160 +639,137 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "securityassociations": &schema.Schema{
+            "securityassociations": {
                 Type:        schema.TypeSet,
                 Optional:    true,
-                Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "role": &schema.Schema{
+                        "role": {
                             Type:        schema.TypeList,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
                                 },
                             },
                         },
-                        "iscreatorassociation": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "iscreatorassociation": {
+                            Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                         },
-                        "externalusergroup": &schema.Schema{
+                        "externalusergroup": {
                             Type:        schema.TypeList,
                             Optional:    true,
-                            Computed:    true,
                             Description: "External User Group Entity",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "providerid": &schema.Schema{
+                                    "providerid": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "Provider id",
                                     },
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "External Group Name",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "User Group Id",
                                     },
-                                    "providername": &schema.Schema{
+                                    "providername": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "Provider Name",
                                     },
                                 },
                             },
                         },
-                        "permissionlist": &schema.Schema{
+                        "permissionlist": {
                             Type:        schema.TypeSet,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "permissionid": &schema.Schema{
+                                    "permissionid": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
-                                    "exclude": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "exclude": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "Flag to specify if this is included permission or excluded permission.",
                                     },
-                                    "type": &schema.Schema{
+                                    "type": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
-                                        Description: "Returns the type of association.",
+                                        Description: "Returns the type of association. [ALL_CATEGORIES, CATEGORY_ENTITY, PERMISSION_ENTITY]",
                                     },
-                                    "categoryname": &schema.Schema{
+                                    "categoryname": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
-                                    "categoryid": &schema.Schema{
+                                    "categoryid": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
-                                    "permissionname": &schema.Schema{
+                                    "permissionname": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
                                 },
                             },
                         },
-                        "user": &schema.Schema{
+                        "user": {
                             Type:        schema.TypeList,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
                                 },
                             },
                         },
-                        "usergroup": &schema.Schema{
+                        "usergroup": {
                             Type:        schema.TypeList,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                     },
                                 },
@@ -853,170 +778,20 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "filters": &schema.Schema{
+            "timezone": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "rulegroups": &schema.Schema{
-                            Type:        schema.TypeSet,
+                        "name": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "matchrule": &schema.Schema{
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Enum which specifies the whether to match all rules or any of the rules",
-                                    },
-                                    "rules": &schema.Schema{
-                                        Type:        schema.TypeSet,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                        Elem: &schema.Resource{
-                                            Schema: map[string]*schema.Schema{
-                                                "condition": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "Operation type for VM rules/filters",
-                                                },
-                                                "displayname": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "The display name of the entity to be added",
-                                                },
-                                                "name": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "name of the VM to be added as content",
-                                                },
-                                                "guid": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "GUID of the entity to be added as content",
-                                                },
-                                                "type": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                                "value": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "value for the few type of VM Content like powerstate",
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
                         },
-                        "virtualmachines": &schema.Schema{
-                            Type:        schema.TypeSet,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "guestcredentialassocid": &schema.Schema{
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Credential association ID given to link entity with credential id.",
-                                    },
-                                    "guestcredentials": &schema.Schema{
-                                        Type:        schema.TypeList,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                        Elem: &schema.Resource{
-                                            Schema: map[string]*schema.Schema{
-                                                "password": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                                "username": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                            },
-                                        },
-                                    },
-                                    "name": &schema.Schema{
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "name of the VM to be added as content",
-                                    },
-                                    "guid": &schema.Schema{
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "GUID of the VM to be added as content",
-                                    },
-                                    "type": &schema.Schema{
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                    },
-                                    "existingcredential": &schema.Schema{
-                                        Type:        schema.TypeList,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "",
-                                        Elem: &schema.Resource{
-                                            Schema: map[string]*schema.Schema{
-                                                "credentialid": &schema.Schema{
-                                                    Type:        schema.TypeInt,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                                "credentialname": &schema.Schema{
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "",
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                        "overwrite": &schema.Schema{
-                            Type:        schema.TypeBool,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "True if content in vmgroup has to be overwritten, by default it will append the content",
-                        },
-                    },
-                },
-            },
-            "accessnode": &schema.Schema{
-                Type:        schema.TypeSet,
-                Optional:    true,
-                Computed:    true,
-                Description: "",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "id": &schema.Schema{
+                        "id": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
@@ -1025,33 +800,101 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "snapshotmanagement": &schema.Schema{
+            "filters": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "useseparateproxyforsnaptotape": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "rulegroups": {
+                            Type:        schema.TypeSet,
+                            Optional:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "matchrule": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "Enum which specifies the whether to match all rules or any of the rules [ALL, ANY]",
+                                    },
+                                    "rules": {
+                                        Type:        schema.TypeSet,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "condition": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "Operation type for VM rules/filters [CONTAINS, DOES_NOT_CONTAIN, DOES_NOT_EQUAL, ENDS_WITH, EQUALS, STARTS_WITH]",
+                                                },
+                                                "name": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "name of the VM to be added as content",
+                                                },
+                                                "type": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "[NONE, SERVER, RES_POOL, VAPP, DATACENTER, FOLDER, CLUSTER, DATASTORE, DATASTORE_CLUSTER, VM, VM_NAME, VM_GUEST_OS, VM_GUEST_HOST_NAME, CLUSTER_SHARED_VOLUMES, LOCAL_DISK, CLUSTER_DISK, UNPROTECTED_VMS, ROOT, FILE_SERVER, SMB_SHARE, TYPES_FOLDER, VM_FOLDER, SERVER_FOLDER, TEMPLATE_FOLDER, STORAGE_REPOSITORY_FOLDER, VAPPFOLDER, DATACENTER_FOLDER, CLUSTER_FOLDER, VM_POWER_STATE, VM_NOTES, VM_CUSTOM_ATTRIBUTE, NETWORK, USER, VM_TEMPLATE, TAG, TAG_CATEGORY, SUBCLIENT, CLIENT_GROUP, PROTECTION_DOMAIN, CONSISTENCY_GROUP, INSTANCE_SIZE, ORGANIZATION, IMAGES, STORAGE_POLICY, DATABASE, TABLE, PROJECT, SELECTOR, MANAGED_BY, REPLICATION_MODE, METADATATAG, CATALOG, VAPPTEMPLATE, VOLUME]",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "overwrite": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "True if content in vmgroup has to be overwritten, by default it will append the content",
+                        },
+                    },
+                },
+            },
+            "accessnode": {
+                Type:        schema.TypeSet,
+                Optional:    true,
+                Description: "",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "id": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Description: "",
+                        },
+                    },
+                },
+            },
+            "snapshotmanagement": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "useseparateproxyforsnaptotape": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if separate proxy client is used for snap to tape",
                         },
-                        "snapengine": &schema.Schema{
+                        "snapengine": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
@@ -1060,38 +903,38 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "isindependentdisksenabled": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "isindependentdisksenabled": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if independent disk option is enabled",
                         },
-                        "backupcopyinterface": &schema.Schema{
+                        "backupcopyinterface": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
-                            Description: "",
+                            Description: "[FILE_SYSTEM, RMAN, VOLUME_COPY]",
                         },
-                        "enablehardwaresnapshot": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "enablehardwaresnapshot": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if hardware snapshot is enabled",
                         },
-                        "snapmountproxy": &schema.Schema{
+                        "snapmountproxy": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
@@ -1100,20 +943,20 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "vmapplicationusername": &schema.Schema{
+                        "vmapplicationusername": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Virtual machine application user name",
                         },
-                        "snapmountesxhost": &schema.Schema{
+                        "snapmountesxhost": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Name of ESX Host",
                         },
-                        "israwdevicemapsenabled": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "israwdevicemapsenabled": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if raw device maps option is enabled",
@@ -1121,39 +964,33 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "enablefileindexing": &schema.Schema{
-                Type:        schema.TypeBool,
+            "enablefileindexing": {
+                Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
                 Description: "True if file indexing needs to be enabled",
             },
-            "newname": &schema.Schema{
-                Type:        schema.TypeString,
-                Optional:    true,
-                Computed:    true,
-                Description: "subclient name ",
-            },
-            "applicationvalidation": &schema.Schema{
+            "applicationvalidation": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "recoverytarget": &schema.Schema{
+                        "recoverytarget": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
@@ -1162,32 +999,32 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "schedule": &schema.Schema{
+                        "schedule": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "Schedule for application validation for VM Group",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "isscheduleenabled": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "isscheduleenabled": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if application validation schedule is enabled",
                                     },
-                                    "description": &schema.Schema{
+                                    "description": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Description for validation schedule",
                                     },
-                                    "id": &schema.Schema{
+                                    "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                     },
-                                    "taskid": &schema.Schema{
+                                    "taskid": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
@@ -1196,33 +1033,34 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "maximumnoofthreads": &schema.Schema{
+                        "maximumnoofthreads": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
                             Description: "Number of backup Validation Threads",
                         },
-                        "guestcredentials": &schema.Schema{
+                        "guestcredentials": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "credentials": &schema.Schema{
+                                    "credentials": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "password": &schema.Schema{
+                                                "password": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
+                                                    Sensitive:    true,
                                                     Description: "password to access the network path",
                                                 },
-                                                "name": &schema.Schema{
+                                                "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
@@ -1231,14 +1069,14 @@ func resourceVMGroup_V2() *schema.Resource {
                                             },
                                         },
                                     },
-                                    "savedcredentials": &schema.Schema{
+                                    "savedcredentials": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "name": &schema.Schema{
+                                                "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
@@ -1250,58 +1088,59 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "keepvalidatedvmsrunning": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "keepvalidatedvmsrunning": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "If true then validated VMs will be available until expiration time set on the recovery target",
                         },
-                        "validatevmbackups": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "validatevmbackups": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if VM Backup validation is enabled",
                         },
-                        "usesourcevmesxtomount": &schema.Schema{
-                            Type:        schema.TypeBool,
+                        "usesourcevmesxtomount": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Use Source VM ESX To Mount",
                         },
-                        "customvalidationscript": &schema.Schema{
+                        "customvalidationscript": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "Custom validation script to be used during VM backup validation",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "windows": &schema.Schema{
+                                    "windows": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "path": &schema.Schema{
+                                                "path": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "Path for the validation script",
                                                 },
-                                                "unccredentials": &schema.Schema{
+                                                "unccredentials": {
                                                     Type:        schema.TypeList,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
                                                     Elem: &schema.Resource{
                                                         Schema: map[string]*schema.Schema{
-                                                            "password": &schema.Schema{
+                                                            "password": {
                                                                 Type:        schema.TypeString,
                                                                 Optional:    true,
                                                                 Computed:    true,
+                                                                Sensitive:    true,
                                                                 Description: "password to access the network path",
                                                             },
-                                                            "name": &schema.Schema{
+                                                            "name": {
                                                                 Type:        schema.TypeString,
                                                                 Optional:    true,
                                                                 Computed:    true,
@@ -1310,20 +1149,20 @@ func resourceVMGroup_V2() *schema.Resource {
                                                         },
                                                     },
                                                 },
-                                                "uncsavedcredentials": &schema.Schema{
+                                                "uncsavedcredentials": {
                                                     Type:        schema.TypeList,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
                                                     Elem: &schema.Resource{
                                                         Schema: map[string]*schema.Schema{
-                                                            "name": &schema.Schema{
+                                                            "name": {
                                                                 Type:        schema.TypeString,
                                                                 Optional:    true,
                                                                 Computed:    true,
                                                                 Description: "",
                                                             },
-                                                            "id": &schema.Schema{
+                                                            "id": {
                                                                 Type:        schema.TypeInt,
                                                                 Optional:    true,
                                                                 Computed:    true,
@@ -1332,20 +1171,20 @@ func resourceVMGroup_V2() *schema.Resource {
                                                         },
                                                     },
                                                 },
-                                                "arguments": &schema.Schema{
+                                                "arguments": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "Arguments for the script",
                                                 },
-                                                "isdisabled": &schema.Schema{
-                                                    Type:        schema.TypeBool,
+                                                "isdisabled": {
+                                                    Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "Is the script disabled",
                                                 },
-                                                "islocal": &schema.Schema{
-                                                    Type:        schema.TypeBool,
+                                                "islocal": {
+                                                    Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "True if the script is local",
@@ -1353,33 +1192,34 @@ func resourceVMGroup_V2() *schema.Resource {
                                             },
                                         },
                                     },
-                                    "unix": &schema.Schema{
+                                    "unix": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "path": &schema.Schema{
+                                                "path": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "Path for the validation script",
                                                 },
-                                                "unccredentials": &schema.Schema{
+                                                "unccredentials": {
                                                     Type:        schema.TypeList,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
                                                     Elem: &schema.Resource{
                                                         Schema: map[string]*schema.Schema{
-                                                            "password": &schema.Schema{
+                                                            "password": {
                                                                 Type:        schema.TypeString,
                                                                 Optional:    true,
                                                                 Computed:    true,
+                                                                Sensitive:    true,
                                                                 Description: "password to access the network path",
                                                             },
-                                                            "name": &schema.Schema{
+                                                            "name": {
                                                                 Type:        schema.TypeString,
                                                                 Optional:    true,
                                                                 Computed:    true,
@@ -1388,20 +1228,20 @@ func resourceVMGroup_V2() *schema.Resource {
                                                         },
                                                     },
                                                 },
-                                                "uncsavedcredentials": &schema.Schema{
+                                                "uncsavedcredentials": {
                                                     Type:        schema.TypeList,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
                                                     Elem: &schema.Resource{
                                                         Schema: map[string]*schema.Schema{
-                                                            "name": &schema.Schema{
+                                                            "name": {
                                                                 Type:        schema.TypeString,
                                                                 Optional:    true,
                                                                 Computed:    true,
                                                                 Description: "",
                                                             },
-                                                            "id": &schema.Schema{
+                                                            "id": {
                                                                 Type:        schema.TypeInt,
                                                                 Optional:    true,
                                                                 Computed:    true,
@@ -1410,20 +1250,20 @@ func resourceVMGroup_V2() *schema.Resource {
                                                         },
                                                     },
                                                 },
-                                                "arguments": &schema.Schema{
+                                                "arguments": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "Arguments for the script",
                                                 },
-                                                "isdisabled": &schema.Schema{
-                                                    Type:        schema.TypeBool,
+                                                "isdisabled": {
+                                                    Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "Is the script disabled",
                                                 },
-                                                "islocal": &schema.Schema{
-                                                    Type:        schema.TypeBool,
+                                                "islocal": {
+                                                    Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "True if the script is local",
@@ -1434,81 +1274,81 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "copy": &schema.Schema{
+                        "copy": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "ismirrorcopy": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "ismirrorcopy": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Is this a mirror copy?",
                                     },
-                                    "snapcopytype": &schema.Schema{
+                                    "snapcopytype": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "",
+                                        Description: "[DEFAULT_MIRROR, DEFAULT_VAULT_REPLICA, MIRROR, VAULT_REPLICA, SNAPSHOT_PRIMARY]",
                                     },
-                                    "isdefault": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "isdefault": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Is this a default backup destination?",
                                     },
-                                    "copyprecedence": &schema.Schema{
+                                    "copyprecedence": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Order of backup destinaion copy created in storage policy",
                                     },
-                                    "issnapcopy": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "issnapcopy": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Is this a snap copy?",
                                     },
-                                    "copytype": &schema.Schema{
+                                    "copytype": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "",
+                                        Description: "[SYNCHRONOUS, SELECTIVE]",
                                     },
-                                    "defaultreplicacopy": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "defaultreplicacopy": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Is this a default replica copy?",
                                     },
-                                    "isactive": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "isactive": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Is this an active backup destination?",
                                     },
-                                    "arrayreplicacopy": &schema.Schema{
-                                        Type:        schema.TypeBool,
+                                    "arrayreplicacopy": {
+                                        Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Is this an array replica copy?",
                                     },
-                                    "backupdestination": &schema.Schema{
+                                    "backupdestination": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
-                                                "name": &schema.Schema{
+                                                "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "",
                                                 },
-                                                "id": &schema.Schema{
+                                                "id": {
                                                     Type:        schema.TypeInt,
                                                     Optional:    true,
                                                     Computed:    true,
@@ -1523,39 +1363,40 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
-            "meditechsystems": &schema.Schema{
+            "meditechsystems": {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "systemname": &schema.Schema{
+                        "systemname": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Meditech system name",
                         },
-                        "listenerip": &schema.Schema{
+                        "listenerip": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Meditech Listener IP of FQDN name",
                         },
-                        "useraccount": &schema.Schema{
+                        "useraccount": {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "password": &schema.Schema{
+                                    "password": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
+                                        Sensitive:    true,
                                         Description: "password to access the network path",
                                     },
-                                    "name": &schema.Schema{
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
@@ -1564,13 +1405,13 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
-                        "listenerport": &schema.Schema{
+                        "listenerport": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
                             Description: "Meditech Listener Port",
                         },
-                        "mbftimeout": &schema.Schema{
+                        "mbftimeout": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
@@ -1587,52 +1428,39 @@ func resourceCreateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
     //API: (POST) /V4/VMGroup
     var response_id = strconv.Itoa(0)
     var t_meditech *handler.MsgmeditechPropResp
-    if v, ok := d.GetOk("meditech"); ok {
-        val := v.([]interface{})
-        t_meditech = build_vmgroup_v2_msgmeditechpropresp(d, val)
+    if val, ok := d.GetOk("meditech"); ok {
+        t_meditech = build_vmgroup_v2_msgmeditechpropresp(d, val.([]interface{}))
     }
     var t_hypervisor *handler.MsgIdName
-    if v, ok := d.GetOk("hypervisor"); ok {
-        val := v.([]interface{})
-        t_hypervisor = build_vmgroup_v2_msgidname(d, val)
+    if val, ok := d.GetOk("hypervisor"); ok {
+        t_hypervisor = build_vmgroup_v2_msgidname(d, val.([]interface{}))
     }
     var t_name *string
-    if v, ok := d.GetOk("name"); ok {
-        val := v.(string)
-        t_name = new(string)
-        t_name = &val
+    if val, ok := d.GetOk("name"); ok {
+        t_name = handler.ToStringValue(val, false)
     }
     var t_storage *handler.MsgIdName
-    if v, ok := d.GetOk("storage"); ok {
-        val := v.([]interface{})
-        t_storage = build_vmgroup_v2_msgidname(d, val)
-    }
-    var t_enableintellisnap *bool
-    if v, ok := d.GetOkExists("enableintellisnap"); ok {
-        val := v.(bool)
-        t_enableintellisnap = new(bool)
-        t_enableintellisnap = &val
+    if val, ok := d.GetOk("storage"); ok {
+        t_storage = build_vmgroup_v2_msgidname(d, val.([]interface{}))
     }
     var t_plan *handler.MsgIdName
-    if v, ok := d.GetOk("plan"); ok {
-        val := v.([]interface{})
-        t_plan = build_vmgroup_v2_msgidname(d, val)
+    if val, ok := d.GetOk("plan"); ok {
+        t_plan = build_vmgroup_v2_msgidname(d, val.([]interface{}))
     }
     var t_content *handler.MsgvmContent
-    if v, ok := d.GetOk("content"); ok {
-        val := v.([]interface{})
-        t_content = build_vmgroup_v2_msgvmcontent(d, val)
+    if val, ok := d.GetOk("content"); ok {
+        t_content = build_vmgroup_v2_msgvmcontent(d, val.([]interface{}))
     }
-    var req = handler.MsgCreateVMGroupRequest{Meditech:t_meditech, Hypervisor:t_hypervisor, Name:t_name, Storage:t_storage, EnableIntellisnap:t_enableintellisnap, Plan:t_plan, Content:t_content}
+    var req = handler.MsgCreateVMGroupRequest{Meditech:t_meditech, Hypervisor:t_hypervisor, Name:t_name, Storage:t_storage, Plan:t_plan, Content:t_content}
     resp, err := handler.CvCreateVMGroup(req)
     if err != nil {
-        return fmt.Errorf("Operation [CreateVMGroup] failed, Error %s", err)
+        return fmt.Errorf("operation [CreateVMGroup] failed, Error %s", err)
     }
     if resp.SubclientId != nil {
         response_id = strconv.Itoa(*resp.SubclientId)
     }
     if response_id == "0" {
-        return fmt.Errorf("Operation [CreateVMGroup] failed")
+        return fmt.Errorf("operation [CreateVMGroup] failed")
     } else {
         d.SetId(response_id)
         return resourceCreateUpdateVMGroup_V2(d, m)
@@ -1643,55 +1471,65 @@ func resourceReadVMGroup_V2(d *schema.ResourceData, m interface{}) error {
     //API: (GET) /V4/VmGroup/{VmGroupId}
     resp, err := handler.CvGetVMGroup(d.Id())
     if err != nil {
-        return fmt.Errorf("Operation [GetVMGroup] failed, Error %s", err)
+        return fmt.Errorf("operation [GetVMGroup] failed, Error %s", err)
     }
-    if resp.ActivityControl != nil {
-        d.Set("activitycontrol", serialize_vmgroup_v2_msgactivitycontroloptions(resp.ActivityControl))
+    if rtn, ok := serialize_vmgroup_v2_msgactivitycontroloptions(d, resp.ActivityControl); ok {
+        d.Set("activitycontrol", rtn)
     } else {
         d.Set("activitycontrol", make([]map[string]interface{}, 0))
     }
-    if resp.Settings != nil {
-        d.Set("settings", serialize_vmgroup_v2_msgvmgroupsettings(resp.Settings))
+    if rtn, ok := serialize_vmgroup_v2_msgvmgroupsettings(d, resp.Settings); ok {
+        d.Set("settings", rtn)
     } else {
         d.Set("settings", make([]map[string]interface{}, 0))
     }
-    if resp.DiskFilters != nil {
-        d.Set("diskfilters", serialize_vmgroup_v2_msgvmdiskfilterpropset_array(resp.DiskFilters))
+    if rtn, ok := serialize_vmgroup_v2_msgvmdiskfilterpropset_array(d, resp.DiskFilters); ok {
+        d.Set("diskfilters", rtn)
     } else {
         d.Set("diskfilters", make([]map[string]interface{}, 0))
     }
-    if resp.SecurityAssociations != nil {
-        d.Set("securityassociations", serialize_vmgroup_v2_msgsecurityassocset_array(resp.SecurityAssociations))
+    if rtn, ok := serialize_vmgroup_v2_msgsecurityassocset_array(d, resp.SecurityAssociations); ok {
+        d.Set("securityassociations", rtn)
     } else {
         d.Set("securityassociations", make([]map[string]interface{}, 0))
     }
-    if resp.Filters != nil {
-        d.Set("filters", serialize_vmgroup_v2_msgvmcontentset_array(resp.Filters))
+    if rtn, ok := serialize_vmgroup_v2_msgvmcontentset_array(d, resp.Filters); ok {
+        d.Set("filters", rtn)
     } else {
         d.Set("filters", make([]map[string]interface{}, 0))
     }
-    if resp.Content != nil {
-        d.Set("content", serialize_vmgroup_v2_msgvmcontentset_array(resp.Content))
+    if rtn, ok := serialize_vmgroup_v2_msgvmcontentset_array(d, resp.Content); ok {
+        d.Set("content", rtn)
     } else {
         d.Set("content", make([]map[string]interface{}, 0))
     }
-    if resp.SnapshotManagement != nil {
-        d.Set("snapshotmanagement", serialize_vmgroup_v2_msgsnapcopyinfo(resp.SnapshotManagement))
+    if rtn, ok := serialize_vmgroup_v2_msgsnapcopyinfo(d, resp.SnapshotManagement); ok {
+        d.Set("snapshotmanagement", rtn)
     } else {
         d.Set("snapshotmanagement", make([]map[string]interface{}, 0))
     }
     if resp.Name != nil {
         d.Set("name", resp.Name)
     }
-    if resp.ApplicationValidation != nil {
-        d.Set("applicationvalidation", serialize_vmgroup_v2_msgvmappvalidation(resp.ApplicationValidation))
+    if rtn, ok := serialize_vmgroup_v2_msgvmappvalidation(d, resp.ApplicationValidation); ok {
+        d.Set("applicationvalidation", rtn)
     } else {
         d.Set("applicationvalidation", make([]map[string]interface{}, 0))
     }
-    if resp.MeditechSystems != nil {
-        d.Set("meditechsystems", serialize_vmgroup_v2_msgmeditechpropresp(resp.MeditechSystems))
+    if rtn, ok := serialize_vmgroup_v2_msgmeditechpropresp(d, resp.MeditechSystems); ok {
+        d.Set("meditechsystems", rtn)
     } else {
         d.Set("meditechsystems", make([]map[string]interface{}, 0))
+    }
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, resp.CommonProperties.Hypervisor); ok {
+        d.Set("hypervisor", rtn)
+    } else {
+        d.Set("hypervisor", make([]map[string]interface{}, 0))
+    }
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, resp.Summary.Plan); ok {
+        d.Set("plan", rtn)
+    } else {
+        d.Set("plan", make([]map[string]interface{}, 0))
     }
     return nil
 }
@@ -1700,80 +1538,83 @@ func resourceUpdateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
     //API: (PUT) /V4/VmGroup/{VmGroupId}
     var t_activitycontrol *handler.MsgActivityControlOptions
     if d.HasChange("activitycontrol") {
-        val := d.Get("activitycontrol").([]interface{})
-        t_activitycontrol = build_vmgroup_v2_msgactivitycontroloptions(d, val)
+        val := d.Get("activitycontrol")
+        t_activitycontrol = build_vmgroup_v2_msgactivitycontroloptions(d, val.([]interface{}))
     }
     var t_settings *handler.MsgvmGroupSettings
     if d.HasChange("settings") {
-        val := d.Get("settings").([]interface{})
-        t_settings = build_vmgroup_v2_msgvmgroupsettings(d, val)
+        val := d.Get("settings")
+        t_settings = build_vmgroup_v2_msgvmgroupsettings(d, val.([]interface{}))
     }
     var t_diskfilters *handler.MsgvmDiskFilterProp
     if d.HasChange("diskfilters") {
-        val := d.Get("diskfilters").([]interface{})
-        t_diskfilters = build_vmgroup_v2_msgvmdiskfilterprop(d, val)
+        val := d.Get("diskfilters")
+        t_diskfilters = build_vmgroup_v2_msgvmdiskfilterprop(d, val.([]interface{}))
     }
     var t_securityassociations []handler.MsgSecurityAssocSet
     if d.HasChange("securityassociations") {
-        val := d.Get("securityassociations").(*schema.Set)
-        t_securityassociations = build_vmgroup_v2_msgsecurityassocset_array(d, val.List())
+        val := d.Get("securityassociations")
+        t_securityassociations = build_vmgroup_v2_msgsecurityassocset_array(d, val.(*schema.Set).List())
+    }
+    var t_timezone *handler.MsgIdName
+    if d.HasChange("timezone") {
+        val := d.Get("timezone")
+        t_timezone = build_vmgroup_v2_msgidname(d, val.([]interface{}))
     }
     var t_storage *handler.MsgIdName
     if d.HasChange("storage") {
-        val := d.Get("storage").([]interface{})
-        t_storage = build_vmgroup_v2_msgidname(d, val)
+        val := d.Get("storage")
+        t_storage = build_vmgroup_v2_msgidname(d, val.([]interface{}))
     }
     var t_filters *handler.MsgvmContent
     if d.HasChange("filters") {
-        val := d.Get("filters").([]interface{})
-        t_filters = build_vmgroup_v2_msgvmcontent(d, val)
+        val := d.Get("filters")
+        t_filters = build_vmgroup_v2_msgvmcontent(d, val.([]interface{}))
     }
     var t_accessnode []handler.MsgIdNameSet
     if d.HasChange("accessnode") {
-        val := d.Get("accessnode").(*schema.Set)
-        t_accessnode = build_vmgroup_v2_msgidnameset_array(d, val.List())
+        val := d.Get("accessnode")
+        t_accessnode = build_vmgroup_v2_msgidnameset_array(d, val.(*schema.Set).List())
     }
     var t_content *handler.MsgvmContent
     if d.HasChange("content") {
-        val := d.Get("content").([]interface{})
-        t_content = build_vmgroup_v2_msgvmcontent(d, val)
+        val := d.Get("content")
+        t_content = build_vmgroup_v2_msgvmcontent(d, val.([]interface{}))
     }
     var t_snapshotmanagement *handler.MsgsnapCopyInfo
     if d.HasChange("snapshotmanagement") {
-        val := d.Get("snapshotmanagement").([]interface{})
-        t_snapshotmanagement = build_vmgroup_v2_msgsnapcopyinfo(d, val)
+        val := d.Get("snapshotmanagement")
+        t_snapshotmanagement = build_vmgroup_v2_msgsnapcopyinfo(d, val.([]interface{}))
     }
     var t_enablefileindexing *bool
     if d.HasChange("enablefileindexing") {
-        val := d.Get("enablefileindexing").(bool)
-        t_enablefileindexing = new(bool)
-        t_enablefileindexing = &val
+        val := d.Get("enablefileindexing")
+        t_enablefileindexing = handler.ToBooleanValue(val, false)
     }
     var t_newname *string
-    if d.HasChange("newname") {
-        val := d.Get("newname").(string)
-        t_newname = new(string)
-        t_newname = &val
+    if d.HasChange("name") {
+        val := d.Get("name")
+        t_newname = handler.ToStringValue(val, false)
     }
     var t_applicationvalidation *handler.MsgvmAppValidation
     if d.HasChange("applicationvalidation") {
-        val := d.Get("applicationvalidation").([]interface{})
-        t_applicationvalidation = build_vmgroup_v2_msgvmappvalidation(d, val)
+        val := d.Get("applicationvalidation")
+        t_applicationvalidation = build_vmgroup_v2_msgvmappvalidation(d, val.([]interface{}))
     }
     var t_plan *handler.MsgIdName
     if d.HasChange("plan") {
-        val := d.Get("plan").([]interface{})
-        t_plan = build_vmgroup_v2_msgidname(d, val)
+        val := d.Get("plan")
+        t_plan = build_vmgroup_v2_msgidname(d, val.([]interface{}))
     }
     var t_meditechsystems *handler.MsgmeditechPropResp
     if d.HasChange("meditechsystems") {
-        val := d.Get("meditechsystems").([]interface{})
-        t_meditechsystems = build_vmgroup_v2_msgmeditechpropresp(d, val)
+        val := d.Get("meditechsystems")
+        t_meditechsystems = build_vmgroup_v2_msgmeditechpropresp(d, val.([]interface{}))
     }
-    var req = handler.MsgUpdateVMGroupRequest{ActivityControl:t_activitycontrol, Settings:t_settings, DiskFilters:t_diskfilters, SecurityAssociations:t_securityassociations, Storage:t_storage, Filters:t_filters, AccessNode:t_accessnode, Content:t_content, SnapshotManagement:t_snapshotmanagement, EnableFileIndexing:t_enablefileindexing, NewName:t_newname, ApplicationValidation:t_applicationvalidation, Plan:t_plan, MeditechSystems:t_meditechsystems}
+    var req = handler.MsgUpdateVMGroupRequest{ActivityControl:t_activitycontrol, Settings:t_settings, DiskFilters:t_diskfilters, SecurityAssociations:t_securityassociations, TimeZone:t_timezone, Storage:t_storage, Filters:t_filters, AccessNode:t_accessnode, Content:t_content, SnapshotManagement:t_snapshotmanagement, EnableFileIndexing:t_enablefileindexing, NewName:t_newname, ApplicationValidation:t_applicationvalidation, Plan:t_plan, MeditechSystems:t_meditechsystems}
     _, err := handler.CvUpdateVMGroup(req, d.Id())
     if err != nil {
-        return fmt.Errorf("Operation [UpdateVMGroup] failed, Error %s", err)
+        return fmt.Errorf("operation [UpdateVMGroup] failed, Error %s", err)
     }
     return resourceReadVMGroup_V2(d, m)
 }
@@ -1782,78 +1623,65 @@ func resourceCreateUpdateVMGroup_V2(d *schema.ResourceData, m interface{}) error
     //API: (PUT) /V4/VmGroup/{VmGroupId}
     var execUpdate bool = false
     var t_activitycontrol *handler.MsgActivityControlOptions
-    if v, ok := d.GetOk("activitycontrol"); ok {
-        val := v.([]interface{})
-        t_activitycontrol = build_vmgroup_v2_msgactivitycontroloptions(d, val)
+    if val, ok := d.GetOk("activitycontrol"); ok {
+        t_activitycontrol = build_vmgroup_v2_msgactivitycontroloptions(d, val.([]interface{}))
         execUpdate = true
     }
     var t_settings *handler.MsgvmGroupSettings
-    if v, ok := d.GetOk("settings"); ok {
-        val := v.([]interface{})
-        t_settings = build_vmgroup_v2_msgvmgroupsettings(d, val)
+    if val, ok := d.GetOk("settings"); ok {
+        t_settings = build_vmgroup_v2_msgvmgroupsettings(d, val.([]interface{}))
         execUpdate = true
     }
     var t_diskfilters *handler.MsgvmDiskFilterProp
-    if v, ok := d.GetOk("diskfilters"); ok {
-        val := v.([]interface{})
-        t_diskfilters = build_vmgroup_v2_msgvmdiskfilterprop(d, val)
+    if val, ok := d.GetOk("diskfilters"); ok {
+        t_diskfilters = build_vmgroup_v2_msgvmdiskfilterprop(d, val.([]interface{}))
         execUpdate = true
     }
     var t_securityassociations []handler.MsgSecurityAssocSet
-    if v, ok := d.GetOk("securityassociations"); ok {
-        val := v.(*schema.Set)
-        t_securityassociations = build_vmgroup_v2_msgsecurityassocset_array(d, val.List())
+    if val, ok := d.GetOk("securityassociations"); ok {
+        t_securityassociations = build_vmgroup_v2_msgsecurityassocset_array(d, val.(*schema.Set).List())
+        execUpdate = true
+    }
+    var t_timezone *handler.MsgIdName
+    if val, ok := d.GetOk("timezone"); ok {
+        t_timezone = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         execUpdate = true
     }
     var t_filters *handler.MsgvmContent
-    if v, ok := d.GetOk("filters"); ok {
-        val := v.([]interface{})
-        t_filters = build_vmgroup_v2_msgvmcontent(d, val)
+    if val, ok := d.GetOk("filters"); ok {
+        t_filters = build_vmgroup_v2_msgvmcontent(d, val.([]interface{}))
         execUpdate = true
     }
     var t_accessnode []handler.MsgIdNameSet
-    if v, ok := d.GetOk("accessnode"); ok {
-        val := v.(*schema.Set)
-        t_accessnode = build_vmgroup_v2_msgidnameset_array(d, val.List())
+    if val, ok := d.GetOk("accessnode"); ok {
+        t_accessnode = build_vmgroup_v2_msgidnameset_array(d, val.(*schema.Set).List())
         execUpdate = true
     }
     var t_snapshotmanagement *handler.MsgsnapCopyInfo
-    if v, ok := d.GetOk("snapshotmanagement"); ok {
-        val := v.([]interface{})
-        t_snapshotmanagement = build_vmgroup_v2_msgsnapcopyinfo(d, val)
+    if val, ok := d.GetOk("snapshotmanagement"); ok {
+        t_snapshotmanagement = build_vmgroup_v2_msgsnapcopyinfo(d, val.([]interface{}))
         execUpdate = true
     }
     var t_enablefileindexing *bool
-    if v, ok := d.GetOkExists("enablefileindexing"); ok {
-        val := v.(bool)
-        t_enablefileindexing = new(bool)
-        t_enablefileindexing = &val
-        execUpdate = true
-    }
-    var t_newname *string
-    if v, ok := d.GetOk("newname"); ok {
-        val := v.(string)
-        t_newname = new(string)
-        t_newname = &val
+    if val, ok := d.GetOk("enablefileindexing"); ok {
+        t_enablefileindexing = handler.ToBooleanValue(val, false)
         execUpdate = true
     }
     var t_applicationvalidation *handler.MsgvmAppValidation
-    if v, ok := d.GetOk("applicationvalidation"); ok {
-        val := v.([]interface{})
-        t_applicationvalidation = build_vmgroup_v2_msgvmappvalidation(d, val)
+    if val, ok := d.GetOk("applicationvalidation"); ok {
+        t_applicationvalidation = build_vmgroup_v2_msgvmappvalidation(d, val.([]interface{}))
         execUpdate = true
     }
     var t_meditechsystems *handler.MsgmeditechPropResp
-    if v, ok := d.GetOk("meditechsystems"); ok {
-        val := v.([]interface{})
-        t_meditechsystems = build_vmgroup_v2_msgmeditechpropresp(d, val)
+    if val, ok := d.GetOk("meditechsystems"); ok {
+        t_meditechsystems = build_vmgroup_v2_msgmeditechpropresp(d, val.([]interface{}))
         execUpdate = true
     }
     if execUpdate {
-        var req = handler.MsgUpdateVMGroupRequest{ActivityControl:t_activitycontrol, Settings:t_settings, DiskFilters:t_diskfilters, SecurityAssociations:t_securityassociations, Filters:t_filters, AccessNode:t_accessnode, SnapshotManagement:t_snapshotmanagement, EnableFileIndexing:t_enablefileindexing, NewName:t_newname, ApplicationValidation:t_applicationvalidation, MeditechSystems:t_meditechsystems}
+        var req = handler.MsgUpdateVMGroupRequest{ActivityControl:t_activitycontrol, Settings:t_settings, DiskFilters:t_diskfilters, SecurityAssociations:t_securityassociations, TimeZone:t_timezone, Filters:t_filters, AccessNode:t_accessnode, SnapshotManagement:t_snapshotmanagement, EnableFileIndexing:t_enablefileindexing, ApplicationValidation:t_applicationvalidation, MeditechSystems:t_meditechsystems}
         _, err := handler.CvUpdateVMGroup(req, d.Id())
         if err != nil {
-            return fmt.Errorf("Operation [UpdateVMGroup] failed, Error %s", err)
+            return fmt.Errorf("operation [UpdateVMGroup] failed, Error %s", err)
         }
     }
     return resourceReadVMGroup_V2(d, m)
@@ -1863,37 +1691,33 @@ func resourceDeleteVMGroup_V2(d *schema.ResourceData, m interface{}) error {
     //API: (DELETE) /V4/VmGroup/{VmGroupId}
     _, err := handler.CvDeleteVMGroup(d.Id())
     if err != nil {
-        return fmt.Errorf("Operation [DeleteVMGroup] failed, Error %s", err)
+        return fmt.Errorf("operation [DeleteVMGroup] failed, Error %s", err)
     }
     return nil
 }
 
 func build_vmgroup_v2_msgmeditechpropresp(d *schema.ResourceData, r []interface{}) *handler.MsgmeditechPropResp {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_systemname *string
-        if val, ok := tmp["systemname"].(string); ok {
-            t_systemname = new(string)
-            t_systemname = &val
+        if val, ok := tmp["systemname"]; ok {
+            t_systemname = handler.ToStringValue(val, true)
         }
         var t_listenerip *string
-        if val, ok := tmp["listenerip"].(string); ok {
-            t_listenerip = new(string)
-            t_listenerip = &val
+        if val, ok := tmp["listenerip"]; ok {
+            t_listenerip = handler.ToStringValue(val, true)
         }
         var t_useraccount *handler.MsgUserNamePassword
-        if val, ok := tmp["useraccount"].([]interface{}); ok {
-            t_useraccount = build_vmgroup_v2_msgusernamepassword(d, val)
+        if val, ok := tmp["useraccount"]; ok {
+            t_useraccount = build_vmgroup_v2_msgusernamepassword(d, val.([]interface{}))
         }
         var t_listenerport *int
-        if val, ok := tmp["listenerport"].(int); ok {
-            t_listenerport = new(int)
-            t_listenerport = &val
+        if val, ok := tmp["listenerport"]; ok {
+            t_listenerport = handler.ToIntValue(val, true)
         }
         var t_mbftimeout *int
-        if val, ok := tmp["mbftimeout"].(int); ok {
-            t_mbftimeout = new(int)
-            t_mbftimeout = &val
+        if val, ok := tmp["mbftimeout"]; ok {
+            t_mbftimeout = handler.ToIntValue(val, true)
         }
         return &handler.MsgmeditechPropResp{SystemName:t_systemname, ListenerIP:t_listenerip, UserAccount:t_useraccount, ListenerPort:t_listenerport, MBFtimeout:t_mbftimeout}
     } else {
@@ -1902,17 +1726,15 @@ func build_vmgroup_v2_msgmeditechpropresp(d *schema.ResourceData, r []interface{
 }
 
 func build_vmgroup_v2_msgusernamepassword(d *schema.ResourceData, r []interface{}) *handler.MsgUserNamePassword {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_password *string
-        if val, ok := tmp["password"].(string); ok {
-            t_password = new(string)
-            t_password = &val
+        if val, ok := tmp["password"]; ok {
+            t_password = handler.ToStringValue(val, true)
         }
         var t_name *string
-        if val, ok := tmp["name"].(string); ok {
-            t_name = new(string)
-            t_name = &val
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
         }
         return &handler.MsgUserNamePassword{Password:t_password, Name:t_name}
     } else {
@@ -1921,47 +1743,43 @@ func build_vmgroup_v2_msgusernamepassword(d *schema.ResourceData, r []interface{
 }
 
 func build_vmgroup_v2_msgvmappvalidation(d *schema.ResourceData, r []interface{}) *handler.MsgvmAppValidation {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_recoverytarget *handler.MsgIdName
-        if val, ok := tmp["recoverytarget"].([]interface{}); ok {
-            t_recoverytarget = build_vmgroup_v2_msgidname(d, val)
+        if val, ok := tmp["recoverytarget"]; ok {
+            t_recoverytarget = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         }
         var t_schedule *handler.MsgValidationScheduleObject
-        if val, ok := tmp["schedule"].([]interface{}); ok {
-            t_schedule = build_vmgroup_v2_msgvalidationscheduleobject(d, val)
+        if val, ok := tmp["schedule"]; ok {
+            t_schedule = build_vmgroup_v2_msgvalidationscheduleobject(d, val.([]interface{}))
         }
         var t_maximumnoofthreads *int
-        if val, ok := tmp["maximumnoofthreads"].(int); ok {
-            t_maximumnoofthreads = new(int)
-            t_maximumnoofthreads = &val
+        if val, ok := tmp["maximumnoofthreads"]; ok {
+            t_maximumnoofthreads = handler.ToIntValue(val, true)
         }
         var t_guestcredentials *handler.MsgguestCredentialInfo
-        if val, ok := tmp["guestcredentials"].([]interface{}); ok {
-            t_guestcredentials = build_vmgroup_v2_msgguestcredentialinfo(d, val)
+        if val, ok := tmp["guestcredentials"]; ok {
+            t_guestcredentials = build_vmgroup_v2_msgguestcredentialinfo(d, val.([]interface{}))
         }
         var t_keepvalidatedvmsrunning *bool
-        if val, ok := tmp["keepvalidatedvmsrunning"].(bool); ok {
-            t_keepvalidatedvmsrunning = new(bool)
-            t_keepvalidatedvmsrunning = &val
+        if val, ok := tmp["keepvalidatedvmsrunning"]; ok {
+            t_keepvalidatedvmsrunning = handler.ToBooleanValue(val, true)
         }
         var t_validatevmbackups *bool
-        if val, ok := tmp["validatevmbackups"].(bool); ok {
-            t_validatevmbackups = new(bool)
-            t_validatevmbackups = &val
+        if val, ok := tmp["validatevmbackups"]; ok {
+            t_validatevmbackups = handler.ToBooleanValue(val, true)
         }
         var t_usesourcevmesxtomount *bool
-        if val, ok := tmp["usesourcevmesxtomount"].(bool); ok {
-            t_usesourcevmesxtomount = new(bool)
-            t_usesourcevmesxtomount = &val
+        if val, ok := tmp["usesourcevmesxtomount"]; ok {
+            t_usesourcevmesxtomount = handler.ToBooleanValue(val, true)
         }
         var t_customvalidationscript *handler.MsgappValidationScript
-        if val, ok := tmp["customvalidationscript"].([]interface{}); ok {
-            t_customvalidationscript = build_vmgroup_v2_msgappvalidationscript(d, val)
+        if val, ok := tmp["customvalidationscript"]; ok {
+            t_customvalidationscript = build_vmgroup_v2_msgappvalidationscript(d, val.([]interface{}))
         }
         var t_copy *handler.MsgPlanSourceCopy
-        if val, ok := tmp["copy"].([]interface{}); ok {
-            t_copy = build_vmgroup_v2_msgplansourcecopy(d, val)
+        if val, ok := tmp["copy"]; ok {
+            t_copy = build_vmgroup_v2_msgplansourcecopy(d, val.([]interface{}))
         }
         return &handler.MsgvmAppValidation{RecoveryTarget:t_recoverytarget, Schedule:t_schedule, MaximumNoOfThreads:t_maximumnoofthreads, GuestCredentials:t_guestcredentials, KeepValidatedVMsRunning:t_keepvalidatedvmsrunning, ValidateVMBackups:t_validatevmbackups, UseSourceVmESXToMount:t_usesourcevmesxtomount, CustomValidationScript:t_customvalidationscript, Copy:t_copy}
     } else {
@@ -1970,56 +1788,47 @@ func build_vmgroup_v2_msgvmappvalidation(d *schema.ResourceData, r []interface{}
 }
 
 func build_vmgroup_v2_msgplansourcecopy(d *schema.ResourceData, r []interface{}) *handler.MsgPlanSourceCopy {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_ismirrorcopy *bool
-        if val, ok := tmp["ismirrorcopy"].(bool); ok {
-            t_ismirrorcopy = new(bool)
-            t_ismirrorcopy = &val
+        if val, ok := tmp["ismirrorcopy"]; ok {
+            t_ismirrorcopy = handler.ToBooleanValue(val, true)
         }
         var t_snapcopytype *string
-        if val, ok := tmp["snapcopytype"].(string); ok {
-            t_snapcopytype = new(string)
-            t_snapcopytype = &val
+        if val, ok := tmp["snapcopytype"]; ok {
+            t_snapcopytype = handler.ToStringValue(val, true)
         }
         var t_isdefault *bool
-        if val, ok := tmp["isdefault"].(bool); ok {
-            t_isdefault = new(bool)
-            t_isdefault = &val
+        if val, ok := tmp["isdefault"]; ok {
+            t_isdefault = handler.ToBooleanValue(val, true)
         }
         var t_copyprecedence *int
-        if val, ok := tmp["copyprecedence"].(int); ok {
-            t_copyprecedence = new(int)
-            t_copyprecedence = &val
+        if val, ok := tmp["copyprecedence"]; ok {
+            t_copyprecedence = handler.ToIntValue(val, true)
         }
         var t_issnapcopy *bool
-        if val, ok := tmp["issnapcopy"].(bool); ok {
-            t_issnapcopy = new(bool)
-            t_issnapcopy = &val
+        if val, ok := tmp["issnapcopy"]; ok {
+            t_issnapcopy = handler.ToBooleanValue(val, true)
         }
         var t_copytype *string
-        if val, ok := tmp["copytype"].(string); ok {
-            t_copytype = new(string)
-            t_copytype = &val
+        if val, ok := tmp["copytype"]; ok {
+            t_copytype = handler.ToStringValue(val, true)
         }
         var t_defaultreplicacopy *bool
-        if val, ok := tmp["defaultreplicacopy"].(bool); ok {
-            t_defaultreplicacopy = new(bool)
-            t_defaultreplicacopy = &val
+        if val, ok := tmp["defaultreplicacopy"]; ok {
+            t_defaultreplicacopy = handler.ToBooleanValue(val, true)
         }
         var t_isactive *bool
-        if val, ok := tmp["isactive"].(bool); ok {
-            t_isactive = new(bool)
-            t_isactive = &val
+        if val, ok := tmp["isactive"]; ok {
+            t_isactive = handler.ToBooleanValue(val, true)
         }
         var t_arrayreplicacopy *bool
-        if val, ok := tmp["arrayreplicacopy"].(bool); ok {
-            t_arrayreplicacopy = new(bool)
-            t_arrayreplicacopy = &val
+        if val, ok := tmp["arrayreplicacopy"]; ok {
+            t_arrayreplicacopy = handler.ToBooleanValue(val, true)
         }
         var t_backupdestination *handler.MsgIdName
-        if val, ok := tmp["backupdestination"].([]interface{}); ok {
-            t_backupdestination = build_vmgroup_v2_msgidname(d, val)
+        if val, ok := tmp["backupdestination"]; ok {
+            t_backupdestination = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         }
         return &handler.MsgPlanSourceCopy{IsMirrorCopy:t_ismirrorcopy, SnapCopyType:t_snapcopytype, IsDefault:t_isdefault, CopyPrecedence:t_copyprecedence, IsSnapCopy:t_issnapcopy, CopyType:t_copytype, DefaultReplicaCopy:t_defaultreplicacopy, IsActive:t_isactive, ArrayReplicaCopy:t_arrayreplicacopy, BackupDestination:t_backupdestination}
     } else {
@@ -2028,19 +1837,15 @@ func build_vmgroup_v2_msgplansourcecopy(d *schema.ResourceData, r []interface{})
 }
 
 func build_vmgroup_v2_msgidname(d *schema.ResourceData, r []interface{}) *handler.MsgIdName {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_name *string
-        if val, ok := tmp["name"].(string); ok {
-            t_name = new(string)
-            t_name = &val
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
         }
         var t_id *int
-        if val, ok := tmp["id"].(int); ok {
-            if !handler.IsEmptyInt(val) {
-                t_id = new(int)
-                t_id = &val
-            }
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
         }
         return &handler.MsgIdName{Name:t_name, Id:t_id}
     } else {
@@ -2049,15 +1854,15 @@ func build_vmgroup_v2_msgidname(d *schema.ResourceData, r []interface{}) *handle
 }
 
 func build_vmgroup_v2_msgappvalidationscript(d *schema.ResourceData, r []interface{}) *handler.MsgappValidationScript {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_windows *handler.MsgValidationScript
-        if val, ok := tmp["windows"].([]interface{}); ok {
-            t_windows = build_vmgroup_v2_msgvalidationscript(d, val)
+        if val, ok := tmp["windows"]; ok {
+            t_windows = build_vmgroup_v2_msgvalidationscript(d, val.([]interface{}))
         }
         var t_unix *handler.MsgValidationScript
-        if val, ok := tmp["unix"].([]interface{}); ok {
-            t_unix = build_vmgroup_v2_msgvalidationscript(d, val)
+        if val, ok := tmp["unix"]; ok {
+            t_unix = build_vmgroup_v2_msgvalidationscript(d, val.([]interface{}))
         }
         return &handler.MsgappValidationScript{Windows:t_windows, Unix:t_unix}
     } else {
@@ -2066,35 +1871,31 @@ func build_vmgroup_v2_msgappvalidationscript(d *schema.ResourceData, r []interfa
 }
 
 func build_vmgroup_v2_msgvalidationscript(d *schema.ResourceData, r []interface{}) *handler.MsgValidationScript {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_path *string
-        if val, ok := tmp["path"].(string); ok {
-            t_path = new(string)
-            t_path = &val
+        if val, ok := tmp["path"]; ok {
+            t_path = handler.ToStringValue(val, true)
         }
         var t_unccredentials *handler.MsgUserNamePassword
-        if val, ok := tmp["unccredentials"].([]interface{}); ok {
-            t_unccredentials = build_vmgroup_v2_msgusernamepassword(d, val)
+        if val, ok := tmp["unccredentials"]; ok {
+            t_unccredentials = build_vmgroup_v2_msgusernamepassword(d, val.([]interface{}))
         }
         var t_uncsavedcredentials *handler.MsgIdName
-        if val, ok := tmp["uncsavedcredentials"].([]interface{}); ok {
-            t_uncsavedcredentials = build_vmgroup_v2_msgidname(d, val)
+        if val, ok := tmp["uncsavedcredentials"]; ok {
+            t_uncsavedcredentials = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         }
         var t_arguments *string
-        if val, ok := tmp["arguments"].(string); ok {
-            t_arguments = new(string)
-            t_arguments = &val
+        if val, ok := tmp["arguments"]; ok {
+            t_arguments = handler.ToStringValue(val, true)
         }
         var t_isdisabled *bool
-        if val, ok := tmp["isdisabled"].(bool); ok {
-            t_isdisabled = new(bool)
-            t_isdisabled = &val
+        if val, ok := tmp["isdisabled"]; ok {
+            t_isdisabled = handler.ToBooleanValue(val, true)
         }
         var t_islocal *bool
-        if val, ok := tmp["islocal"].(bool); ok {
-            t_islocal = new(bool)
-            t_islocal = &val
+        if val, ok := tmp["islocal"]; ok {
+            t_islocal = handler.ToBooleanValue(val, true)
         }
         return &handler.MsgValidationScript{Path:t_path, UNCCredentials:t_unccredentials, UNCSavedCredentials:t_uncsavedcredentials, Arguments:t_arguments, IsDisabled:t_isdisabled, IsLocal:t_islocal}
     } else {
@@ -2103,15 +1904,15 @@ func build_vmgroup_v2_msgvalidationscript(d *schema.ResourceData, r []interface{
 }
 
 func build_vmgroup_v2_msgguestcredentialinfo(d *schema.ResourceData, r []interface{}) *handler.MsgguestCredentialInfo {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_credentials *handler.MsgUserNamePassword
-        if val, ok := tmp["credentials"].([]interface{}); ok {
-            t_credentials = build_vmgroup_v2_msgusernamepassword(d, val)
+        if val, ok := tmp["credentials"]; ok {
+            t_credentials = build_vmgroup_v2_msgusernamepassword(d, val.([]interface{}))
         }
         var t_savedcredentials *handler.MsgIdName
-        if val, ok := tmp["savedcredentials"].([]interface{}); ok {
-            t_savedcredentials = build_vmgroup_v2_msgidname(d, val)
+        if val, ok := tmp["savedcredentials"]; ok {
+            t_savedcredentials = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         }
         return &handler.MsgguestCredentialInfo{Credentials:t_credentials, SavedCredentials:t_savedcredentials}
     } else {
@@ -2120,27 +1921,23 @@ func build_vmgroup_v2_msgguestcredentialinfo(d *schema.ResourceData, r []interfa
 }
 
 func build_vmgroup_v2_msgvalidationscheduleobject(d *schema.ResourceData, r []interface{}) *handler.MsgValidationScheduleObject {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_isscheduleenabled *bool
-        if val, ok := tmp["isscheduleenabled"].(bool); ok {
-            t_isscheduleenabled = new(bool)
-            t_isscheduleenabled = &val
+        if val, ok := tmp["isscheduleenabled"]; ok {
+            t_isscheduleenabled = handler.ToBooleanValue(val, true)
         }
         var t_description *string
-        if val, ok := tmp["description"].(string); ok {
-            t_description = new(string)
-            t_description = &val
+        if val, ok := tmp["description"]; ok {
+            t_description = handler.ToStringValue(val, true)
         }
         var t_id *int
-        if val, ok := tmp["id"].(int); ok {
-            t_id = new(int)
-            t_id = &val
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
         }
         var t_taskid *int
-        if val, ok := tmp["taskid"].(int); ok {
-            t_taskid = new(int)
-            t_taskid = &val
+        if val, ok := tmp["taskid"]; ok {
+            t_taskid = handler.ToIntValue(val, true)
         }
         return &handler.MsgValidationScheduleObject{IsScheduleEnabled:t_isscheduleenabled, Description:t_description, Id:t_id, TaskId:t_taskid}
     } else {
@@ -2149,50 +1946,43 @@ func build_vmgroup_v2_msgvalidationscheduleobject(d *schema.ResourceData, r []in
 }
 
 func build_vmgroup_v2_msgsnapcopyinfo(d *schema.ResourceData, r []interface{}) *handler.MsgsnapCopyInfo {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_useseparateproxyforsnaptotape *bool
-        if val, ok := tmp["useseparateproxyforsnaptotape"].(bool); ok {
-            t_useseparateproxyforsnaptotape = new(bool)
-            t_useseparateproxyforsnaptotape = &val
+        if val, ok := tmp["useseparateproxyforsnaptotape"]; ok {
+            t_useseparateproxyforsnaptotape = handler.ToBooleanValue(val, true)
         }
         var t_snapengine *handler.MsgIdName
-        if val, ok := tmp["snapengine"].([]interface{}); ok {
-            t_snapengine = build_vmgroup_v2_msgidname(d, val)
+        if val, ok := tmp["snapengine"]; ok {
+            t_snapengine = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         }
         var t_isindependentdisksenabled *bool
-        if val, ok := tmp["isindependentdisksenabled"].(bool); ok {
-            t_isindependentdisksenabled = new(bool)
-            t_isindependentdisksenabled = &val
+        if val, ok := tmp["isindependentdisksenabled"]; ok {
+            t_isindependentdisksenabled = handler.ToBooleanValue(val, true)
         }
         var t_backupcopyinterface *string
-        if val, ok := tmp["backupcopyinterface"].(string); ok {
-            t_backupcopyinterface = new(string)
-            t_backupcopyinterface = &val
+        if val, ok := tmp["backupcopyinterface"]; ok {
+            t_backupcopyinterface = handler.ToStringValue(val, true)
         }
         var t_enablehardwaresnapshot *bool
-        if val, ok := tmp["enablehardwaresnapshot"].(bool); ok {
-            t_enablehardwaresnapshot = new(bool)
-            t_enablehardwaresnapshot = &val
+        if val, ok := tmp["enablehardwaresnapshot"]; ok {
+            t_enablehardwaresnapshot = handler.ToBooleanValue(val, true)
         }
         var t_snapmountproxy *handler.MsgIdName
-        if val, ok := tmp["snapmountproxy"].([]interface{}); ok {
-            t_snapmountproxy = build_vmgroup_v2_msgidname(d, val)
+        if val, ok := tmp["snapmountproxy"]; ok {
+            t_snapmountproxy = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         }
         var t_vmapplicationusername *string
-        if val, ok := tmp["vmapplicationusername"].(string); ok {
-            t_vmapplicationusername = new(string)
-            t_vmapplicationusername = &val
+        if val, ok := tmp["vmapplicationusername"]; ok {
+            t_vmapplicationusername = handler.ToStringValue(val, true)
         }
         var t_snapmountesxhost *string
-        if val, ok := tmp["snapmountesxhost"].(string); ok {
-            t_snapmountesxhost = new(string)
-            t_snapmountesxhost = &val
+        if val, ok := tmp["snapmountesxhost"]; ok {
+            t_snapmountesxhost = handler.ToStringValue(val, true)
         }
         var t_israwdevicemapsenabled *bool
-        if val, ok := tmp["israwdevicemapsenabled"].(bool); ok {
-            t_israwdevicemapsenabled = new(bool)
-            t_israwdevicemapsenabled = &val
+        if val, ok := tmp["israwdevicemapsenabled"]; ok {
+            t_israwdevicemapsenabled = handler.ToBooleanValue(val, true)
         }
         return &handler.MsgsnapCopyInfo{UseSeparateProxyForSnapToTape:t_useseparateproxyforsnaptotape, SnapEngine:t_snapengine, IsIndependentDisksEnabled:t_isindependentdisksenabled, BackupCopyInterface:t_backupcopyinterface, EnableHardwareSnapshot:t_enablehardwaresnapshot, SnapMountProxy:t_snapmountproxy, VmApplicationUserName:t_vmapplicationusername, SnapMountESXHost:t_snapmountesxhost, IsRawDeviceMapsEnabled:t_israwdevicemapsenabled}
     } else {
@@ -2206,11 +1996,8 @@ func build_vmgroup_v2_msgidnameset_array(d *schema.ResourceData, r []interface{}
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
             var t_id *int
-            if val, ok := raw_a["id"].(int); ok {
-                if !handler.IsEmptyInt(val) {
-                    t_id = new(int)
-                    t_id = &val
-                }
+            if val, ok := raw_a["id"]; ok {
+                t_id = handler.ToIntValue(val, true)
             }
             tmp[a] = handler.MsgIdNameSet{Id:t_id}
         }
@@ -2221,101 +2008,17 @@ func build_vmgroup_v2_msgidnameset_array(d *schema.ResourceData, r []interface{}
 }
 
 func build_vmgroup_v2_msgvmcontent(d *schema.ResourceData, r []interface{}) *handler.MsgvmContent {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_rulegroups []handler.MsgRuleGroupContentSet
-        if val, ok := tmp["rulegroups"].(*schema.Set); ok {
-            t_rulegroups = build_vmgroup_v2_msgrulegroupcontentset_array(d, val.List())
-        }
-        var t_virtualmachines []handler.MsgVirtualMachinecontentSet
-        if val, ok := tmp["virtualmachines"].(*schema.Set); ok {
-            t_virtualmachines = build_vmgroup_v2_msgvirtualmachinecontentset_array(d, val.List())
+        if val, ok := tmp["rulegroups"]; ok {
+            t_rulegroups = build_vmgroup_v2_msgrulegroupcontentset_array(d, val.(*schema.Set).List())
         }
         var t_overwrite *bool
-        if val, ok := tmp["overwrite"].(bool); ok {
-            t_overwrite = new(bool)
-            t_overwrite = &val
+        if val, ok := tmp["overwrite"]; ok {
+            t_overwrite = handler.ToBooleanValue(val, true)
         }
-        return &handler.MsgvmContent{RuleGroups:t_rulegroups, VirtualMachines:t_virtualmachines, Overwrite:t_overwrite}
-    } else {
-        return nil
-    }
-}
-
-func build_vmgroup_v2_msgvirtualmachinecontentset_array(d *schema.ResourceData, r []interface{}) []handler.MsgVirtualMachinecontentSet {
-    if r != nil {
-        tmp := make([]handler.MsgVirtualMachinecontentSet, len(r))
-        for a, iter_a := range r {
-            raw_a := iter_a.(map[string]interface{})
-            var t_guestcredentialassocid *int
-            if val, ok := raw_a["guestcredentialassocid"].(int); ok {
-                t_guestcredentialassocid = new(int)
-                t_guestcredentialassocid = &val
-            }
-            var t_guestcredentials *handler.MsgVMGuestCredentials
-            if val, ok := raw_a["guestcredentials"].([]interface{}); ok {
-                t_guestcredentials = build_vmgroup_v2_msgvmguestcredentials(d, val)
-            }
-            var t_name *string
-            if val, ok := raw_a["name"].(string); ok {
-                t_name = new(string)
-                t_name = &val
-            }
-            var t_guid *string
-            if val, ok := raw_a["guid"].(string); ok {
-                t_guid = new(string)
-                t_guid = &val
-            }
-            var t_type *string
-            if val, ok := raw_a["type"].(string); ok {
-                t_type = new(string)
-                t_type = &val
-            }
-            var t_existingcredential *handler.MsgVMExistingCredential
-            if val, ok := raw_a["existingcredential"].([]interface{}); ok {
-                t_existingcredential = build_vmgroup_v2_msgvmexistingcredential(d, val)
-            }
-            tmp[a] = handler.MsgVirtualMachinecontentSet{GuestCredentialAssocId:t_guestcredentialassocid, GuestCredentials:t_guestcredentials, Name:t_name, GUID:t_guid, Type:t_type, ExistingCredential:t_existingcredential}
-        }
-        return tmp
-    } else {
-        return nil
-    }
-}
-
-func build_vmgroup_v2_msgvmexistingcredential(d *schema.ResourceData, r []interface{}) *handler.MsgVMExistingCredential {
-    if r != nil && len(r) > 0 {
-        tmp := r[0].(map[string]interface{})
-        var t_credentialid *int
-        if val, ok := tmp["credentialid"].(int); ok {
-            t_credentialid = new(int)
-            t_credentialid = &val
-        }
-        var t_credentialname *string
-        if val, ok := tmp["credentialname"].(string); ok {
-            t_credentialname = new(string)
-            t_credentialname = &val
-        }
-        return &handler.MsgVMExistingCredential{CredentialId:t_credentialid, CredentialName:t_credentialname}
-    } else {
-        return nil
-    }
-}
-
-func build_vmgroup_v2_msgvmguestcredentials(d *schema.ResourceData, r []interface{}) *handler.MsgVMGuestCredentials {
-    if r != nil && len(r) > 0 {
-        tmp := r[0].(map[string]interface{})
-        var t_password *string
-        if val, ok := tmp["password"].(string); ok {
-            t_password = new(string)
-            t_password = &val
-        }
-        var t_username *string
-        if val, ok := tmp["username"].(string); ok {
-            t_username = new(string)
-            t_username = &val
-        }
-        return &handler.MsgVMGuestCredentials{Password:t_password, UserName:t_username}
+        return &handler.MsgvmContent{RuleGroups:t_rulegroups, Overwrite:t_overwrite}
     } else {
         return nil
     }
@@ -2327,13 +2030,12 @@ func build_vmgroup_v2_msgrulegroupcontentset_array(d *schema.ResourceData, r []i
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
             var t_matchrule *string
-            if val, ok := raw_a["matchrule"].(string); ok {
-                t_matchrule = new(string)
-                t_matchrule = &val
+            if val, ok := raw_a["matchrule"]; ok {
+                t_matchrule = handler.ToStringValue(val, true)
             }
             var t_rules []handler.MsgRuleContentSet
-            if val, ok := raw_a["rules"].(*schema.Set); ok {
-                t_rules = build_vmgroup_v2_msgrulecontentset_array(d, val.List())
+            if val, ok := raw_a["rules"]; ok {
+                t_rules = build_vmgroup_v2_msgrulecontentset_array(d, val.(*schema.Set).List())
             }
             tmp[a] = handler.MsgRuleGroupContentSet{MatchRule:t_matchrule, Rules:t_rules}
         }
@@ -2349,36 +2051,18 @@ func build_vmgroup_v2_msgrulecontentset_array(d *schema.ResourceData, r []interf
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
             var t_condition *string
-            if val, ok := raw_a["condition"].(string); ok {
-                t_condition = new(string)
-                t_condition = &val
-            }
-            var t_displayname *string
-            if val, ok := raw_a["displayname"].(string); ok {
-                t_displayname = new(string)
-                t_displayname = &val
+            if val, ok := raw_a["condition"]; ok {
+                t_condition = handler.ToStringValue(val, true)
             }
             var t_name *string
-            if val, ok := raw_a["name"].(string); ok {
-                t_name = new(string)
-                t_name = &val
-            }
-            var t_guid *string
-            if val, ok := raw_a["guid"].(string); ok {
-                t_guid = new(string)
-                t_guid = &val
+            if val, ok := raw_a["name"]; ok {
+                t_name = handler.ToStringValue(val, true)
             }
             var t_type *string
-            if val, ok := raw_a["type"].(string); ok {
-                t_type = new(string)
-                t_type = &val
+            if val, ok := raw_a["type"]; ok {
+                t_type = handler.ToStringValue(val, true)
             }
-            var t_value *string
-            if val, ok := raw_a["value"].(string); ok {
-                t_value = new(string)
-                t_value = &val
-            }
-            tmp[a] = handler.MsgRuleContentSet{Condition:t_condition, DisplayName:t_displayname, Name:t_name, GUID:t_guid, Type:t_type, Value:t_value}
+            tmp[a] = handler.MsgRuleContentSet{Condition:t_condition, Name:t_name, Type:t_type}
         }
         return tmp
     } else {
@@ -2392,29 +2076,28 @@ func build_vmgroup_v2_msgsecurityassocset_array(d *schema.ResourceData, r []inte
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
             var t_role *handler.MsgIdName
-            if val, ok := raw_a["role"].([]interface{}); ok {
-                t_role = build_vmgroup_v2_msgidname(d, val)
+            if val, ok := raw_a["role"]; ok {
+                t_role = build_vmgroup_v2_msgidname(d, val.([]interface{}))
             }
             var t_iscreatorassociation *bool
-            if val, ok := raw_a["iscreatorassociation"].(bool); ok {
-                t_iscreatorassociation = new(bool)
-                t_iscreatorassociation = &val
+            if val, ok := raw_a["iscreatorassociation"]; ok {
+                t_iscreatorassociation = handler.ToBooleanValue(val, true)
             }
             var t_externalusergroup *handler.MsgexternalUserGroup
-            if val, ok := raw_a["externalusergroup"].([]interface{}); ok {
-                t_externalusergroup = build_vmgroup_v2_msgexternalusergroup(d, val)
+            if val, ok := raw_a["externalusergroup"]; ok {
+                t_externalusergroup = build_vmgroup_v2_msgexternalusergroup(d, val.([]interface{}))
             }
             var t_permissionlist []handler.MsgPermissionRespSet
-            if val, ok := raw_a["permissionlist"].(*schema.Set); ok {
-                t_permissionlist = build_vmgroup_v2_msgpermissionrespset_array(d, val.List())
+            if val, ok := raw_a["permissionlist"]; ok {
+                t_permissionlist = build_vmgroup_v2_msgpermissionrespset_array(d, val.(*schema.Set).List())
             }
             var t_user *handler.MsgIdName
-            if val, ok := raw_a["user"].([]interface{}); ok {
-                t_user = build_vmgroup_v2_msgidname(d, val)
+            if val, ok := raw_a["user"]; ok {
+                t_user = build_vmgroup_v2_msgidname(d, val.([]interface{}))
             }
             var t_usergroup *handler.MsgIdName
-            if val, ok := raw_a["usergroup"].([]interface{}); ok {
-                t_usergroup = build_vmgroup_v2_msgidname(d, val)
+            if val, ok := raw_a["usergroup"]; ok {
+                t_usergroup = build_vmgroup_v2_msgidname(d, val.([]interface{}))
             }
             tmp[a] = handler.MsgSecurityAssocSet{Role:t_role, IsCreatorAssociation:t_iscreatorassociation, ExternalUserGroup:t_externalusergroup, PermissionList:t_permissionlist, User:t_user, UserGroup:t_usergroup}
         }
@@ -2430,34 +2113,28 @@ func build_vmgroup_v2_msgpermissionrespset_array(d *schema.ResourceData, r []int
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
             var t_permissionid *int
-            if val, ok := raw_a["permissionid"].(int); ok {
-                t_permissionid = new(int)
-                t_permissionid = &val
+            if val, ok := raw_a["permissionid"]; ok {
+                t_permissionid = handler.ToIntValue(val, true)
             }
             var t_exclude *bool
-            if val, ok := raw_a["exclude"].(bool); ok {
-                t_exclude = new(bool)
-                t_exclude = &val
+            if val, ok := raw_a["exclude"]; ok {
+                t_exclude = handler.ToBooleanValue(val, true)
             }
             var t_type *string
-            if val, ok := raw_a["type"].(string); ok {
-                t_type = new(string)
-                t_type = &val
+            if val, ok := raw_a["type"]; ok {
+                t_type = handler.ToStringValue(val, true)
             }
             var t_categoryname *string
-            if val, ok := raw_a["categoryname"].(string); ok {
-                t_categoryname = new(string)
-                t_categoryname = &val
+            if val, ok := raw_a["categoryname"]; ok {
+                t_categoryname = handler.ToStringValue(val, true)
             }
             var t_categoryid *int
-            if val, ok := raw_a["categoryid"].(int); ok {
-                t_categoryid = new(int)
-                t_categoryid = &val
+            if val, ok := raw_a["categoryid"]; ok {
+                t_categoryid = handler.ToIntValue(val, true)
             }
             var t_permissionname *string
-            if val, ok := raw_a["permissionname"].(string); ok {
-                t_permissionname = new(string)
-                t_permissionname = &val
+            if val, ok := raw_a["permissionname"]; ok {
+                t_permissionname = handler.ToStringValue(val, true)
             }
             tmp[a] = handler.MsgPermissionRespSet{PermissionId:t_permissionid, Exclude:t_exclude, Type:t_type, CategoryName:t_categoryname, CategoryId:t_categoryid, PermissionName:t_permissionname}
         }
@@ -2468,27 +2145,23 @@ func build_vmgroup_v2_msgpermissionrespset_array(d *schema.ResourceData, r []int
 }
 
 func build_vmgroup_v2_msgexternalusergroup(d *schema.ResourceData, r []interface{}) *handler.MsgexternalUserGroup {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_providerid *int
-        if val, ok := tmp["providerid"].(int); ok {
-            t_providerid = new(int)
-            t_providerid = &val
+        if val, ok := tmp["providerid"]; ok {
+            t_providerid = handler.ToIntValue(val, true)
         }
         var t_name *string
-        if val, ok := tmp["name"].(string); ok {
-            t_name = new(string)
-            t_name = &val
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
         }
         var t_id *int
-        if val, ok := tmp["id"].(int); ok {
-            t_id = new(int)
-            t_id = &val
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
         }
         var t_providername *string
-        if val, ok := tmp["providername"].(string); ok {
-            t_providername = new(string)
-            t_providername = &val
+        if val, ok := tmp["providername"]; ok {
+            t_providername = handler.ToStringValue(val, true)
         }
         return &handler.MsgexternalUserGroup{ProviderId:t_providerid, Name:t_name, Id:t_id, ProviderName:t_providername}
     } else {
@@ -2497,16 +2170,15 @@ func build_vmgroup_v2_msgexternalusergroup(d *schema.ResourceData, r []interface
 }
 
 func build_vmgroup_v2_msgvmdiskfilterprop(d *schema.ResourceData, r []interface{}) *handler.MsgvmDiskFilterProp {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_rules []handler.MsgvmDiskFilterSet
-        if val, ok := tmp["rules"].(*schema.Set); ok {
-            t_rules = build_vmgroup_v2_msgvmdiskfilterset_array(d, val.List())
+        if val, ok := tmp["rules"]; ok {
+            t_rules = build_vmgroup_v2_msgvmdiskfilterset_array(d, val.(*schema.Set).List())
         }
         var t_overwrite *bool
-        if val, ok := tmp["overwrite"].(bool); ok {
-            t_overwrite = new(bool)
-            t_overwrite = &val
+        if val, ok := tmp["overwrite"]; ok {
+            t_overwrite = handler.ToBooleanValue(val, true)
         }
         return &handler.MsgvmDiskFilterProp{Rules:t_rules, Overwrite:t_overwrite}
     } else {
@@ -2520,39 +2192,32 @@ func build_vmgroup_v2_msgvmdiskfilterset_array(d *schema.ResourceData, r []inter
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
             var t_condition *string
-            if val, ok := raw_a["condition"].(string); ok {
-                t_condition = new(string)
-                t_condition = &val
+            if val, ok := raw_a["condition"]; ok {
+                t_condition = handler.ToStringValue(val, true)
             }
             var t_vmname *string
-            if val, ok := raw_a["vmname"].(string); ok {
-                t_vmname = new(string)
-                t_vmname = &val
+            if val, ok := raw_a["vmname"]; ok {
+                t_vmname = handler.ToStringValue(val, true)
             }
             var t_name *string
-            if val, ok := raw_a["name"].(string); ok {
-                t_name = new(string)
-                t_name = &val
+            if val, ok := raw_a["name"]; ok {
+                t_name = handler.ToStringValue(val, true)
             }
             var t_filtertype *string
-            if val, ok := raw_a["filtertype"].(string); ok {
-                t_filtertype = new(string)
-                t_filtertype = &val
+            if val, ok := raw_a["filtertype"]; ok {
+                t_filtertype = handler.ToStringValue(val, true)
             }
             var t_overwrite *bool
-            if val, ok := raw_a["overwrite"].(bool); ok {
-                t_overwrite = new(bool)
-                t_overwrite = &val
+            if val, ok := raw_a["overwrite"]; ok {
+                t_overwrite = handler.ToBooleanValue(val, true)
             }
             var t_value *string
-            if val, ok := raw_a["value"].(string); ok {
-                t_value = new(string)
-                t_value = &val
+            if val, ok := raw_a["value"]; ok {
+                t_value = handler.ToStringValue(val, true)
             }
             var t_vmguid *string
-            if val, ok := raw_a["vmguid"].(string); ok {
-                t_vmguid = new(string)
-                t_vmguid = &val
+            if val, ok := raw_a["vmguid"]; ok {
+                t_vmguid = handler.ToStringValue(val, true)
             }
             tmp[a] = handler.MsgvmDiskFilterSet{Condition:t_condition, VmName:t_vmname, Name:t_name, FilterType:t_filtertype, Overwrite:t_overwrite, Value:t_value, VmGuid:t_vmguid}
         }
@@ -2563,89 +2228,75 @@ func build_vmgroup_v2_msgvmdiskfilterset_array(d *schema.ResourceData, r []inter
 }
 
 func build_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, r []interface{}) *handler.MsgvmGroupSettings {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_autodetectvmowner *bool
-        if val, ok := tmp["autodetectvmowner"].(bool); ok {
-            t_autodetectvmowner = new(bool)
-            t_autodetectvmowner = &val
+        if val, ok := tmp["autodetectvmowner"]; ok {
+            t_autodetectvmowner = handler.ToBooleanValue(val, true)
         }
         var t_collectfiledetailsforgranularrecovery *bool
-        if val, ok := tmp["collectfiledetailsforgranularrecovery"].(bool); ok {
-            t_collectfiledetailsforgranularrecovery = new(bool)
-            t_collectfiledetailsforgranularrecovery = &val
+        if val, ok := tmp["collectfiledetailsforgranularrecovery"]; ok {
+            t_collectfiledetailsforgranularrecovery = handler.ToBooleanValue(val, true)
         }
         var t_noofreaders *int
-        if val, ok := tmp["noofreaders"].(int); ok {
-            t_noofreaders = new(int)
-            t_noofreaders = &val
+        if val, ok := tmp["noofreaders"]; ok {
+            t_noofreaders = handler.ToIntValue(val, true)
         }
         var t_usechangedblocktrackingonvm *bool
-        if val, ok := tmp["usechangedblocktrackingonvm"].(bool); ok {
-            t_usechangedblocktrackingonvm = new(bool)
-            t_usechangedblocktrackingonvm = &val
+        if val, ok := tmp["usechangedblocktrackingonvm"]; ok {
+            t_usechangedblocktrackingonvm = handler.ToBooleanValue(val, true)
         }
         var t_jobstarttime *int
-        if val, ok := tmp["jobstarttime"].(int); ok {
-            t_jobstarttime = new(int)
-            t_jobstarttime = &val
+        if val, ok := tmp["jobstarttime"]; ok {
+            t_jobstarttime = handler.ToIntValue(val, true)
         }
         var t_usevmcheckpointsetting *bool
-        if val, ok := tmp["usevmcheckpointsetting"].(bool); ok {
-            t_usevmcheckpointsetting = new(bool)
-            t_usevmcheckpointsetting = &val
+        if val, ok := tmp["usevmcheckpointsetting"]; ok {
+            t_usevmcheckpointsetting = handler.ToBooleanValue(val, true)
         }
         var t_customsnapshotresourcegroup *string
-        if val, ok := tmp["customsnapshotresourcegroup"].(string); ok {
-            t_customsnapshotresourcegroup = new(string)
-            t_customsnapshotresourcegroup = &val
+        if val, ok := tmp["customsnapshotresourcegroup"]; ok {
+            t_customsnapshotresourcegroup = handler.ToStringValue(val, true)
         }
         var t_regionalsnapshot *bool
-        if val, ok := tmp["regionalsnapshot"].(bool); ok {
-            t_regionalsnapshot = new(bool)
-            t_regionalsnapshot = &val
+        if val, ok := tmp["regionalsnapshot"]; ok {
+            t_regionalsnapshot = handler.ToBooleanValue(val, true)
         }
         var t_guestcredentials *handler.MsgguestCredentialInfo
-        if val, ok := tmp["guestcredentials"].([]interface{}); ok {
-            t_guestcredentials = build_vmgroup_v2_msgguestcredentialinfo(d, val)
+        if val, ok := tmp["guestcredentials"]; ok {
+            t_guestcredentials = build_vmgroup_v2_msgguestcredentialinfo(d, val.([]interface{}))
         }
         var t_vmbackuptype *string
-        if val, ok := tmp["vmbackuptype"].(string); ok {
-            t_vmbackuptype = new(string)
-            t_vmbackuptype = &val
+        if val, ok := tmp["vmbackuptype"]; ok {
+            t_vmbackuptype = handler.ToStringValue(val, true)
         }
         var t_datastorefreespacecheck *bool
-        if val, ok := tmp["datastorefreespacecheck"].(bool); ok {
-            t_datastorefreespacecheck = new(bool)
-            t_datastorefreespacecheck = &val
+        if val, ok := tmp["datastorefreespacecheck"]; ok {
+            t_datastorefreespacecheck = handler.ToBooleanValue(val, true)
         }
         var t_datastorefreespacerequired *int
-        if val, ok := tmp["datastorefreespacerequired"].(int); ok {
-            t_datastorefreespacerequired = new(int)
-            t_datastorefreespacerequired = &val
+        if val, ok := tmp["datastorefreespacerequired"]; ok {
+            t_datastorefreespacerequired = handler.ToIntValue(val, true)
         }
         var t_customsnapshottags []handler.MsgresourceTagSet
-        if val, ok := tmp["customsnapshottags"].(*schema.Set); ok {
-            t_customsnapshottags = build_vmgroup_v2_msgresourcetagset_array(d, val.List())
+        if val, ok := tmp["customsnapshottags"]; ok {
+            t_customsnapshottags = build_vmgroup_v2_msgresourcetagset_array(d, val.(*schema.Set).List())
         }
         var t_isapplicationaware *bool
-        if val, ok := tmp["isapplicationaware"].(bool); ok {
-            t_isapplicationaware = new(bool)
-            t_isapplicationaware = &val
+        if val, ok := tmp["isapplicationaware"]; ok {
+            t_isapplicationaware = handler.ToBooleanValue(val, true)
         }
         var t_transportmode *string
-        if val, ok := tmp["transportmode"].(string); ok {
-            t_transportmode = new(string)
-            t_transportmode = &val
+        if val, ok := tmp["transportmode"]; ok {
+            t_transportmode = handler.ToStringValue(val, true)
         }
         var t_collectfiledetailsfromsnapshotcopy *bool
-        if val, ok := tmp["collectfiledetailsfromsnapshotcopy"].(bool); ok {
-            t_collectfiledetailsfromsnapshotcopy = new(bool)
-            t_collectfiledetailsfromsnapshotcopy = &val
+        if val, ok := tmp["collectfiledetailsfromsnapshotcopy"]; ok {
+            t_collectfiledetailsfromsnapshotcopy = handler.ToBooleanValue(val, true)
         }
         var t_crossaccount *handler.MsgAmazonCrossAccount
-        if val, ok := tmp["crossaccount"].([]interface{}); ok {
-            t_crossaccount = build_vmgroup_v2_msgamazoncrossaccount(d, val)
+        if val, ok := tmp["crossaccount"]; ok {
+            t_crossaccount = build_vmgroup_v2_msgamazoncrossaccount(d, val.([]interface{}))
         }
         return &handler.MsgvmGroupSettings{AutoDetectVMOwner:t_autodetectvmowner, CollectFileDetailsforGranularRecovery:t_collectfiledetailsforgranularrecovery, NoOfReaders:t_noofreaders, UseChangedBlockTrackingOnVM:t_usechangedblocktrackingonvm, JobStartTime:t_jobstarttime, UseVMCheckpointSetting:t_usevmcheckpointsetting, CustomSnapshotResourceGroup:t_customsnapshotresourcegroup, RegionalSnapshot:t_regionalsnapshot, GuestCredentials:t_guestcredentials, VmBackupType:t_vmbackuptype, DatastoreFreespaceCheck:t_datastorefreespacecheck, DatastoreFreespaceRequired:t_datastorefreespacerequired, CustomSnapshotTags:t_customsnapshottags, IsApplicationAware:t_isapplicationaware, TransportMode:t_transportmode, CollectFileDetailsFromSnapshotCopy:t_collectfiledetailsfromsnapshotcopy, CrossAccount:t_crossaccount}
     } else {
@@ -2654,21 +2305,19 @@ func build_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, r []interface{}
 }
 
 func build_vmgroup_v2_msgamazoncrossaccount(d *schema.ResourceData, r []interface{}) *handler.MsgAmazonCrossAccount {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_shareonly *bool
-        if val, ok := tmp["shareonly"].(bool); ok {
-            t_shareonly = new(bool)
-            t_shareonly = &val
+        if val, ok := tmp["shareonly"]; ok {
+            t_shareonly = handler.ToBooleanValue(val, true)
         }
         var t_fullcopy *bool
-        if val, ok := tmp["fullcopy"].(bool); ok {
-            t_fullcopy = new(bool)
-            t_fullcopy = &val
+        if val, ok := tmp["fullcopy"]; ok {
+            t_fullcopy = handler.ToBooleanValue(val, true)
         }
         var t_destinationaccount *handler.MsgIdName
-        if val, ok := tmp["destinationaccount"].([]interface{}); ok {
-            t_destinationaccount = build_vmgroup_v2_msgidname(d, val)
+        if val, ok := tmp["destinationaccount"]; ok {
+            t_destinationaccount = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         }
         return &handler.MsgAmazonCrossAccount{ShareOnly:t_shareonly, FullCopy:t_fullcopy, DestinationAccount:t_destinationaccount}
     } else {
@@ -2682,14 +2331,12 @@ func build_vmgroup_v2_msgresourcetagset_array(d *schema.ResourceData, r []interf
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
             var t_name *string
-            if val, ok := raw_a["name"].(string); ok {
-                t_name = new(string)
-                t_name = &val
+            if val, ok := raw_a["name"]; ok {
+                t_name = handler.ToStringValue(val, true)
             }
             var t_value *string
-            if val, ok := raw_a["value"].(string); ok {
-                t_value = new(string)
-                t_value = &val
+            if val, ok := raw_a["value"]; ok {
+                t_value = handler.ToStringValue(val, true)
             }
             tmp[a] = handler.MsgresourceTagSet{Name:t_name, Value:t_value}
         }
@@ -2700,25 +2347,23 @@ func build_vmgroup_v2_msgresourcetagset_array(d *schema.ResourceData, r []interf
 }
 
 func build_vmgroup_v2_msgactivitycontroloptions(d *schema.ResourceData, r []interface{}) *handler.MsgActivityControlOptions {
-    if r != nil && len(r) > 0 {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
-        var t_restoreactivitycontroloptions *handler.MsgbackupActivityControlOptionsProp
-        if val, ok := tmp["restoreactivitycontroloptions"].([]interface{}); ok {
-            t_restoreactivitycontroloptions = build_vmgroup_v2_msgbackupactivitycontroloptionsprop(d, val)
+        var t_restoreactivitycontroloptions *handler.MsgActivityControlOptionsProp
+        if val, ok := tmp["restoreactivitycontroloptions"]; ok {
+            t_restoreactivitycontroloptions = build_vmgroup_v2_msgactivitycontroloptionsprop(d, val.([]interface{}))
         }
-        var t_backupactivitycontroloptions *handler.MsgbackupActivityControlOptionsProp
-        if val, ok := tmp["backupactivitycontroloptions"].([]interface{}); ok {
-            t_backupactivitycontroloptions = build_vmgroup_v2_msgbackupactivitycontroloptionsprop(d, val)
+        var t_backupactivitycontroloptions *handler.MsgActivityControlOptionsProp
+        if val, ok := tmp["backupactivitycontroloptions"]; ok {
+            t_backupactivitycontroloptions = build_vmgroup_v2_msgactivitycontroloptionsprop(d, val.([]interface{}))
         }
         var t_enablebackup *bool
-        if val, ok := tmp["enablebackup"].(bool); ok {
-            t_enablebackup = new(bool)
-            t_enablebackup = &val
+        if val, ok := tmp["enablebackup"]; ok {
+            t_enablebackup = handler.ToBooleanValue(val, true)
         }
         var t_enablerestore *bool
-        if val, ok := tmp["enablerestore"].(bool); ok {
-            t_enablerestore = new(bool)
-            t_enablerestore = &val
+        if val, ok := tmp["enablerestore"]; ok {
+            t_enablerestore = handler.ToBooleanValue(val, true)
         }
         return &handler.MsgActivityControlOptions{RestoreActivityControlOptions:t_restoreactivitycontroloptions, BackupActivityControlOptions:t_backupactivitycontroloptions, EnableBackup:t_enablebackup, EnableRestore:t_enablerestore}
     } else {
@@ -2726,560 +2371,904 @@ func build_vmgroup_v2_msgactivitycontroloptions(d *schema.ResourceData, r []inte
     }
 }
 
-func build_vmgroup_v2_msgbackupactivitycontroloptionsprop(d *schema.ResourceData, r []interface{}) *handler.MsgbackupActivityControlOptionsProp {
-    if r != nil && len(r) > 0 {
+func build_vmgroup_v2_msgactivitycontroloptionsprop(d *schema.ResourceData, r []interface{}) *handler.MsgActivityControlOptionsProp {
+    if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
-        var t_timezone *handler.MsgIdName
-        if val, ok := tmp["timezone"].([]interface{}); ok {
-            t_timezone = build_vmgroup_v2_msgidname(d, val)
+        var t_delaytime *handler.MsgActivityControlTileDelayTime
+        if val, ok := tmp["delaytime"]; ok {
+            t_delaytime = build_vmgroup_v2_msgactivitycontroltiledelaytime(d, val.([]interface{}))
         }
-        var t_enableafterdelay *bool
-        if val, ok := tmp["enableafterdelay"].(bool); ok {
-            t_enableafterdelay = new(bool)
-            t_enableafterdelay = &val
+        var t_activitytype *string
+        if val, ok := tmp["activitytype"]; ok {
+            t_activitytype = handler.ToStringValue(val, true)
         }
-        var t_delaytime *string
-        if val, ok := tmp["delaytime"].(string); ok {
-            t_delaytime = new(string)
-            t_delaytime = &val
+        var t_enableafteradelay *bool
+        if val, ok := tmp["enableafteradelay"]; ok {
+            t_enableafteradelay = handler.ToBooleanValue(val, true)
         }
-        return &handler.MsgbackupActivityControlOptionsProp{TimeZone:t_timezone, EnableAfterDelay:t_enableafterdelay, DelayTime:t_delaytime}
+        var t_enableactivitytype *bool
+        if val, ok := tmp["enableactivitytype"]; ok {
+            t_enableactivitytype = handler.ToBooleanValue(val, true)
+        }
+        return &handler.MsgActivityControlOptionsProp{DelayTime:t_delaytime, ActivityType:t_activitytype, EnableAfterADelay:t_enableafteradelay, EnableActivityType:t_enableactivitytype}
     } else {
         return nil
     }
 }
 
-func serialize_vmgroup_v2_msgmeditechpropresp(data *handler.MsgmeditechPropResp) map[string]interface{} {
-    val := make(map[string]interface{})
+func build_vmgroup_v2_msgactivitycontroltiledelaytime(d *schema.ResourceData, r []interface{}) *handler.MsgActivityControlTileDelayTime {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_timezone *handler.MsgIdName
+        if val, ok := tmp["timezone"]; ok {
+            t_timezone = build_vmgroup_v2_msgidname(d, val.([]interface{}))
+        }
+        var t_time *int
+        if val, ok := tmp["time"]; ok {
+            t_time = handler.ToIntValue(val, true)
+        }
+        var t_value *string
+        if val, ok := tmp["value"]; ok {
+            t_value = handler.ToStringValue(val, true)
+        }
+        return &handler.MsgActivityControlTileDelayTime{TimeZone:t_timezone, Time:t_time, Value:t_value}
+    } else {
+        return nil
+    }
+}
+
+func serialize_vmgroup_v2_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
+    //MsgIdName
+    //MsgIdName
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if data.Name != nil {
+        val[0]["name"] = data.Name
+        added = true
+    }
+    if data.Id != nil {
+        val[0]["id"] = data.Id
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
+func serialize_vmgroup_v2_msgmeditechpropresp(d *schema.ResourceData, data *handler.MsgmeditechPropResp) ([]map[string]interface{}, bool) {
+    //MsgmeditechPropResp
+    //MsgmeditechPropResp
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.SystemName != nil {
-        val["systemname"] = data.SystemName
+        val[0]["systemname"] = data.SystemName
+        added = true
     }
     if data.ListenerIP != nil {
-        val["listenerip"] = data.ListenerIP
+        val[0]["listenerip"] = data.ListenerIP
+        added = true
     }
-    if data.UserAccount != nil {
-        val["useraccount"] = serialize_vmgroup_v2_msgusernamepassword(data.UserAccount)
+    if rtn, ok := serialize_vmgroup_v2_msgusernamepassword(d, data.UserAccount); ok {
+        val[0]["useraccount"] = rtn
+        added = true
     }
     if data.ListenerPort != nil {
-        val["listenerport"] = data.ListenerPort
+        val[0]["listenerport"] = data.ListenerPort
+        added = true
     }
     if data.MBFtimeout != nil {
-        val["mbftimeout"] = data.MBFtimeout
+        val[0]["mbftimeout"] = data.MBFtimeout
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgusernamepassword(data *handler.MsgUserNamePassword) map[string]interface{} {
-    val := make(map[string]interface{})
+func serialize_vmgroup_v2_msgusernamepassword(d *schema.ResourceData, data *handler.MsgUserNamePassword) ([]map[string]interface{}, bool) {
+    //MsgmeditechPropResp -> MsgUserNamePassword
+    //MsgmeditechPropResp -> MsgUserNamePassword
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.Password != nil {
-        val["password"] = data.Password
+        val[0]["password"] = data.Password
+        added = true
     }
     if data.Name != nil {
-        val["name"] = data.Name
+        val[0]["name"] = data.Name
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgvmappvalidation(data *handler.MsgvmAppValidation) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.RecoveryTarget != nil {
-        val["recoverytarget"] = serialize_vmgroup_v2_msgidname(data.RecoveryTarget)
+func serialize_vmgroup_v2_msgvmappvalidation(d *schema.ResourceData, data *handler.MsgvmAppValidation) ([]map[string]interface{}, bool) {
+    //MsgvmAppValidation
+    //MsgvmAppValidation
+    if data == nil {
+        return nil, false
     }
-    if data.Schedule != nil {
-        val["schedule"] = serialize_vmgroup_v2_msgvalidationscheduleobject(data.Schedule)
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.RecoveryTarget); ok {
+        val[0]["recoverytarget"] = rtn
+        added = true
+    }
+    if rtn, ok := serialize_vmgroup_v2_msgvalidationscheduleobject(d, data.Schedule); ok {
+        val[0]["schedule"] = rtn
+        added = true
     }
     if data.MaximumNoOfThreads != nil {
-        val["maximumnoofthreads"] = data.MaximumNoOfThreads
+        val[0]["maximumnoofthreads"] = data.MaximumNoOfThreads
+        added = true
     }
-    if data.GuestCredentials != nil {
-        val["guestcredentials"] = serialize_vmgroup_v2_msgguestcredentialinfo(data.GuestCredentials)
+    if rtn, ok := serialize_vmgroup_v2_msgguestcredentialinfo(d, data.GuestCredentials); ok {
+        val[0]["guestcredentials"] = rtn
+        added = true
     }
     if data.KeepValidatedVMsRunning != nil {
-        val["keepvalidatedvmsrunning"] = data.KeepValidatedVMsRunning
+        val[0]["keepvalidatedvmsrunning"] = strconv.FormatBool(*data.KeepValidatedVMsRunning)
+        added = true
     }
     if data.ValidateVMBackups != nil {
-        val["validatevmbackups"] = data.ValidateVMBackups
+        val[0]["validatevmbackups"] = strconv.FormatBool(*data.ValidateVMBackups)
+        added = true
     }
     if data.UseSourceVmESXToMount != nil {
-        val["usesourcevmesxtomount"] = data.UseSourceVmESXToMount
+        val[0]["usesourcevmesxtomount"] = strconv.FormatBool(*data.UseSourceVmESXToMount)
+        added = true
     }
-    if data.CustomValidationScript != nil {
-        val["customvalidationscript"] = serialize_vmgroup_v2_msgappvalidationscript(data.CustomValidationScript)
+    if rtn, ok := serialize_vmgroup_v2_msgappvalidationscript(d, data.CustomValidationScript); ok {
+        val[0]["customvalidationscript"] = rtn
+        added = true
     }
-    if data.Copy != nil {
-        val["copy"] = serialize_vmgroup_v2_msgplansourcecopy(data.Copy)
+    if rtn, ok := serialize_vmgroup_v2_msgplansourcecopy(d, data.Copy); ok {
+        val[0]["copy"] = rtn
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgplansourcecopy(data *handler.MsgPlanSourceCopy) map[string]interface{} {
-    val := make(map[string]interface{})
+func serialize_vmgroup_v2_msgplansourcecopy(d *schema.ResourceData, data *handler.MsgPlanSourceCopy) ([]map[string]interface{}, bool) {
+    //MsgvmAppValidation -> MsgPlanSourceCopy
+    //MsgvmAppValidation -> MsgPlanSourceCopy
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.IsMirrorCopy != nil {
-        val["ismirrorcopy"] = data.IsMirrorCopy
+        val[0]["ismirrorcopy"] = strconv.FormatBool(*data.IsMirrorCopy)
+        added = true
     }
     if data.SnapCopyType != nil {
-        val["snapcopytype"] = data.SnapCopyType
+        val[0]["snapcopytype"] = data.SnapCopyType
+        added = true
     }
     if data.IsDefault != nil {
-        val["isdefault"] = data.IsDefault
+        val[0]["isdefault"] = strconv.FormatBool(*data.IsDefault)
+        added = true
     }
     if data.CopyPrecedence != nil {
-        val["copyprecedence"] = data.CopyPrecedence
+        val[0]["copyprecedence"] = data.CopyPrecedence
+        added = true
     }
     if data.IsSnapCopy != nil {
-        val["issnapcopy"] = data.IsSnapCopy
+        val[0]["issnapcopy"] = strconv.FormatBool(*data.IsSnapCopy)
+        added = true
     }
     if data.CopyType != nil {
-        val["copytype"] = data.CopyType
+        val[0]["copytype"] = data.CopyType
+        added = true
     }
     if data.DefaultReplicaCopy != nil {
-        val["defaultreplicacopy"] = data.DefaultReplicaCopy
+        val[0]["defaultreplicacopy"] = strconv.FormatBool(*data.DefaultReplicaCopy)
+        added = true
     }
     if data.IsActive != nil {
-        val["isactive"] = data.IsActive
+        val[0]["isactive"] = strconv.FormatBool(*data.IsActive)
+        added = true
     }
     if data.ArrayReplicaCopy != nil {
-        val["arrayreplicacopy"] = data.ArrayReplicaCopy
+        val[0]["arrayreplicacopy"] = strconv.FormatBool(*data.ArrayReplicaCopy)
+        added = true
     }
-    if data.BackupDestination != nil {
-        val["backupdestination"] = serialize_vmgroup_v2_msgidname(data.BackupDestination)
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.BackupDestination); ok {
+        val[0]["backupdestination"] = rtn
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgidname(data *handler.MsgIdName) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.Name != nil {
-        val["name"] = data.Name
+func serialize_vmgroup_v2_msgappvalidationscript(d *schema.ResourceData, data *handler.MsgappValidationScript) ([]map[string]interface{}, bool) {
+    //MsgvmAppValidation -> MsgappValidationScript
+    //MsgvmAppValidation -> MsgappValidationScript
+    if data == nil {
+        return nil, false
     }
-    if data.Id != nil {
-        val["id"] = data.Id
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_vmgroup_v2_msgvalidationscript(d, data.Windows); ok {
+        val[0]["windows"] = rtn
+        added = true
     }
-    return val
+    if rtn, ok := serialize_vmgroup_v2_msgvalidationscript(d, data.Unix); ok {
+        val[0]["unix"] = rtn
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgappvalidationscript(data *handler.MsgappValidationScript) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.Windows != nil {
-        val["windows"] = serialize_vmgroup_v2_msgvalidationscript(data.Windows)
+func serialize_vmgroup_v2_msgvalidationscript(d *schema.ResourceData, data *handler.MsgValidationScript) ([]map[string]interface{}, bool) {
+    //MsgvmAppValidation -> MsgappValidationScript -> MsgValidationScript
+    //MsgvmAppValidation -> MsgappValidationScript -> MsgValidationScript
+    if data == nil {
+        return nil, false
     }
-    if data.Unix != nil {
-        val["unix"] = serialize_vmgroup_v2_msgvalidationscript(data.Unix)
-    }
-    return val
-}
-
-func serialize_vmgroup_v2_msgvalidationscript(data *handler.MsgValidationScript) map[string]interface{} {
-    val := make(map[string]interface{})
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.Path != nil {
-        val["path"] = data.Path
+        val[0]["path"] = data.Path
+        added = true
     }
-    if data.UNCCredentials != nil {
-        val["unccredentials"] = serialize_vmgroup_v2_msgusernamepassword(data.UNCCredentials)
+    if rtn, ok := serialize_vmgroup_v2_msgusernamepassword(d, data.UNCCredentials); ok {
+        val[0]["unccredentials"] = rtn
+        added = true
     }
-    if data.UNCSavedCredentials != nil {
-        val["uncsavedcredentials"] = serialize_vmgroup_v2_msgidname(data.UNCSavedCredentials)
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.UNCSavedCredentials); ok {
+        val[0]["uncsavedcredentials"] = rtn
+        added = true
     }
     if data.Arguments != nil {
-        val["arguments"] = data.Arguments
+        val[0]["arguments"] = data.Arguments
+        added = true
     }
     if data.IsDisabled != nil {
-        val["isdisabled"] = data.IsDisabled
+        val[0]["isdisabled"] = strconv.FormatBool(*data.IsDisabled)
+        added = true
     }
     if data.IsLocal != nil {
-        val["islocal"] = data.IsLocal
+        val[0]["islocal"] = strconv.FormatBool(*data.IsLocal)
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgguestcredentialinfo(data *handler.MsgguestCredentialInfo) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.Credentials != nil {
-        val["credentials"] = serialize_vmgroup_v2_msgusernamepassword(data.Credentials)
+func serialize_vmgroup_v2_msgguestcredentialinfo(d *schema.ResourceData, data *handler.MsgguestCredentialInfo) ([]map[string]interface{}, bool) {
+    //MsgvmAppValidation -> MsgguestCredentialInfo
+    //MsgvmAppValidation -> MsgguestCredentialInfo
+    if data == nil {
+        return nil, false
     }
-    if data.SavedCredentials != nil {
-        val["savedcredentials"] = serialize_vmgroup_v2_msgidname(data.SavedCredentials)
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_vmgroup_v2_msgusernamepassword(d, data.Credentials); ok {
+        val[0]["credentials"] = rtn
+        added = true
     }
-    return val
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.SavedCredentials); ok {
+        val[0]["savedcredentials"] = rtn
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgvalidationscheduleobject(data *handler.MsgValidationScheduleObject) map[string]interface{} {
-    val := make(map[string]interface{})
+func serialize_vmgroup_v2_msgvalidationscheduleobject(d *schema.ResourceData, data *handler.MsgValidationScheduleObject) ([]map[string]interface{}, bool) {
+    //MsgvmAppValidation -> MsgValidationScheduleObject
+    //MsgvmAppValidation -> MsgValidationScheduleObject
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.IsScheduleEnabled != nil {
-        val["isscheduleenabled"] = data.IsScheduleEnabled
+        val[0]["isscheduleenabled"] = strconv.FormatBool(*data.IsScheduleEnabled)
+        added = true
     }
     if data.Description != nil {
-        val["description"] = data.Description
+        val[0]["description"] = data.Description
+        added = true
     }
     if data.Id != nil {
-        val["id"] = data.Id
+        val[0]["id"] = data.Id
+        added = true
     }
     if data.TaskId != nil {
-        val["taskid"] = data.TaskId
+        val[0]["taskid"] = data.TaskId
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgsnapcopyinfo(data *handler.MsgsnapCopyInfo) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.UseSeparateProxyForSnapToTape != nil {
-        val["useseparateproxyforsnaptotape"] = data.UseSeparateProxyForSnapToTape
+func serialize_vmgroup_v2_msgsnapcopyinfo(d *schema.ResourceData, data *handler.MsgsnapCopyInfo) ([]map[string]interface{}, bool) {
+    //MsgsnapCopyInfo
+    //MsgsnapCopyInfo
+    if data == nil {
+        return nil, false
     }
-    if data.SnapEngine != nil {
-        val["snapengine"] = serialize_vmgroup_v2_msgidname(data.SnapEngine)
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if data.UseSeparateProxyForSnapToTape != nil {
+        val[0]["useseparateproxyforsnaptotape"] = strconv.FormatBool(*data.UseSeparateProxyForSnapToTape)
+        added = true
+    }
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.SnapEngine); ok {
+        val[0]["snapengine"] = rtn
+        added = true
     }
     if data.IsIndependentDisksEnabled != nil {
-        val["isindependentdisksenabled"] = data.IsIndependentDisksEnabled
+        val[0]["isindependentdisksenabled"] = strconv.FormatBool(*data.IsIndependentDisksEnabled)
+        added = true
     }
     if data.BackupCopyInterface != nil {
-        val["backupcopyinterface"] = data.BackupCopyInterface
+        val[0]["backupcopyinterface"] = data.BackupCopyInterface
+        added = true
     }
     if data.EnableHardwareSnapshot != nil {
-        val["enablehardwaresnapshot"] = data.EnableHardwareSnapshot
+        val[0]["enablehardwaresnapshot"] = strconv.FormatBool(*data.EnableHardwareSnapshot)
+        added = true
     }
-    if data.SnapMountProxy != nil {
-        val["snapmountproxy"] = serialize_vmgroup_v2_msgidname(data.SnapMountProxy)
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.SnapMountProxy); ok {
+        val[0]["snapmountproxy"] = rtn
+        added = true
     }
     if data.VmApplicationUserName != nil {
-        val["vmapplicationusername"] = data.VmApplicationUserName
+        val[0]["vmapplicationusername"] = data.VmApplicationUserName
+        added = true
     }
     if data.SnapMountESXHost != nil {
-        val["snapmountesxhost"] = data.SnapMountESXHost
+        val[0]["snapmountesxhost"] = data.SnapMountESXHost
+        added = true
     }
     if data.IsRawDeviceMapsEnabled != nil {
-        val["israwdevicemapsenabled"] = data.IsRawDeviceMapsEnabled
+        val[0]["israwdevicemapsenabled"] = strconv.FormatBool(*data.IsRawDeviceMapsEnabled)
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgvmcontentset_array(data []handler.MsgvmContentSet) []map[string]interface{} {
-    val := make([]map[string]interface{}, len(data))
+func serialize_vmgroup_v2_msgvmcontentset_array(d *schema.ResourceData, data []handler.MsgvmContentSet) ([]map[string]interface{}, bool) {
+    //MsgvmContent
+    //MsgvmContentSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
     for i := range data {
-        val[i] = make(map[string]interface{})
-        if data[i].RuleGroups != nil {
-            val[i]["rulegroups"] = serialize_vmgroup_v2_msgrulegroupcontentset_array(data[i].RuleGroups)
-        }
-        if data[i].VirtualMachines != nil {
-            val[i]["virtualmachines"] = serialize_vmgroup_v2_msgvirtualmachinecontentset_array(data[i].VirtualMachines)
+        tmp := make(map[string]interface{})
+        added := false
+        if rtn, ok := serialize_vmgroup_v2_msgrulegroupcontentset_array(d, data[i].RuleGroups); ok {
+            tmp["rulegroups"] = rtn
+            added = true
         }
         if data[i].Overwrite != nil {
-            val[i]["overwrite"] = data[i].Overwrite
+            tmp["overwrite"] = strconv.FormatBool(*data[i].Overwrite)
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
         }
     }
-    return val
+    return val, true
 }
 
-func serialize_vmgroup_v2_msgvirtualmachinecontentset_array(data []handler.MsgVirtualMachinecontentSet) []map[string]interface{} {
-    val := make([]map[string]interface{}, len(data))
+func serialize_vmgroup_v2_msgrulegroupcontentset_array(d *schema.ResourceData, data []handler.MsgRuleGroupContentSet) ([]map[string]interface{}, bool) {
+    //MsgvmContent -> MsgRuleGroupContentSet
+    //MsgvmContentSet -> MsgRuleGroupContentSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
     for i := range data {
-        val[i] = make(map[string]interface{})
-        if data[i].GuestCredentialAssocId != nil {
-            val[i]["guestcredentialassocid"] = data[i].GuestCredentialAssocId
-        }
-        if data[i].GuestCredentials != nil {
-            val[i]["guestcredentials"] = serialize_vmgroup_v2_msgvmguestcredentials(data[i].GuestCredentials)
-        }
-        if data[i].Name != nil {
-            val[i]["name"] = data[i].Name
-        }
-        if data[i].GUID != nil {
-            val[i]["guid"] = data[i].GUID
-        }
-        if data[i].Type != nil {
-            val[i]["type"] = data[i].Type
-        }
-        if data[i].ExistingCredential != nil {
-            val[i]["existingcredential"] = serialize_vmgroup_v2_msgvmexistingcredential(data[i].ExistingCredential)
-        }
-    }
-    return val
-}
-
-func serialize_vmgroup_v2_msgvmexistingcredential(data *handler.MsgVMExistingCredential) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.CredentialId != nil {
-        val["credentialid"] = data.CredentialId
-    }
-    if data.CredentialName != nil {
-        val["credentialname"] = data.CredentialName
-    }
-    return val
-}
-
-func serialize_vmgroup_v2_msgvmguestcredentials(data *handler.MsgVMGuestCredentials) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.Password != nil {
-        val["password"] = data.Password
-    }
-    if data.UserName != nil {
-        val["username"] = data.UserName
-    }
-    return val
-}
-
-func serialize_vmgroup_v2_msgrulegroupcontentset_array(data []handler.MsgRuleGroupContentSet) []map[string]interface{} {
-    val := make([]map[string]interface{}, len(data))
-    for i := range data {
-        val[i] = make(map[string]interface{})
+        tmp := make(map[string]interface{})
+        added := false
         if data[i].MatchRule != nil {
-            val[i]["matchrule"] = data[i].MatchRule
+            tmp["matchrule"] = data[i].MatchRule
+            added = true
         }
-        if data[i].Rules != nil {
-            val[i]["rules"] = serialize_vmgroup_v2_msgrulecontentset_array(data[i].Rules)
+        if rtn, ok := serialize_vmgroup_v2_msgrulecontentset_array(d, data[i].Rules); ok {
+            tmp["rules"] = rtn
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
         }
     }
-    return val
+    return val, true
 }
 
-func serialize_vmgroup_v2_msgrulecontentset_array(data []handler.MsgRuleContentSet) []map[string]interface{} {
-    val := make([]map[string]interface{}, len(data))
+func serialize_vmgroup_v2_msgrulecontentset_array(d *schema.ResourceData, data []handler.MsgRuleContentSet) ([]map[string]interface{}, bool) {
+    //MsgvmContent -> MsgRuleGroupContentSet -> MsgRuleContentSet
+    //MsgvmContentSet -> MsgRuleGroupContentSet -> MsgRuleContentSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
     for i := range data {
-        val[i] = make(map[string]interface{})
+        tmp := make(map[string]interface{})
+        added := false
         if data[i].Condition != nil {
-            val[i]["condition"] = data[i].Condition
-        }
-        if data[i].DisplayName != nil {
-            val[i]["displayname"] = data[i].DisplayName
+            tmp["condition"] = data[i].Condition
+            added = true
         }
         if data[i].Name != nil {
-            val[i]["name"] = data[i].Name
-        }
-        if data[i].GUID != nil {
-            val[i]["guid"] = data[i].GUID
+            tmp["name"] = data[i].Name
+            added = true
         }
         if data[i].Type != nil {
-            val[i]["type"] = data[i].Type
+            tmp["type"] = data[i].Type
+            added = true
         }
-        if data[i].Value != nil {
-            val[i]["value"] = data[i].Value
+        if added {
+            val = append(val, tmp)
         }
     }
-    return val
+    return val, true
 }
 
-func serialize_vmgroup_v2_msgsecurityassocset_array(data []handler.MsgSecurityAssocSet) []map[string]interface{} {
-    val := make([]map[string]interface{}, len(data))
+func serialize_vmgroup_v2_msgsecurityassocset_array(d *schema.ResourceData, data []handler.MsgSecurityAssocSet) ([]map[string]interface{}, bool) {
+    //MsgSecurityAssocSet
+    //MsgSecurityAssocSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
     for i := range data {
-        val[i] = make(map[string]interface{})
-        if data[i].Role != nil {
-            val[i]["role"] = serialize_vmgroup_v2_msgidname(data[i].Role)
+        tmp := make(map[string]interface{})
+        added := false
+        if rtn, ok := serialize_vmgroup_v2_msgidname(d, data[i].Role); ok {
+            tmp["role"] = rtn
+            added = true
         }
         if data[i].IsCreatorAssociation != nil {
-            val[i]["iscreatorassociation"] = data[i].IsCreatorAssociation
+            tmp["iscreatorassociation"] = strconv.FormatBool(*data[i].IsCreatorAssociation)
+            added = true
         }
-        if data[i].ExternalUserGroup != nil {
-            val[i]["externalusergroup"] = serialize_vmgroup_v2_msgexternalusergroup(data[i].ExternalUserGroup)
+        if rtn, ok := serialize_vmgroup_v2_msgexternalusergroup(d, data[i].ExternalUserGroup); ok {
+            tmp["externalusergroup"] = rtn
+            added = true
         }
-        if data[i].PermissionList != nil {
-            val[i]["permissionlist"] = serialize_vmgroup_v2_msgpermissionrespset_array(data[i].PermissionList)
+        if rtn, ok := serialize_vmgroup_v2_msgpermissionrespset_array(d, data[i].PermissionList); ok {
+            tmp["permissionlist"] = rtn
+            added = true
         }
-        if data[i].User != nil {
-            val[i]["user"] = serialize_vmgroup_v2_msgidname(data[i].User)
+        if rtn, ok := serialize_vmgroup_v2_msgidname(d, data[i].User); ok {
+            tmp["user"] = rtn
+            added = true
         }
-        if data[i].UserGroup != nil {
-            val[i]["usergroup"] = serialize_vmgroup_v2_msgidname(data[i].UserGroup)
+        if rtn, ok := serialize_vmgroup_v2_msgidname(d, data[i].UserGroup); ok {
+            tmp["usergroup"] = rtn
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
         }
     }
-    return val
+    return val, true
 }
 
-func serialize_vmgroup_v2_msgpermissionrespset_array(data []handler.MsgPermissionRespSet) []map[string]interface{} {
-    val := make([]map[string]interface{}, len(data))
+func serialize_vmgroup_v2_msgpermissionrespset_array(d *schema.ResourceData, data []handler.MsgPermissionRespSet) ([]map[string]interface{}, bool) {
+    //MsgSecurityAssocSet -> MsgPermissionRespSet
+    //MsgSecurityAssocSet -> MsgPermissionRespSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
     for i := range data {
-        val[i] = make(map[string]interface{})
+        tmp := make(map[string]interface{})
+        added := false
         if data[i].PermissionId != nil {
-            val[i]["permissionid"] = data[i].PermissionId
+            tmp["permissionid"] = data[i].PermissionId
+            added = true
         }
         if data[i].Exclude != nil {
-            val[i]["exclude"] = data[i].Exclude
+            tmp["exclude"] = strconv.FormatBool(*data[i].Exclude)
+            added = true
         }
         if data[i].Type != nil {
-            val[i]["type"] = data[i].Type
+            tmp["type"] = data[i].Type
+            added = true
         }
         if data[i].CategoryName != nil {
-            val[i]["categoryname"] = data[i].CategoryName
+            tmp["categoryname"] = data[i].CategoryName
+            added = true
         }
         if data[i].CategoryId != nil {
-            val[i]["categoryid"] = data[i].CategoryId
+            tmp["categoryid"] = data[i].CategoryId
+            added = true
         }
         if data[i].PermissionName != nil {
-            val[i]["permissionname"] = data[i].PermissionName
+            tmp["permissionname"] = data[i].PermissionName
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
         }
     }
-    return val
+    return val, true
 }
 
-func serialize_vmgroup_v2_msgexternalusergroup(data *handler.MsgexternalUserGroup) map[string]interface{} {
-    val := make(map[string]interface{})
+func serialize_vmgroup_v2_msgexternalusergroup(d *schema.ResourceData, data *handler.MsgexternalUserGroup) ([]map[string]interface{}, bool) {
+    //MsgSecurityAssocSet -> MsgexternalUserGroup
+    //MsgSecurityAssocSet -> MsgexternalUserGroup
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.ProviderId != nil {
-        val["providerid"] = data.ProviderId
+        val[0]["providerid"] = data.ProviderId
+        added = true
     }
     if data.Name != nil {
-        val["name"] = data.Name
+        val[0]["name"] = data.Name
+        added = true
     }
     if data.Id != nil {
-        val["id"] = data.Id
+        val[0]["id"] = data.Id
+        added = true
     }
     if data.ProviderName != nil {
-        val["providername"] = data.ProviderName
+        val[0]["providername"] = data.ProviderName
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgvmdiskfilterpropset_array(data []handler.MsgvmDiskFilterPropSet) []map[string]interface{} {
-    val := make([]map[string]interface{}, len(data))
+func serialize_vmgroup_v2_msgvmdiskfilterpropset_array(d *schema.ResourceData, data []handler.MsgvmDiskFilterPropSet) ([]map[string]interface{}, bool) {
+    //MsgvmDiskFilterProp
+    //MsgvmDiskFilterPropSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
     for i := range data {
-        val[i] = make(map[string]interface{})
-        if data[i].Rules != nil {
-            val[i]["rules"] = serialize_vmgroup_v2_msgvmdiskfilterset_array(data[i].Rules)
+        tmp := make(map[string]interface{})
+        added := false
+        if rtn, ok := serialize_vmgroup_v2_msgvmdiskfilterset_array(d, data[i].Rules); ok {
+            tmp["rules"] = rtn
+            added = true
         }
         if data[i].Overwrite != nil {
-            val[i]["overwrite"] = data[i].Overwrite
+            tmp["overwrite"] = strconv.FormatBool(*data[i].Overwrite)
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
         }
     }
-    return val
+    return val, true
 }
 
-func serialize_vmgroup_v2_msgvmdiskfilterset_array(data []handler.MsgvmDiskFilterSet) []map[string]interface{} {
-    val := make([]map[string]interface{}, len(data))
+func serialize_vmgroup_v2_msgvmdiskfilterset_array(d *schema.ResourceData, data []handler.MsgvmDiskFilterSet) ([]map[string]interface{}, bool) {
+    //MsgvmDiskFilterProp -> MsgvmDiskFilterSet
+    //MsgvmDiskFilterPropSet -> MsgvmDiskFilterSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
     for i := range data {
-        val[i] = make(map[string]interface{})
+        tmp := make(map[string]interface{})
+        added := false
         if data[i].Condition != nil {
-            val[i]["condition"] = data[i].Condition
+            tmp["condition"] = data[i].Condition
+            added = true
         }
         if data[i].VmName != nil {
-            val[i]["vmname"] = data[i].VmName
+            tmp["vmname"] = data[i].VmName
+            added = true
         }
         if data[i].Name != nil {
-            val[i]["name"] = data[i].Name
+            tmp["name"] = data[i].Name
+            added = true
         }
         if data[i].FilterType != nil {
-            val[i]["filtertype"] = data[i].FilterType
+            tmp["filtertype"] = data[i].FilterType
+            added = true
         }
         if data[i].Overwrite != nil {
-            val[i]["overwrite"] = data[i].Overwrite
+            tmp["overwrite"] = strconv.FormatBool(*data[i].Overwrite)
+            added = true
         }
         if data[i].Value != nil {
-            val[i]["value"] = data[i].Value
+            tmp["value"] = data[i].Value
+            added = true
         }
         if data[i].VmGuid != nil {
-            val[i]["vmguid"] = data[i].VmGuid
+            tmp["vmguid"] = data[i].VmGuid
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
         }
     }
-    return val
+    return val, true
 }
 
-func serialize_vmgroup_v2_msgvmgroupsettings(data *handler.MsgvmGroupSettings) map[string]interface{} {
-    val := make(map[string]interface{})
+func serialize_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, data *handler.MsgvmGroupSettings) ([]map[string]interface{}, bool) {
+    //MsgvmGroupSettings
+    //MsgvmGroupSettings
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.AutoDetectVMOwner != nil {
-        val["autodetectvmowner"] = data.AutoDetectVMOwner
+        val[0]["autodetectvmowner"] = strconv.FormatBool(*data.AutoDetectVMOwner)
+        added = true
     }
     if data.CollectFileDetailsforGranularRecovery != nil {
-        val["collectfiledetailsforgranularrecovery"] = data.CollectFileDetailsforGranularRecovery
+        val[0]["collectfiledetailsforgranularrecovery"] = strconv.FormatBool(*data.CollectFileDetailsforGranularRecovery)
+        added = true
     }
     if data.NoOfReaders != nil {
-        val["noofreaders"] = data.NoOfReaders
+        val[0]["noofreaders"] = data.NoOfReaders
+        added = true
     }
     if data.UseChangedBlockTrackingOnVM != nil {
-        val["usechangedblocktrackingonvm"] = data.UseChangedBlockTrackingOnVM
+        val[0]["usechangedblocktrackingonvm"] = strconv.FormatBool(*data.UseChangedBlockTrackingOnVM)
+        added = true
     }
     if data.JobStartTime != nil {
-        val["jobstarttime"] = data.JobStartTime
+        val[0]["jobstarttime"] = data.JobStartTime
+        added = true
     }
     if data.UseVMCheckpointSetting != nil {
-        val["usevmcheckpointsetting"] = data.UseVMCheckpointSetting
+        val[0]["usevmcheckpointsetting"] = strconv.FormatBool(*data.UseVMCheckpointSetting)
+        added = true
     }
     if data.CustomSnapshotResourceGroup != nil {
-        val["customsnapshotresourcegroup"] = data.CustomSnapshotResourceGroup
+        val[0]["customsnapshotresourcegroup"] = data.CustomSnapshotResourceGroup
+        added = true
     }
     if data.RegionalSnapshot != nil {
-        val["regionalsnapshot"] = data.RegionalSnapshot
+        val[0]["regionalsnapshot"] = strconv.FormatBool(*data.RegionalSnapshot)
+        added = true
     }
-    if data.GuestCredentials != nil {
-        val["guestcredentials"] = serialize_vmgroup_v2_msgguestcredentialinfo(data.GuestCredentials)
+    if rtn, ok := serialize_vmgroup_v2_msgguestcredentialinfo(d, data.GuestCredentials); ok {
+        val[0]["guestcredentials"] = rtn
+        added = true
     }
     if data.VmBackupType != nil {
-        val["vmbackuptype"] = data.VmBackupType
+        val[0]["vmbackuptype"] = data.VmBackupType
+        added = true
     }
     if data.DatastoreFreespaceCheck != nil {
-        val["datastorefreespacecheck"] = data.DatastoreFreespaceCheck
+        val[0]["datastorefreespacecheck"] = strconv.FormatBool(*data.DatastoreFreespaceCheck)
+        added = true
     }
     if data.DatastoreFreespaceRequired != nil {
-        val["datastorefreespacerequired"] = data.DatastoreFreespaceRequired
+        val[0]["datastorefreespacerequired"] = data.DatastoreFreespaceRequired
+        added = true
     }
-    if data.CustomSnapshotTags != nil {
-        val["customsnapshottags"] = serialize_vmgroup_v2_msgresourcetagset_array(data.CustomSnapshotTags)
+    if rtn, ok := serialize_vmgroup_v2_msgresourcetagset_array(d, data.CustomSnapshotTags); ok {
+        val[0]["customsnapshottags"] = rtn
+        added = true
     }
     if data.IsApplicationAware != nil {
-        val["isapplicationaware"] = data.IsApplicationAware
+        val[0]["isapplicationaware"] = strconv.FormatBool(*data.IsApplicationAware)
+        added = true
     }
     if data.TransportMode != nil {
-        val["transportmode"] = data.TransportMode
+        val[0]["transportmode"] = data.TransportMode
+        added = true
     }
     if data.CollectFileDetailsFromSnapshotCopy != nil {
-        val["collectfiledetailsfromsnapshotcopy"] = data.CollectFileDetailsFromSnapshotCopy
+        val[0]["collectfiledetailsfromsnapshotcopy"] = strconv.FormatBool(*data.CollectFileDetailsFromSnapshotCopy)
+        added = true
     }
-    if data.CrossAccount != nil {
-        val["crossaccount"] = serialize_vmgroup_v2_msgamazoncrossaccount(data.CrossAccount)
+    if rtn, ok := serialize_vmgroup_v2_msgamazoncrossaccount(d, data.CrossAccount); ok {
+        val[0]["crossaccount"] = rtn
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgamazoncrossaccount(data *handler.MsgAmazonCrossAccount) map[string]interface{} {
-    val := make(map[string]interface{})
+func serialize_vmgroup_v2_msgamazoncrossaccount(d *schema.ResourceData, data *handler.MsgAmazonCrossAccount) ([]map[string]interface{}, bool) {
+    //MsgvmGroupSettings -> MsgAmazonCrossAccount
+    //MsgvmGroupSettings -> MsgAmazonCrossAccount
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
     if data.ShareOnly != nil {
-        val["shareonly"] = data.ShareOnly
+        val[0]["shareonly"] = strconv.FormatBool(*data.ShareOnly)
+        added = true
     }
     if data.FullCopy != nil {
-        val["fullcopy"] = data.FullCopy
+        val[0]["fullcopy"] = strconv.FormatBool(*data.FullCopy)
+        added = true
     }
-    if data.DestinationAccount != nil {
-        val["destinationaccount"] = serialize_vmgroup_v2_msgidname(data.DestinationAccount)
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.DestinationAccount); ok {
+        val[0]["destinationaccount"] = rtn
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgresourcetagset_array(data []handler.MsgresourceTagSet) []map[string]interface{} {
-    val := make([]map[string]interface{}, len(data))
+func serialize_vmgroup_v2_msgresourcetagset_array(d *schema.ResourceData, data []handler.MsgresourceTagSet) ([]map[string]interface{}, bool) {
+    //MsgvmGroupSettings -> MsgresourceTagSet
+    //MsgvmGroupSettings -> MsgresourceTagSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
     for i := range data {
-        val[i] = make(map[string]interface{})
+        tmp := make(map[string]interface{})
+        added := false
         if data[i].Name != nil {
-            val[i]["name"] = data[i].Name
+            tmp["name"] = data[i].Name
+            added = true
         }
         if data[i].Value != nil {
-            val[i]["value"] = data[i].Value
+            tmp["value"] = data[i].Value
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
         }
     }
-    return val
+    return val, true
 }
 
-func serialize_vmgroup_v2_msgactivitycontroloptions(data *handler.MsgActivityControlOptions) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.RestoreActivityControlOptions != nil {
-        val["restoreactivitycontroloptions"] = serialize_vmgroup_v2_msgbackupactivitycontroloptionsprop(data.RestoreActivityControlOptions)
+func serialize_vmgroup_v2_msgactivitycontroloptions(d *schema.ResourceData, data *handler.MsgActivityControlOptions) ([]map[string]interface{}, bool) {
+    //MsgActivityControlOptions
+    //MsgActivityControlOptions
+    if data == nil {
+        return nil, false
     }
-    if data.BackupActivityControlOptions != nil {
-        val["backupactivitycontroloptions"] = serialize_vmgroup_v2_msgbackupactivitycontroloptionsprop(data.BackupActivityControlOptions)
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_vmgroup_v2_msgactivitycontroloptionsprop(d, data.RestoreActivityControlOptions); ok {
+        val[0]["restoreactivitycontroloptions"] = rtn
+        added = true
+    }
+    if rtn, ok := serialize_vmgroup_v2_msgactivitycontroloptionsprop(d, data.BackupActivityControlOptions); ok {
+        val[0]["backupactivitycontroloptions"] = rtn
+        added = true
     }
     if data.EnableBackup != nil {
-        val["enablebackup"] = data.EnableBackup
+        val[0]["enablebackup"] = strconv.FormatBool(*data.EnableBackup)
+        added = true
     }
     if data.EnableRestore != nil {
-        val["enablerestore"] = data.EnableRestore
+        val[0]["enablerestore"] = strconv.FormatBool(*data.EnableRestore)
+        added = true
     }
-    return val
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
-func serialize_vmgroup_v2_msgbackupactivitycontroloptionsprop(data *handler.MsgbackupActivityControlOptionsProp) map[string]interface{} {
-    val := make(map[string]interface{})
-    if data.TimeZone != nil {
-        val["timezone"] = serialize_vmgroup_v2_msgidname(data.TimeZone)
+func serialize_vmgroup_v2_msgactivitycontroloptionsprop(d *schema.ResourceData, data *handler.MsgActivityControlOptionsProp) ([]map[string]interface{}, bool) {
+    //MsgActivityControlOptions -> MsgActivityControlOptionsProp
+    //MsgActivityControlOptions -> MsgActivityControlOptionsProp
+    if data == nil {
+        return nil, false
     }
-    if data.EnableAfterDelay != nil {
-        val["enableafterdelay"] = data.EnableAfterDelay
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_vmgroup_v2_msgactivitycontroltiledelaytime(d, data.DelayTime); ok {
+        val[0]["delaytime"] = rtn
+        added = true
     }
-    if data.DelayTime != nil {
-        val["delaytime"] = data.DelayTime
+    if data.ActivityType != nil {
+        val[0]["activitytype"] = data.ActivityType
+        added = true
     }
-    return val
+    if data.EnableAfterADelay != nil {
+        val[0]["enableafteradelay"] = strconv.FormatBool(*data.EnableAfterADelay)
+        added = true
+    }
+    if data.EnableActivityType != nil {
+        val[0]["enableactivitytype"] = strconv.FormatBool(*data.EnableActivityType)
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
+func serialize_vmgroup_v2_msgactivitycontroltiledelaytime(d *schema.ResourceData, data *handler.MsgActivityControlTileDelayTime) ([]map[string]interface{}, bool) {
+    //MsgActivityControlOptions -> MsgActivityControlOptionsProp -> MsgActivityControlTileDelayTime
+    //MsgActivityControlOptions -> MsgActivityControlOptionsProp -> MsgActivityControlTileDelayTime
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.TimeZone); ok {
+        val[0]["timezone"] = rtn
+        added = true
+    }
+    if data.Time != nil {
+        val[0]["time"] = data.Time
+        added = true
+    }
+    if data.Value != nil {
+        val[0]["value"] = data.Value
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }

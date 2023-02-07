@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -35,6 +36,11 @@ func buildHttpReq(url string, method string, accept string, requestBody []byte, 
 
 func executeHttpReq(req *http.Request) ([]byte, error) {
 	client := &http.Client{Timeout: time.Second * 1000}
+	if os.Getenv("IGNORE_CERT") == "true" {
+		config := &tls.Config{InsecureSkipVerify: true}
+		transport := &http.Transport{TLSClientConfig: config}
+		client.Transport = transport
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
@@ -72,6 +78,11 @@ func makeHttpRequest(url string, method string, accept string, requestBody []byt
 		panic(err)
 	}
 	client := &http.Client{Timeout: time.Second * 1000}
+	if os.Getenv("IGNORE_CERT") == "true" {
+		config := &tls.Config{InsecureSkipVerify: true}
+		transport := &http.Transport{TLSClientConfig: config}
+		client.Transport = transport
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
@@ -156,52 +167,61 @@ func ToBooleanArray(itemsRaw []interface{}) []bool {
 	}
 }
 
-func IsEmptyString(val string) bool {
-	if val == "" {
-		return true
-	} else {
-		return false
+func ToStringValue(val interface{}, omitempty bool) *string {
+	tmp := val.(string)
+	if omitempty && tmp == "" {
+		return nil
 	}
+	return &tmp
 }
 
-func IsEmptyInt(val int) bool {
-	if val == 0 {
-		return true
-	} else {
-		return false
+func ToIntValue(val interface{}, omitempty bool) *int {
+	tmp := val.(int)
+	if omitempty && tmp == 0 {
+		return nil
 	}
+	return &tmp
 }
 
-func IsEmptyLong(val int64) bool {
-	if val == 0 {
-		return true
-	} else {
-		return false
+func ToLongValue(val interface{}, omitempty bool) *int64 {
+	tmp := int64(val.(int))
+	if omitempty && tmp == 0 {
+		return nil
 	}
+	return &tmp
 }
 
-func IsNilString(val string) bool {
-	if val == "{{nil}}" {
-		return true
-	} else {
-		return false
+func ToFloatValue(val interface{}, omitempty bool) *float32 {
+	tmp := val.(float32)
+	if omitempty && tmp == 0 {
+		return nil
 	}
+	return &tmp
 }
 
-func IsNilInt(val int) bool {
-	if val == -2147483648 {
-		return true
-	} else {
-		return false
+func ToDoubleValue(val interface{}, omitempty bool) *float64 {
+	tmp := val.(float64)
+	if omitempty && tmp == 0 {
+		return nil
 	}
+	return &tmp
 }
 
-func IsNilLong(val int64) bool {
-	if val == -2147483648 {
-		return true
-	} else {
-		return false
+// func ToBooleanValue(val interface{}, omitempty bool) *bool {
+// 	tmp := val.(bool)
+// 	return &tmp
+// }
+
+func ToBooleanValue(val interface{}, omitempty bool) *bool {
+	tmp := val.(string)
+	t := true
+	f := false
+	if strings.EqualFold(tmp, "true") {
+		return &t
+	} else if strings.EqualFold(tmp, "false") {
+		return &f
 	}
+	return nil
 }
 
 func LogEntry(prefix string, entry string) {
@@ -216,3 +236,4 @@ func LogEntry(prefix string, entry string) {
 		logger.Println(prefix + ": " + entry)
 	}
 }
+
