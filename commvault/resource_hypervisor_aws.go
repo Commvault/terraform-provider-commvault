@@ -631,16 +631,16 @@ func resourceReadHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     } else {
         d.Set("settings", make([]map[string]interface{}, 0))
     }
+    if rtn, ok := handler.GetAccessNodes(d, resp.AccessNodeList); ok {
+        d.Set("accessnodes", rtn)
+    } else {
+        d.Set("accessnodes", make([]map[string]interface{}, 0))
+    }
     if resp.DisplayName != nil {
         d.Set("displayname", resp.DisplayName)
     }
     if resp.Name != nil {
         d.Set("name", resp.Name)
-    }
-    if rtn, ok := serialize_hypervisor_aws_msgaccessnodemodelset_array(d, resp.AccessNodeList.AccessNode); ok {
-        d.Set("accessnodes", rtn)
-    } else {
-        d.Set("accessnodes", make([]map[string]interface{}, 0))
     }
     return nil
 }
@@ -1039,31 +1039,6 @@ func build_hypervisor_aws_msgaccessnodemodelset_array(d *schema.ResourceData, r 
     } else {
         return nil
     }
-}
-
-func serialize_hypervisor_aws_msgaccessnodemodelset_array(d *schema.ResourceData, data []handler.MsgaccessNodeModelSet) ([]map[string]interface{}, bool) {
-    //MsgaccessNodeModelSet
-    //MsgaccessNodeModelSet
-    if data == nil {
-        return nil, false
-    }
-    val := make([]map[string]interface{}, 0)
-    for i := range data {
-        tmp := make(map[string]interface{})
-        added := false
-        if data[i].Id != nil {
-            tmp["id"] = data[i].Id
-            added = true
-        }
-        if data[i].Type != nil {
-            tmp["type"] = data[i].Type
-            added = true
-        }
-        if added {
-            val = append(val, tmp)
-        }
-    }
-    return val, true
 }
 
 func serialize_hypervisor_aws_msghypervisorsettings(d *schema.ResourceData, data *handler.MsghypervisorSettings) ([]map[string]interface{}, bool) {
