@@ -8,6 +8,16 @@ import (
 	"strings"
 )
 
+// func urlEscape(name string) string {
+// 	p := &url.URL{Path: name}
+// 	return p.String()
+// }
+
+func urlEscape(name string) string {
+	s := url.QueryEscape(name)
+	return strings.ReplaceAll(s, "+", "%20")
+}
+
 type MsgReadUserDS struct {
 	Users []struct {
 		UserEntity struct {
@@ -17,7 +27,7 @@ type MsgReadUserDS struct {
 }
 
 func CvGetUserByName(name string) (*MsgReadUserDS, error) {
-	url := os.Getenv("CV_CSIP") + "/User?fq=" + url.QueryEscape("name:eq:") + url.QueryEscape(name)
+	url := os.Getenv("CV_CSIP") + "/User?fq=" + urlEscape("name:eq:") + urlEscape(name)
 	token := os.Getenv("AuthToken")
 	//respBody, err := makeHttpRequest(url, http.MethodGet, JSON, nil, JSON, token, 0)
 	req := buildHttpReq(url, http.MethodGet, JSON, nil, JSON, token, 0)
@@ -34,7 +44,7 @@ type MsgReadCredentialDS struct {
 }
 
 func CvCredentialByName(name string) (*MsgReadCredentialDS, error) {
-	url := os.Getenv("CV_CSIP") + "/V4/Credential/" + url.QueryEscape(name)
+	url := os.Getenv("CV_CSIP") + "/V4/Credential/" + urlEscape(name)
 	token := os.Getenv("AuthToken")
 	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
 	var respObj MsgReadCredentialDS
@@ -53,7 +63,7 @@ type MsgReadClientDS struct {
 }
 
 func CvClientIdByName(name string) (*MsgReadClientDS, error) {
-	url := os.Getenv("CV_CSIP") + "/Client?fq=" + url.QueryEscape("name:eq:") + url.QueryEscape(name)
+	url := os.Getenv("CV_CSIP") + "/Client?fq=" + urlEscape("name:eq:") + urlEscape(name)
 	token := os.Getenv("AuthToken")
 	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
 	var respObj MsgReadClientDS
@@ -70,7 +80,7 @@ type MsgReadClientGroupDS struct {
 }
 
 func CvClientGroupIdByName(name string) (*MsgReadClientGroupDS, error) {
-	url := os.Getenv("CV_CSIP") + "/ClientGroup?fq=" + url.QueryEscape("name:eq:") + url.QueryEscape(name)
+	url := os.Getenv("CV_CSIP") + "/ClientGroup?fq=" + urlEscape("name:eq:") + urlEscape(name)
 	token := os.Getenv("AuthToken")
 	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
 	var respObj MsgReadClientGroupDS
@@ -87,7 +97,7 @@ type MsgReadCompanyDS struct {
 }
 
 func CvCompanyIdByName(name string) (*MsgReadCompanyDS, error) {
-	url := os.Getenv("CV_CSIP") + "/Organization?fq=" + url.QueryEscape("name:eq:") + url.QueryEscape(name)
+	url := os.Getenv("CV_CSIP") + "/Organization?fq=" + urlEscape("name:eq:") + urlEscape(name)
 	token := os.Getenv("AuthToken")
 	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
 	var respObj MsgReadCompanyDS
@@ -104,7 +114,7 @@ type MsgReadPlanDS struct {
 }
 
 func CvPlanIdByName(name string) (*MsgReadPlanDS, error) {
-	url := os.Getenv("CV_CSIP") + "/Plan?fq=" + url.QueryEscape("name:eq:") + url.QueryEscape(name)
+	url := os.Getenv("CV_CSIP") + "/Plan?fq=" + urlEscape("name:eq:") + urlEscape(name)
 	token := os.Getenv("AuthToken")
 	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
 	var respObj MsgReadPlanDS
@@ -121,7 +131,7 @@ type MsgReadUserGroupDS struct {
 }
 
 func CvUserGroupIdByName(name string) (*MsgReadUserGroupDS, error) {
-	url := os.Getenv("CV_CSIP") + "/UserGroup?fq=" + url.QueryEscape("name:eq:") + url.QueryEscape(name)
+	url := os.Getenv("CV_CSIP") + "/UserGroup?fq=" + urlEscape("name:eq:") + urlEscape(name)
 	token := os.Getenv("AuthToken")
 	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
 	var respObj MsgReadUserGroupDS
@@ -148,6 +158,58 @@ func CvRoleIdByName(name string) (MsgReadRoleDS, error) {
 
 	for _, r := range respObj.Roles {
 		if strings.EqualFold(r.RoleName, name) {
+			obj = r
+		}
+	}
+
+	return obj, err
+}
+
+type MsgReadRegionDSResp struct {
+	Regions []MsgReadRegionDS `json:"regions"`
+}
+
+type MsgReadRegionDS struct {
+	RegionId   int    `json:"regionId"`
+	RegionName string `json:"regionName"`
+}
+
+func CvRegionIdByName(name string) (MsgReadRegionDS, error) {
+	url := os.Getenv("CV_CSIP") + "/regions"
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgReadRegionDSResp
+	json.Unmarshal(respBody, &respObj)
+	var obj MsgReadRegionDS
+
+	for _, r := range respObj.Regions {
+		if strings.EqualFold(r.RegionName, name) {
+			obj = r
+		}
+	}
+
+	return obj, err
+}
+
+type MsgReadTimezoneDSResp struct {
+	Timezones []MsgReadTimezoneDS `json:"timezones"`
+}
+
+type MsgReadTimezoneDS struct {
+	TimezoneId   int    `json:"tzId"`
+	TimezoneName string `json:"timezoneStdName"`
+}
+
+func CvTimezoneIdByName(name string) (MsgReadTimezoneDS, error) {
+	url := os.Getenv("CV_CSIP") + "/GetCommServTimeZones"
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgReadTimezoneDSResp
+	json.Unmarshal(respBody, &respObj)
+	var obj MsgReadTimezoneDS
+
+	for _, r := range respObj.Timezones {
+		if strings.EqualFold(r.TimezoneName, name) {
 			obj = r
 		}
 	}

@@ -24,6 +24,50 @@ func UpdateUserRequest(req *MsgModifyUserRequest, d *schema.ResourceData, m inte
 	return nil
 }
 
+func accessNodeStateCopy(d *schema.ResourceData) ([]map[string]interface{}, bool) {
+	nodes := d.Get("accessnodes").(*schema.Set).List()
+
+	val := make([]map[string]interface{}, len(nodes))
+
+	for i := range nodes {
+		val[i] = nodes[i].(map[string]interface{})
+	}
+
+	return val, true
+}
+
+func GetAccessNodes(d *schema.ResourceData, model *MsgaccessNodeListModel) ([]map[string]interface{}, bool) {
+
+	if model == nil {
+		return accessNodeStateCopy(d)
+	}
+
+	data := model.AccessNode
+
+	if data == nil {
+		return nil, false
+	}
+
+	val := make([]map[string]interface{}, 0)
+	for i := range data {
+		tmp := make(map[string]interface{})
+		added := false
+		if data[i].Id != nil {
+			tmp["id"] = data[i].Id
+			added = true
+		}
+		if data[i].Type != nil {
+			tmp["type"] = data[i].Type
+			added = true
+		}
+		if added {
+			val = append(val, tmp)
+		}
+	}
+
+	return val, true
+}
+
 func GetConsoleTypes(d *schema.ResourceData, values []MsgRestrictedConsoleTypesSet) ([]map[string]interface{}, bool) {
 	items := make([]string, len(values))
 	for a, raw_a := range values {
@@ -88,6 +132,86 @@ func nextPlanSchedules(scheduleName string, data []MsgPlanScheduleSet) *MsgPlanS
 	for _, iter_a := range data {
 		if iter_a.ScheduleName != nil && *iter_a.ScheduleName == scheduleName {
 			return &iter_a
+		}
+	}
+	return nil
+}
+
+type BackupDestinationKey struct {
+	Destination string
+	Region      string
+}
+
+func GetBackupDestinationKey(data map[string]interface{}) BackupDestinationKey {
+	var key BackupDestinationKey
+
+	destintation, h_destintation := data["planbackupdestination"].([]interface{})
+	if !h_destintation || len(destintation) == 0 {
+		return key
+	}
+	t_destintation := destintation[0].(map[string]interface{})
+
+	key.Destination = t_destintation["name"].(string)
+
+	//key.Destination = data["backupdestinationname"].(string)
+
+	region, h_region := data["region"].([]interface{})
+	if !h_region || len(region) == 0 {
+		return key
+	}
+	t_region := region[0].(map[string]interface{})
+
+	key.Region = t_region["name"].(string)
+
+	return key
+}
+
+func SortBackupDestinations(d *schema.ResourceData, data []MsgPlanBackupDestinationSet) []MsgPlanBackupDestinationSet {
+	if len(data) == 0 {
+		return data
+	}
+
+	destinations, _ := d.Get("backupdestinations").([]interface{})
+	if len(destinations) == 0 {
+		return data
+	}
+
+	curr_data := make([]MsgPlanBackupDestinationSet, 0)
+	missing_data := make([]BackupDestinationKey, 0)
+
+	for _, iter_a := range destinations {
+		raw_a := iter_a.(map[string]interface{})
+		key := GetBackupDestinationKey(raw_a)
+		tmp := nextBackupDestination(key, data)
+		if tmp != nil {
+			curr_data = append(curr_data, *tmp)
+		} else {
+			missing_data = append(missing_data, key)
+		}
+	}
+
+	for _, key := range missing_data {
+		tmp := nextBackupDestination(key, data)
+		if tmp != nil {
+			curr_data = append(curr_data, *tmp)
+		}
+	}
+
+	return curr_data
+}
+
+func nextBackupDestination(key BackupDestinationKey, data []MsgPlanBackupDestinationSet) *MsgPlanBackupDestinationSet {
+	for _, iter_a := range data {
+		if key.Region == "" {
+			if iter_a.PlanBackupDestination != nil && *iter_a.PlanBackupDestination.Name == key.Destination {
+				return &iter_a
+			}
+		} else {
+			if iter_a.PlanBackupDestination != nil && *iter_a.PlanBackupDestination.Name == key.Destination {
+				if iter_a.Region != nil && *iter_a.Region.Name == key.Region {
+					return &iter_a
+				}
+			}
 		}
 	}
 	return nil
