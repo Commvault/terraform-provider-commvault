@@ -25,7 +25,6 @@ This provider plugin is maintained by [Commvault](https://www.commvault.com/)
 -   [Commvault](https://www.commvault.com/) V11 Sp22+
 
 ## <a name ="BuildProvider"></a> Building The Provider :pencil2:
-
 - Clone the Repository to local machine. 
 - Navigate to the Cloned Repository.
 
@@ -48,4 +47,4 @@ go build -o terraform-provider-commvault
 
 ## <a name ="using-the-provider"></a> Using the provider :arrow_forward:
 
-The Commvault provider documentation can be found on [provider's website](https://documentation.commvault.com/11.23/essential/129185_commvault_terraform_module.html) or in [Terraform Regitry](https://registry.terraform.io/providers/Commvault/commvault/latest/docs/index.html)
+The Commvault provider documentation can be found on [provider's website](https://documentation.commvault.com/11.23/essential/129185_commvault_terraform_module.html) or in [Terraform Registry](https://registry.terraform.io/providers/Commvault/commvault/latest/docs/index.html)
