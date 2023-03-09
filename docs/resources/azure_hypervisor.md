@@ -31,10 +31,10 @@ resource "commvault_azure_hypervisor" "<local name>"
 resource "commvault_azure_hypervisor" "AzureHyp11"
 {
 	hypervisor_name = "AzureHypTest"
-	subscription_id = "6d458963-fs4d-40bb-854e-8147e2d5dws4"
-	tenant_id = "40wesd38-a45e-7652-6d8c-8741b5869v5"
-	application_id= "12njd007-8e2c-4775-b5b0-5de9b8745c4"
-	application_password = "m7yloMi]8Oer2DF_ZQOCXB9DWSW@lkE["
+	subscription_id = "##########################"
+	tenant_id = "#############################"
+	application_id= "##############################"
+	application_password = "################################"
 	access_nodes = "AWSproxy"
 }
 ```

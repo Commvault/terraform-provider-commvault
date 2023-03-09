@@ -31,8 +31,8 @@ resource "commvault_amazon_hypervisor" "Amazonhyp1"
 {
 	client_name = "Amazon01"
 	use_iam_role = false
-	access_key = "DER77KRPFRKC8FDUN"
-	secret_key = "1vBCdzKoV3RS2G/25RX9cMigT4dIO17RUCDJV4NJ"
+	access_key = "##########"
+	secret_key = "#############################"
 	access_nodes = "AWS_proxy"
 }
 ```
