@@ -144,11 +144,6 @@ func resourceStorage_Disk() *schema.Resource {
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
                                     "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
@@ -163,11 +158,6 @@ func resourceStorage_Disk() *schema.Resource {
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
                                     "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
@@ -182,11 +172,6 @@ func resourceStorage_Disk() *schema.Resource {
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
                                     "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
@@ -293,7 +278,7 @@ func resourceReadStorage_Disk(d *schema.ResourceData, m interface{}) error {
     if err != nil {
         return fmt.Errorf("operation [GetDiskStorageDetails] failed, Error %s", err)
     }
-    if rtn, ok := serialize_storage_disk_msgsecurityassoc(d, resp.Security); ok {
+    if rtn, ok := serialize_storage_disk_msgsecurityassocset_array(d, resp.Security); ok {
         d.Set("security", rtn)
     } else {
         d.Set("security", make([]map[string]interface{}, 0))
@@ -495,47 +480,44 @@ func build_storage_disk_msgdedupepathset_array(d *schema.ResourceData, r []inter
     }
 }
 
-func serialize_storage_disk_msgsecurityassoc(d *schema.ResourceData, data *handler.MsgSecurityAssoc) ([]map[string]interface{}, bool) {
+func serialize_storage_disk_msgsecurityassocset_array(d *schema.ResourceData, data []handler.MsgSecurityAssocSet) ([]map[string]interface{}, bool) {
     //MsgUpdateSecurityAssocSet
-    //MsgSecurityAssoc
+    //MsgSecurityAssocSet
     if data == nil {
         return nil, false
     }
-    val := make([]map[string]interface{}, 1)
-    val[0] = make(map[string]interface{})
-    added := false
-    if rtn, ok := serialize_storage_disk_msgidname(d, data.Role); ok {
-        val[0]["role"] = rtn
-        added = true
+    val := make([]map[string]interface{}, 0)
+    for i := range data {
+        tmp := make(map[string]interface{})
+        added := false
+        if rtn, ok := serialize_storage_disk_msgidname(d, data[i].Role); ok {
+            tmp["role"] = rtn
+            added = true
+        }
+        if rtn, ok := serialize_storage_disk_msgidname(d, data[i].User); ok {
+            tmp["user"] = rtn
+            added = true
+        }
+        if rtn, ok := serialize_storage_disk_msgidname(d, data[i].UserGroup); ok {
+            tmp["usergroup"] = rtn
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
+        }
     }
-    if rtn, ok := serialize_storage_disk_msgidname(d, data.User); ok {
-        val[0]["user"] = rtn
-        added = true
-    }
-    if rtn, ok := serialize_storage_disk_msgidname(d, data.UserGroup); ok {
-        val[0]["usergroup"] = rtn
-        added = true
-    }
-    if added {
-        return val, true
-    } else {
-        return nil, false
-    }
+    return val, true
 }
 
 func serialize_storage_disk_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
     //MsgUpdateSecurityAssocSet -> MsgIdName
-    //MsgSecurityAssoc -> MsgIdName
+    //MsgSecurityAssocSet -> MsgIdName
     if data == nil {
         return nil, false
     }
     val := make([]map[string]interface{}, 1)
     val[0] = make(map[string]interface{})
     added := false
-    if data.Name != nil {
-        val[0]["name"] = data.Name
-        added = true
-    }
     if data.Id != nil {
         val[0]["id"] = data.Id
         added = true

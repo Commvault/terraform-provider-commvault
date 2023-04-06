@@ -7,6 +7,98 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+func ConfigureCredential_AWSWithRoleArn(req *MsgCreateCredentialAWSWithRoleArnRequest, d *schema.ResourceData, m interface{}) error {
+	accountType := "CLOUD_ACCOUNT"
+	req.AccountType = new(string)
+	req.AccountType = &accountType
+
+	vendorType := "AMAZON"
+	req.VendorType = new(string)
+	req.VendorType = &vendorType
+
+	password := ""
+	req.Password = new(string)
+	req.Password = &password
+
+	return nil
+}
+
+func UpdateCredential_AWSWithRoleArn(req *MsgUpdateCredentialAWSWithRoleArnRequest, d *schema.ResourceData, m interface{}) error {
+	password := ""
+	req.Password = new(string)
+	req.Password = &password
+
+	return nil
+}
+
+func ConfigureCredential_AWS(req *MsgCreateCredentialAWSRequest, d *schema.ResourceData, m interface{}) error {
+	accountType := "CLOUD_ACCOUNT"
+	req.AccountType = new(string)
+	req.AccountType = &accountType
+
+	vendorType := "AMAZON"
+	req.VendorType = new(string)
+	req.VendorType = &vendorType
+
+	return nil
+}
+
+func UpdateCredential_AWS(req *MsgUpdateCredentialAWSRequest, d *schema.ResourceData, m interface{}) error {
+	return nil
+}
+
+func ConfigureCredential_Azure(req *MsgCreateCredentialAzureRequest, d *schema.ResourceData, m interface{}) error {
+	accountType := "CLOUD_ACCOUNT"
+	req.AccountType = new(string)
+	req.AccountType = &accountType
+
+	vendorType := "MICROSOFT_AZURE_TYPE"
+	req.VendorType = new(string)
+	req.VendorType = &vendorType
+
+	return nil
+}
+
+func UpdateCredential_Azure(req *MsgUpdateCredentialAzureRequest, d *schema.ResourceData, m interface{}) error {
+	return nil
+}
+
+func ConfigureCredential_AzureWithTenantId(req *MsgCreateCredentialAzureWithTenantIdRequest, d *schema.ResourceData, m interface{}) error {
+	accountType := "CLOUD_ACCOUNT"
+	req.AccountType = new(string)
+	req.AccountType = &accountType
+
+	vendorType := "MICROSOFT_AZURE_TYPE"
+	req.VendorType = new(string)
+	req.VendorType = &vendorType
+
+	req.Endpoints = build_endpoints()
+
+	return nil
+}
+
+func UpdateCredential_AzureWithTenantId(req *MsgUpdateCredentialAzureWithTenantIdRequest, d *schema.ResourceData, m interface{}) error {
+	return nil
+}
+
+func build_endpoints() *MsgAzureEndpoints {
+	t_storage := "blob.core.windows.net"
+	t_activedirectory := "https://login.microsoftonline.com/"
+	t_resourcemanager := "https://management.azure.com/"
+	return &MsgAzureEndpoints{Storage: &t_storage, ActiveDirectory: &t_activedirectory, ResourceManager: &t_resourcemanager}
+}
+
+func UpdateBackupDestinations(req *MsgCreateServerPlanRequest, d *schema.ResourceData, m interface{}) error {
+
+	// if req.BackupDestinations != nil {
+	// 	for i := range req.BackupDestinations {
+	// 		req.BackupDestinations[i].BackupDestinationName = req.BackupDestinations[i].PlanBackupDestination.Name
+	// 	}
+	// }
+
+	return nil
+}
+
 func UpdateUserRequest(req *MsgModifyUserRequest, d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("password") {
 		var val string
@@ -145,15 +237,15 @@ type BackupDestinationKey struct {
 func GetBackupDestinationKey(data map[string]interface{}) BackupDestinationKey {
 	var key BackupDestinationKey
 
-	destintation, h_destintation := data["planbackupdestination"].([]interface{})
-	if !h_destintation || len(destintation) == 0 {
+	//key.Destination = data["backupdestinationname"].(string)
+
+	backupdestination, h_backupdestination := data["planbackupdestination"].([]interface{})
+	if !h_backupdestination || len(backupdestination) == 0 {
 		return key
 	}
-	t_destintation := destintation[0].(map[string]interface{})
+	t_backupdestination := backupdestination[0].(map[string]interface{})
 
-	key.Destination = t_destintation["name"].(string)
-
-	//key.Destination = data["backupdestinationname"].(string)
+	key.Destination = t_backupdestination["name"].(string)
 
 	region, h_region := data["region"].([]interface{})
 	if !h_region || len(region) == 0 {
@@ -177,7 +269,6 @@ func SortBackupDestinations(d *schema.ResourceData, data []MsgPlanBackupDestinat
 	}
 
 	curr_data := make([]MsgPlanBackupDestinationSet, 0)
-	missing_data := make([]BackupDestinationKey, 0)
 
 	for _, iter_a := range destinations {
 		raw_a := iter_a.(map[string]interface{})
@@ -185,20 +276,36 @@ func SortBackupDestinations(d *schema.ResourceData, data []MsgPlanBackupDestinat
 		tmp := nextBackupDestination(key, data)
 		if tmp != nil {
 			curr_data = append(curr_data, *tmp)
-		} else {
-			missing_data = append(missing_data, key)
 		}
 	}
 
-	for _, key := range missing_data {
-		tmp := nextBackupDestination(key, data)
-		if tmp != nil {
-			curr_data = append(curr_data, *tmp)
-		}
-	}
+	// for _, iter_a := range data {
+	// 	if !hasBackupDestination(iter_a, curr_data) {
+	// 		curr_data = append(curr_data, iter_a)
+	// 	}
+	// }
 
 	return curr_data
 }
+
+// func hasBackupDestination(destination MsgPlanBackupDestinationSet, data []MsgPlanBackupDestinationSet) bool {
+// 	for _, iter_a := range data {
+// 		if iter_a.PlanBackupDestination.Name == destination.PlanBackupDestination.Name {
+// 			if iter_a.Region != nil && *iter_a.Region.Name != "" {
+// 				//has region
+// 				if destination.Region != nil && *destination.Region.Name != "" {
+// 					return iter_a.Region.Name == destination.Region.Name
+// 				}
+// 			} else {
+// 				//no region
+// 				if destination.Region == nil || *destination.Region.Name == "" {
+// 					return true
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return false
+// }
 
 func nextBackupDestination(key BackupDestinationKey, data []MsgPlanBackupDestinationSet) *MsgPlanBackupDestinationSet {
 	for _, iter_a := range data {

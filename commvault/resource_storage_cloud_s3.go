@@ -80,11 +80,6 @@ func resourceStorage_Cloud_S3() *schema.Resource {
                     },
                 },
             },
-            "cloudtype": {
-                Type:        schema.TypeString,
-                Required:    true,
-                Description: "Name of cloud vendor [Amazon S3]",
-            },
             "arnrole": {
                 Type:        schema.TypeString,
                 Optional:    true,
@@ -147,11 +142,6 @@ func resourceStorage_Cloud_S3() *schema.Resource {
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
                                     "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
@@ -166,11 +156,6 @@ func resourceStorage_Cloud_S3() *schema.Resource {
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
                                     "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
@@ -185,11 +170,6 @@ func resourceStorage_Cloud_S3() *schema.Resource {
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "name": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
                                     "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
@@ -283,9 +263,8 @@ func resourceCreateStorage_Cloud_S3(d *schema.ResourceData, m interface{}) error
         t_credentials = build_storage_cloud_s3_msgidname(d, val.([]interface{}))
     }
     var t_cloudtype *string
-    if val, ok := d.GetOk("cloudtype"); ok {
-        t_cloudtype = handler.ToStringValue(val, false)
-    }
+    var c_cloudtype string = "Amazon S3"
+    t_cloudtype = &c_cloudtype
     var t_arnrole *string
     if val, ok := d.GetOk("arnrole"); ok {
         t_arnrole = handler.ToStringValue(val, false)

@@ -167,8 +167,7 @@ func resourceUpdateStorage_Disk_Backup_Location(d *schema.ResourceData, m interf
         t_path = handler.ToStringValue(val, false)
     }
     var t_mediaagent *handler.MsgIdName
-    if d.HasChange("mediaagent") {
-        val := d.Get("mediaagent")
+    if val, ok := d.GetOk("mediaagent"); ok {
         t_mediaagent = build_storage_disk_backup_location_msgidname(d, val.([]interface{}))
     }
     var t_access *string
@@ -207,6 +206,11 @@ func resourceCreateUpdateStorage_Disk_Backup_Location(d *schema.ResourceData, m 
         t_path = handler.ToStringValue(val, false)
         execUpdate = true
     }
+    var t_mediaagent *handler.MsgIdName
+    if val, ok := d.GetOk("mediaagent"); ok {
+        t_mediaagent = build_storage_disk_backup_location_msgidname(d, val.([]interface{}))
+        execUpdate = true
+    }
     var t_access *string
     if val, ok := d.GetOk("access"); ok {
         t_access = handler.ToStringValue(val, false)
@@ -218,7 +222,7 @@ func resourceCreateUpdateStorage_Disk_Backup_Location(d *schema.ResourceData, m 
         execUpdate = true
     }
     if execUpdate {
-        var req = handler.MsgModifyBackupLocationRequest{Path:t_path, Access:t_access, Enabled:t_enabled}
+        var req = handler.MsgModifyBackupLocationRequest{Path:t_path, MediaAgent:t_mediaagent, Access:t_access, Enabled:t_enabled}
         _, err := handler.CvModifyBackupLocation(req, strconv.Itoa(d.Get("storagepoolid").(int)), d.Id())
         if err != nil {
             return fmt.Errorf("operation [ModifyBackupLocation] failed, Error %s", err)

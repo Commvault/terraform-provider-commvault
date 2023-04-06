@@ -29,7 +29,7 @@ func datasourceReadUserGroup(d *schema.ResourceData, m interface{}) error {
 	if resp.UserGroups != nil && len(resp.UserGroups) > 0 && resp.UserGroups[0].UserGroupEntity.UserGroupId > 0 {
 		d.SetId(strconv.Itoa(resp.UserGroups[0].UserGroupEntity.UserGroupId))
 	} else {
-		return fmt.Errorf("unknown user %s", d.Get("name").(string))
+		return fmt.Errorf("unknown user group %s", d.Get("name").(string))
 	}
 
 	return nil

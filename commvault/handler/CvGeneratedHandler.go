@@ -6,6 +6,48 @@ import (
     "os"
 )
 
+func CvGetRoleDetails(roleId string) (*MsgGetRoleDetailsResponse, error) {
+    //API: (GET) /V4/Role/{roleId}
+    url := os.Getenv("CV_CSIP") + "/V4/Role/" + roleId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetRoleDetailsResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteRoles(roleId string) (*MsgDeleteRolesResponse, error) {
+    //API: (DELETE) /V4/Role/{roleId}
+    url := os.Getenv("CV_CSIP") + "/V4/Role/" + roleId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteRolesResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvModifyRole(modifyRoleRequest MsgModifyRoleRequest, roleId string) (*MsgModifyRoleResponse, error) {
+    //API: (PUT) /V4/Role/{roleId}
+    reqBody, _ := json.Marshal(modifyRoleRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Role/" + roleId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgModifyRoleResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateNewRole(createNewRoleRequest MsgCreateNewRoleRequest) (*MsgCreateNewRoleResponse, error) {
+    //API: (POST) /V4/Role
+    reqBody, _ := json.Marshal(createNewRoleRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Role"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateNewRoleResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
 func CvCreateBackupLocation(createBackupLocationRequest MsgCreateBackupLocationRequest, storagePoolId string) (*MsgCreateBackupLocationResponse, error) {
     //API: (POST) /V4/Storage/Disk/{storagePoolId}/BackupLocation
     reqBody, _ := json.Marshal(createBackupLocationRequest)
@@ -128,6 +170,144 @@ func CvCreateDiskStorage(createDiskStorageRequest MsgCreateDiskStorageRequest) (
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
     var respObj MsgCreateDiskStorageResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateCredentialAzure(createCredentialAzureRequest MsgCreateCredentialAzureRequest) (*MsgCreateCredentialAzureResponse, error) {
+    //API: (POST) /V4/Credential
+    reqBody, _ := json.Marshal(createCredentialAzureRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Credential"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateCredentialAzureResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetCredentailDetailsAzure(credentialId string) (*MsgGetCredentailDetailsAzureRequest, error) {
+    //API: (GET) /V5/Credential/{credentialId}
+    url := os.Getenv("CV_CSIP") + "/V5/Credential/" + credentialId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetCredentailDetailsAzureRequest
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvUpdateCredentialAzure(updateCredentialAzureRequest MsgUpdateCredentialAzureRequest, credentialId string) (*MsgUpdateCredentialAzureResponse, error) {
+    //API: (PUT) /V5/Credential/{credentialId}
+    reqBody, _ := json.Marshal(updateCredentialAzureRequest)
+    url := os.Getenv("CV_CSIP") + "/V5/Credential/" + credentialId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgUpdateCredentialAzureResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteCredential(credentialId string) (*MsgDeleteCredentialResponse, error) {
+    //API: (DELETE) /V5/Credential/{credentialId}
+    url := os.Getenv("CV_CSIP") + "/V5/Credential/" + credentialId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteCredentialResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateCredentialAWS(createCredentialAWSRequest MsgCreateCredentialAWSRequest) (*MsgCreateCredentialAWSResponse, error) {
+    //API: (POST) /V4/Credential
+    reqBody, _ := json.Marshal(createCredentialAWSRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Credential"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateCredentialAWSResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetCredentailDetailsAWS(credentialId string) (*MsgGetCredentailDetailsAWSRequest, error) {
+    //API: (GET) /V5/Credential/{credentialId}
+    url := os.Getenv("CV_CSIP") + "/V5/Credential/" + credentialId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetCredentailDetailsAWSRequest
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvUpdateCredentialAWS(updateCredentialAWSRequest MsgUpdateCredentialAWSRequest, credentialId string) (*MsgUpdateCredentialAWSResponse, error) {
+    //API: (PUT) /V5/Credential/{credentialId}
+    reqBody, _ := json.Marshal(updateCredentialAWSRequest)
+    url := os.Getenv("CV_CSIP") + "/V5/Credential/" + credentialId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgUpdateCredentialAWSResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateCredentialAWSWithRoleArn(createCredentialAWSWithRoleArnRequest MsgCreateCredentialAWSWithRoleArnRequest) (*MsgCreateCredentialAWSWithRoleArnResponse, error) {
+    //API: (POST) /V4/Credential
+    reqBody, _ := json.Marshal(createCredentialAWSWithRoleArnRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Credential"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateCredentialAWSWithRoleArnResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetCredentailDetailsAWSWithRoleArn(credentialId string) (*MsgGetCredentailDetailsAWSWithRoleArnRequest, error) {
+    //API: (GET) /V5/Credential/{credentialId}
+    url := os.Getenv("CV_CSIP") + "/V5/Credential/" + credentialId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetCredentailDetailsAWSWithRoleArnRequest
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvUpdateCredentialAWSWithRoleArn(updateCredentialAWSWithRoleArnRequest MsgUpdateCredentialAWSWithRoleArnRequest, credentialId string) (*MsgUpdateCredentialAWSWithRoleArnResponse, error) {
+    //API: (PUT) /V5/Credential/{credentialId}
+    reqBody, _ := json.Marshal(updateCredentialAWSWithRoleArnRequest)
+    url := os.Getenv("CV_CSIP") + "/V5/Credential/" + credentialId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgUpdateCredentialAWSWithRoleArnResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateCredentialAzureWithTenantId(createCredentialAzureWithTenantIdRequest MsgCreateCredentialAzureWithTenantIdRequest) (*MsgCreateCredentialAzureWithTenantIdResponse, error) {
+    //API: (POST) /V4/Credential
+    reqBody, _ := json.Marshal(createCredentialAzureWithTenantIdRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Credential"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateCredentialAzureWithTenantIdResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetCredentailDetailsAzureWithTenantId(credentialId string) (*MsgGetCredentailDetailsAzureWithTenantIdRequest, error) {
+    //API: (GET) /V5/Credential/{credentialId}
+    url := os.Getenv("CV_CSIP") + "/V5/Credential/" + credentialId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetCredentailDetailsAzureWithTenantIdRequest
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvUpdateCredentialAzureWithTenantId(updateCredentialAzureWithTenantIdRequest MsgUpdateCredentialAzureWithTenantIdRequest, credentialId string) (*MsgUpdateCredentialAzureWithTenantIdResponse, error) {
+    //API: (PUT) /V5/Credential/{credentialId}
+    reqBody, _ := json.Marshal(updateCredentialAzureWithTenantIdRequest)
+    url := os.Getenv("CV_CSIP") + "/V5/Credential/" + credentialId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgUpdateCredentialAzureWithTenantIdResponse
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }

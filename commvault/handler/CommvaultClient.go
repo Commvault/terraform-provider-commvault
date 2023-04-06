@@ -43,12 +43,12 @@ func executeHttpReq(req *http.Request) ([]byte, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer resp.Body.Close()
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if resp.StatusCode != 200 {
 		dst := &bytes.Buffer{}

@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func datasourceRole() *schema.Resource {
+func datasourceTimezone() *schema.Resource {
 	return &schema.Resource{
-		Read: datasourceReadRole,
+		Read: datasourceReadTimezone,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -23,13 +23,13 @@ func datasourceRole() *schema.Resource {
 	}
 }
 
-func datasourceReadRole(d *schema.ResourceData, m interface{}) error {
-	resp, _ := handler.CvRoleIdByName(d.Get("name").(string))
+func datasourceReadTimezone(d *schema.ResourceData, m interface{}) error {
+	resp, _ := handler.CvTimezoneIdByName(d.Get("name").(string))
 
-	if resp.RoleId > 0 {
-		d.SetId(strconv.Itoa(resp.RoleId))
+	if resp.TimezoneId > 0 {
+		d.SetId(strconv.Itoa(resp.TimezoneId))
 	} else {
-		return fmt.Errorf("unknown role %s", d.Get("name").(string))
+		return fmt.Errorf("unknown timezone %s", d.Get("name").(string))
 	}
 
 	return nil
