@@ -111,6 +111,12 @@ func resourceUserGroup() *schema.Resource {
                 Computed:    true,
                 Description: "Azure Object ID used to link this user group to Azure AD group and manage group membership of the user during SAML login",
             },
+            "donotinheritrestrictconsoletypes": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "Option to not inherit the RestrictConsoleTypes from the parent. By default the value is false, parent RestrictConsoleTypes will be inherited.",
+            },
             "planoperationtype": {
                 Type:        schema.TypeString,
                 Optional:    true,
@@ -216,6 +222,9 @@ func resourceReadUserGroup(d *schema.ResourceData, m interface{}) error {
     if resp.Name != nil {
         d.Set("name", resp.Name)
     }
+    if resp.DoNotInheritRestrictConsoleTypes != nil {
+        d.Set("donotinheritrestrictconsoletypes", strconv.FormatBool(*resp.DoNotInheritRestrictConsoleTypes))
+    }
     if rtn, ok := serialize_usergroup_msgidnameset_array(d, resp.AssociatedExternalGroups); ok {
         d.Set("associatedexternalgroups", rtn)
     } else {
@@ -296,6 +305,11 @@ func resourceUpdateUserGroup(d *schema.ResourceData, m interface{}) error {
         val := d.Get("azureguid")
         t_azureguid = handler.ToStringValue(val, false)
     }
+    var t_donotinheritrestrictconsoletypes *bool
+    if d.HasChange("donotinheritrestrictconsoletypes") {
+        val := d.Get("donotinheritrestrictconsoletypes")
+        t_donotinheritrestrictconsoletypes = handler.ToBooleanValue(val, false)
+    }
     var t_consoletypeoperationtype *string
     if d.HasChange("restrictconsoletypes") {
         var c_consoletypeoperationtype string = "OVERWRITE"
@@ -311,7 +325,7 @@ func resourceUpdateUserGroup(d *schema.ResourceData, m interface{}) error {
         val := d.Get("associatedexternalgroups")
         t_associatedexternalgroups = build_usergroup_msgidnameset_array(d, val.(*schema.Set).List())
     }
-    var req = handler.MsgModifyUserGroupRequest{EnableLocalAuthentication:t_enablelocalauthentication, EnableTwoFactorAuthentication:t_enabletwofactorauthentication, LaptopAdmins:t_laptopadmins, AllowMultipleCompanyMembers:t_allowmultiplecompanymembers, EnforceFSQuota:t_enforcefsquota, QuotaLimitInGB:t_quotalimitingb, ExternalUserGroupsOperationType:t_externalusergroupsoperationtype, NewDescription:t_newdescription, Enabled:t_enabled, Users:t_users, UserOperationType:t_useroperationtype, RestrictConsoleTypes:t_restrictconsoletypes, NewName:t_newname, AzureGUID:t_azureguid, ConsoleTypeOperationType:t_consoletypeoperationtype, PlanOperationType:t_planoperationtype, AssociatedExternalGroups:t_associatedexternalgroups}
+    var req = handler.MsgModifyUserGroupRequest{EnableLocalAuthentication:t_enablelocalauthentication, EnableTwoFactorAuthentication:t_enabletwofactorauthentication, LaptopAdmins:t_laptopadmins, AllowMultipleCompanyMembers:t_allowmultiplecompanymembers, EnforceFSQuota:t_enforcefsquota, QuotaLimitInGB:t_quotalimitingb, ExternalUserGroupsOperationType:t_externalusergroupsoperationtype, NewDescription:t_newdescription, Enabled:t_enabled, Users:t_users, UserOperationType:t_useroperationtype, RestrictConsoleTypes:t_restrictconsoletypes, NewName:t_newname, AzureGUID:t_azureguid, DoNotInheritRestrictConsoleTypes:t_donotinheritrestrictconsoletypes, ConsoleTypeOperationType:t_consoletypeoperationtype, PlanOperationType:t_planoperationtype, AssociatedExternalGroups:t_associatedexternalgroups}
     _, err := handler.CvModifyUserGroup(req, d.Id())
     if err != nil {
         return fmt.Errorf("operation [ModifyUserGroup] failed, Error %s", err)
@@ -372,6 +386,11 @@ func resourceCreateUpdateUserGroup(d *schema.ResourceData, m interface{}) error 
         t_azureguid = handler.ToStringValue(val, false)
         execUpdate = true
     }
+    var t_donotinheritrestrictconsoletypes *bool
+    if val, ok := d.GetOk("donotinheritrestrictconsoletypes"); ok {
+        t_donotinheritrestrictconsoletypes = handler.ToBooleanValue(val, false)
+        execUpdate = true
+    }
     var t_consoletypeoperationtype *string
     if d.HasChange("restrictconsoletypes") {
         var c_consoletypeoperationtype string = "OVERWRITE"
@@ -388,7 +407,7 @@ func resourceCreateUpdateUserGroup(d *schema.ResourceData, m interface{}) error 
         execUpdate = true
     }
     if execUpdate {
-        var req = handler.MsgModifyUserGroupRequest{EnableLocalAuthentication:t_enablelocalauthentication, EnableTwoFactorAuthentication:t_enabletwofactorauthentication, LaptopAdmins:t_laptopadmins, AllowMultipleCompanyMembers:t_allowmultiplecompanymembers, ExternalUserGroupsOperationType:t_externalusergroupsoperationtype, Enabled:t_enabled, Users:t_users, UserOperationType:t_useroperationtype, RestrictConsoleTypes:t_restrictconsoletypes, AzureGUID:t_azureguid, ConsoleTypeOperationType:t_consoletypeoperationtype, PlanOperationType:t_planoperationtype, AssociatedExternalGroups:t_associatedexternalgroups}
+        var req = handler.MsgModifyUserGroupRequest{EnableLocalAuthentication:t_enablelocalauthentication, EnableTwoFactorAuthentication:t_enabletwofactorauthentication, LaptopAdmins:t_laptopadmins, AllowMultipleCompanyMembers:t_allowmultiplecompanymembers, ExternalUserGroupsOperationType:t_externalusergroupsoperationtype, Enabled:t_enabled, Users:t_users, UserOperationType:t_useroperationtype, RestrictConsoleTypes:t_restrictconsoletypes, AzureGUID:t_azureguid, DoNotInheritRestrictConsoleTypes:t_donotinheritrestrictconsoletypes, ConsoleTypeOperationType:t_consoletypeoperationtype, PlanOperationType:t_planoperationtype, AssociatedExternalGroups:t_associatedexternalgroups}
         _, err := handler.CvModifyUserGroup(req, d.Id())
         if err != nil {
             return fmt.Errorf("operation [ModifyUserGroup] failed, Error %s", err)

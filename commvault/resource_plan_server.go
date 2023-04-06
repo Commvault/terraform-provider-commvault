@@ -312,7 +312,7 @@ func resourcePlan_Server() *schema.Resource {
             },
             "backupdestinations": {
                 Type:        schema.TypeSet,
-                Optional:    true,
+                Required:    true,
                 Description: "Backup destinations for the plan. Specify where you want to store your backup data.",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
@@ -333,7 +333,7 @@ func resourcePlan_Server() *schema.Resource {
                         },
                         "backupdestinationname": {
                             Type:        schema.TypeString,
-                            Required:    true,
+                            Optional:    true,
                             Description: "Backup destination details. Enter the name during creation.",
                         },
                         "extendedretentionrules": {
@@ -689,6 +689,90 @@ func resourcePlan_Server() *schema.Resource {
                     },
                 },
             },
+            "regiontoconfigure": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "name": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                        },
+                        "id": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                        },
+                    },
+                },
+            },
+            "databaseoptions": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "This feature applies only to database agents",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "logbackuprpomins": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Log backup RPO in minutes",
+                        },
+                        "runfullbackupevery": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Full backup frequency in days",
+                        },
+                        "commitfrequencyinhours": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Commit frequency in hours",
+                        },
+                        "usediskcacheforlogbackups": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Use disk cache for log backups",
+                        },
+                    },
+                },
+            },
+            "overrideinheritsettings": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "This feature applies to derived plans when inherit mode is optional.Provides user to set entity preference between parent and derived plan.",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "rpo": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Flag to specify if parent or derived plan rpo should be used when inherit mode is optional. True - derived, False - Base.",
+                        },
+                        "backupcontent": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Flag to specify if parent or derived plan backupContent should be used when inherit mode is optional. True - derived, False - Base.",
+                        },
+                        "backupdestination": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Flag to specify if parent or derived plan backupDestination should be used when inherit mode is optional. True - derived, False - Base.",
+                        },
+                    },
+                },
+            },
             "rpo": {
                 Type:        schema.TypeList,
                 Optional:    true,
@@ -783,8 +867,7 @@ func resourcePlan_Server() *schema.Resource {
                                             Schema: map[string]*schema.Schema{
                                                 "schedulename": {
                                                     Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Computed:    true,
+                                                    Required:    true,
                                                     Description: "Name of the schedule, for modify",
                                                 },
                                                 "scheduleoption": {
@@ -806,6 +889,18 @@ func resourcePlan_Server() *schema.Resource {
                                                                 Computed:    true,
                                                                 Description: "Commit frequency in hours for disk cache backups from automatic schedules",
                                                             },
+                                                            "jobrunningtimeinmins": {
+                                                                Type:        schema.TypeInt,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "total job running time in minutes",
+                                                            },
+                                                            "o365itemselectionoption": {
+                                                                Type:        schema.TypeString,
+                                                                Optional:    true,
+                                                                Computed:    true,
+                                                                Description: "item backup option for O365 V2 backup jobs [SELECT_ALL, SELECT_NEVER_PROCESSED, SELECT_MEETING_SLA, SELECT_NOT_MEETING_SLA_PROCESSED_ATLEAST_ONCE, SELECT_FAILED_LAST_ATTEMPT, SELECT_PROCESSED_ATLEAST_ONCE, SELECT_NOT_MEETING_SLA, SELECT_MEETING_SLA_NOT_RECENTLY_BACKED_UP]",
+                                                            },
                                                             "usediskcacheforlogbackups": {
                                                                 Type:        schema.TypeString,
                                                                 Optional:    true,
@@ -814,12 +909,6 @@ func resourcePlan_Server() *schema.Resource {
                                                             },
                                                         },
                                                     },
-                                                },
-                                                "policyid": {
-                                                    Type:        schema.TypeInt,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "Schedule policy Id to which the schedule belongs",
                                                 },
                                                 "vmoperationtype": {
                                                     Type:        schema.TypeString,
@@ -993,12 +1082,6 @@ func resourcePlan_Server() *schema.Resource {
                                                         },
                                                     },
                                                 },
-                                                "scheduleid": {
-                                                    Type:        schema.TypeInt,
-                                                    Optional:    true,
-                                                    Computed:    true,
-                                                    Description: "Id of the schedule if available, required for modifying, deleting schedule",
-                                                },
                                                 "backuptype": {
                                                     Type:        schema.TypeString,
                                                     Required:    true,
@@ -1040,90 +1123,6 @@ func resourcePlan_Server() *schema.Resource {
                                     },
                                 },
                             },
-                        },
-                    },
-                },
-            },
-            "regiontoconfigure": {
-                Type:        schema.TypeList,
-                Optional:    true,
-                Computed:    true,
-                Description: "",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "name": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                        "id": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                    },
-                },
-            },
-            "databaseoptions": {
-                Type:        schema.TypeList,
-                Optional:    true,
-                Computed:    true,
-                Description: "This feature applies only to database agents",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "logbackuprpomins": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Log backup RPO in minutes",
-                        },
-                        "runfullbackupevery": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Full backup frequency in days",
-                        },
-                        "commitfrequencyinhours": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Commit frequency in hours",
-                        },
-                        "usediskcacheforlogbackups": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Use disk cache for log backups",
-                        },
-                    },
-                },
-            },
-            "overrideinheritsettings": {
-                Type:        schema.TypeList,
-                Optional:    true,
-                Computed:    true,
-                Description: "This feature applies to derived plans when inherit mode is optional.Provides user to set entity preference between parent and derived plan.",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "rpo": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Flag to specify if parent or derived plan rpo should be used when inherit mode is optional. True - derived, False - Base.",
-                        },
-                        "backupcontent": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Flag to specify if parent or derived plan backupContent should be used when inherit mode is optional. True - derived, False - Base.",
-                        },
-                        "backupdestination": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Flag to specify if parent or derived plan backupDestination should be used when inherit mode is optional. True - derived, False - Base.",
                         },
                     },
                 },
@@ -1250,11 +1249,6 @@ func resourceReadPlan_Server(d *schema.ResourceData, m interface{}) error {
 
 func resourceUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
     //API: (PUT) /V4/ServerPlan/{planId}
-    var t_rpo *handler.MsgServerPlanUpdateRPO
-    if d.HasChange("rpo") {
-        val := d.Get("rpo")
-        t_rpo = build_plan_server_msgserverplanupdaterpo(d, val.([]interface{}))
-    }
     var t_regiontoconfigure *handler.MsgIdName
     if d.HasChange("regiontoconfigure") {
         val := d.Get("regiontoconfigure")
@@ -1274,11 +1268,6 @@ func resourceUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
     if d.HasChange("databaseoptions") {
         val := d.Get("databaseoptions")
         t_databaseoptions = build_plan_server_msgserverplandatabaseoptionsinfo(d, val.([]interface{}))
-    }
-    var t_newname *string
-    if d.HasChange("planname") {
-        val := d.Get("planname")
-        t_newname = handler.ToStringValue(val, false)
     }
     var t_overrideinheritsettings *handler.MsgPlanOverrideInheritSetting
     if d.HasChange("overrideinheritsettings") {
@@ -1300,6 +1289,24 @@ func resourceUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
         val := d.Get("workload")
         t_workload = build_plan_server_msgplanworkloads(d, val.([]interface{}))
     }
+    var t_rpo *handler.MsgServerPlanUpdateRPO
+    if d.HasChange("rpo") {
+        val := d.Get("rpo")
+        t_rpo = build_plan_server_msgserverplanupdaterpo(d, val.([]interface{}))
+    }
+    var t_newname *string
+    if d.HasChange("planname") {
+        val := d.Get("planname")
+        t_newname = handler.ToStringValue(val, false)
+    }
+    var t_backupdestinations []handler.MsgPlanBackupDestinationSet
+    if d.HasChange("backupdestinations") {
+        val := d.Get("backupdestinations")
+        t_backupdestinations = build_plan_server_msgplanbackupdestinationset_array(d, val.(*schema.Set).List())
+    }
+    var t_backupdestinationsoperationtype *string
+    var c_backupdestinationsoperationtype string = "OVERWRITE"
+    t_backupdestinationsoperationtype = &c_backupdestinationsoperationtype
     var t_overriderestrictions *handler.MsgPlanOverrideSettings
     if d.HasChange("overriderestrictions") {
         val := d.Get("overriderestrictions")
@@ -1310,7 +1317,7 @@ func resourceUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
         val := d.Get("snapshotoptions")
         t_snapshotoptions = build_plan_server_msgplansnapshotoptions(d, val.([]interface{}))
     }
-    var req = handler.MsgModifyPlanRequest{Rpo:t_rpo, RegionToConfigure:t_regiontoconfigure, Settings:t_settings, BackupContent:t_backupcontent, DatabaseOptions:t_databaseoptions, NewName:t_newname, OverrideInheritSettings:t_overrideinheritsettings, FilesystemAddon:t_filesystemaddon, AllowPlanOverride:t_allowplanoverride, Workload:t_workload, OverrideRestrictions:t_overriderestrictions, SnapshotOptions:t_snapshotoptions}
+    var req = handler.MsgModifyPlanRequest{RegionToConfigure:t_regiontoconfigure, Settings:t_settings, BackupContent:t_backupcontent, DatabaseOptions:t_databaseoptions, OverrideInheritSettings:t_overrideinheritsettings, FilesystemAddon:t_filesystemaddon, AllowPlanOverride:t_allowplanoverride, Workload:t_workload, Rpo:t_rpo, NewName:t_newname, BackupDestinations:t_backupdestinations, BackupDestinationsOperationType:t_backupdestinationsoperationtype, OverrideRestrictions:t_overriderestrictions, SnapshotOptions:t_snapshotoptions}
     _, err := handler.CvModifyPlan(req, d.Id())
     if err != nil {
         return fmt.Errorf("operation [ModifyPlan] failed, Error %s", err)
@@ -1321,11 +1328,6 @@ func resourceUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
 func resourceCreateUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
     //API: (PUT) /V4/ServerPlan/{planId}
     var execUpdate bool = false
-    var t_rpo *handler.MsgServerPlanUpdateRPO
-    if val, ok := d.GetOk("rpo"); ok {
-        t_rpo = build_plan_server_msgserverplanupdaterpo(d, val.([]interface{}))
-        execUpdate = true
-    }
     var t_regiontoconfigure *handler.MsgIdName
     if val, ok := d.GetOk("regiontoconfigure"); ok {
         t_regiontoconfigure = build_plan_server_msgidname(d, val.([]interface{}))
@@ -1341,8 +1343,16 @@ func resourceCreateUpdatePlan_Server(d *schema.ResourceData, m interface{}) erro
         t_overrideinheritsettings = build_plan_server_msgplanoverrideinheritsetting(d, val.([]interface{}))
         execUpdate = true
     }
+    var t_rpo *handler.MsgServerPlanUpdateRPO
+    if val, ok := d.GetOk("rpo"); ok {
+        t_rpo = build_plan_server_msgserverplanupdaterpo(d, val.([]interface{}))
+        execUpdate = true
+    }
+    var t_backupdestinationsoperationtype *string
+    var c_backupdestinationsoperationtype string = "OVERWRITE"
+    t_backupdestinationsoperationtype = &c_backupdestinationsoperationtype
     if execUpdate {
-        var req = handler.MsgModifyPlanRequest{Rpo:t_rpo, RegionToConfigure:t_regiontoconfigure, DatabaseOptions:t_databaseoptions, OverrideInheritSettings:t_overrideinheritsettings}
+        var req = handler.MsgModifyPlanRequest{RegionToConfigure:t_regiontoconfigure, DatabaseOptions:t_databaseoptions, OverrideInheritSettings:t_overrideinheritsettings, Rpo:t_rpo, BackupDestinationsOperationType:t_backupdestinationsoperationtype}
         _, err := handler.CvModifyPlan(req, d.Id())
         if err != nil {
             return fmt.Errorf("operation [ModifyPlan] failed, Error %s", err)
@@ -1358,69 +1368,6 @@ func resourceDeletePlan_Server(d *schema.ResourceData, m interface{}) error {
         return fmt.Errorf("operation [DeletePlan] failed, Error %s", err)
     }
     return nil
-}
-
-func build_plan_server_msgplanoverrideinheritsetting(d *schema.ResourceData, r []interface{}) *handler.MsgPlanOverrideInheritSetting {
-    if len(r) > 0 && r[0] != nil {
-        tmp := r[0].(map[string]interface{})
-        var t_rpo *bool
-        if val, ok := tmp["rpo"]; ok {
-            t_rpo = handler.ToBooleanValue(val, true)
-        }
-        var t_backupcontent *bool
-        if val, ok := tmp["backupcontent"]; ok {
-            t_backupcontent = handler.ToBooleanValue(val, true)
-        }
-        var t_backupdestination *bool
-        if val, ok := tmp["backupdestination"]; ok {
-            t_backupdestination = handler.ToBooleanValue(val, true)
-        }
-        return &handler.MsgPlanOverrideInheritSetting{Rpo:t_rpo, BackupContent:t_backupcontent, BackupDestination:t_backupdestination}
-    } else {
-        return nil
-    }
-}
-
-func build_plan_server_msgserverplandatabaseoptionsinfo(d *schema.ResourceData, r []interface{}) *handler.MsgServerPlanDatabaseOptionsInfo {
-    if len(r) > 0 && r[0] != nil {
-        tmp := r[0].(map[string]interface{})
-        var t_logbackuprpomins *int
-        if val, ok := tmp["logbackuprpomins"]; ok {
-            t_logbackuprpomins = handler.ToIntValue(val, true)
-        }
-        var t_runfullbackupevery *int
-        if val, ok := tmp["runfullbackupevery"]; ok {
-            t_runfullbackupevery = handler.ToIntValue(val, true)
-        }
-        var t_commitfrequencyinhours *int
-        if val, ok := tmp["commitfrequencyinhours"]; ok {
-            t_commitfrequencyinhours = handler.ToIntValue(val, true)
-        }
-        var t_usediskcacheforlogbackups *bool
-        if val, ok := tmp["usediskcacheforlogbackups"]; ok {
-            t_usediskcacheforlogbackups = handler.ToBooleanValue(val, true)
-        }
-        return &handler.MsgServerPlanDatabaseOptionsInfo{LogBackupRPOMins:t_logbackuprpomins, RunFullBackupEvery:t_runfullbackupevery, CommitFrequencyInHours:t_commitfrequencyinhours, UseDiskCacheForLogBackups:t_usediskcacheforlogbackups}
-    } else {
-        return nil
-    }
-}
-
-func build_plan_server_msgidname(d *schema.ResourceData, r []interface{}) *handler.MsgIdName {
-    if len(r) > 0 && r[0] != nil {
-        tmp := r[0].(map[string]interface{})
-        var t_name *string
-        if val, ok := tmp["name"]; ok {
-            t_name = handler.ToStringValue(val, true)
-        }
-        var t_id *int
-        if val, ok := tmp["id"]; ok {
-            t_id = handler.ToIntValue(val, true)
-        }
-        return &handler.MsgIdName{Name:t_name, Id:t_id}
-    } else {
-        return nil
-    }
 }
 
 func build_plan_server_msgserverplanupdaterpo(d *schema.ResourceData, r []interface{}) *handler.MsgServerPlanUpdateRPO {
@@ -1504,10 +1451,6 @@ func build_plan_server_msgplanscheduleset_array(d *schema.ResourceData, r []inte
             if val, ok := raw_a["scheduleoption"]; ok {
                 t_scheduleoption = build_plan_server_msgscheduleoption(d, val.([]interface{}))
             }
-            var t_policyid *int
-            if val, ok := raw_a["policyid"]; ok {
-                t_policyid = handler.ToIntValue(val, true)
-            }
             var t_vmoperationtype *string
             if val, ok := raw_a["vmoperationtype"]; ok {
                 t_vmoperationtype = handler.ToStringValue(val, true)
@@ -1520,15 +1463,11 @@ func build_plan_server_msgplanscheduleset_array(d *schema.ResourceData, r []inte
             if val, ok := raw_a["schedulepattern"]; ok {
                 t_schedulepattern = build_plan_server_msgschedulepattern(d, val.([]interface{}))
             }
-            var t_scheduleid *int
-            if val, ok := raw_a["scheduleid"]; ok {
-                t_scheduleid = handler.ToIntValue(val, true)
-            }
             var t_backuptype *string
             if val, ok := raw_a["backuptype"]; ok {
                 t_backuptype = handler.ToStringValue(val, true)
             }
-            tmp[a] = handler.MsgPlanScheduleSet{ScheduleName:t_schedulename, ScheduleOption:t_scheduleoption, PolicyId:t_policyid, VmOperationType:t_vmoperationtype, ForDatabasesOnly:t_fordatabasesonly, SchedulePattern:t_schedulepattern, ScheduleId:t_scheduleid, BackupType:t_backuptype}
+            tmp[a] = handler.MsgPlanScheduleSet{ScheduleName:t_schedulename, ScheduleOption:t_scheduleoption, VmOperationType:t_vmoperationtype, ForDatabasesOnly:t_fordatabasesonly, SchedulePattern:t_schedulepattern, BackupType:t_backuptype}
         }
         return tmp
     } else {
@@ -1638,6 +1577,23 @@ func build_plan_server_msgschedulerunexceptionset_array(d *schema.ResourceData, 
     }
 }
 
+func build_plan_server_msgidname(d *schema.ResourceData, r []interface{}) *handler.MsgIdName {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_name *string
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
+        }
+        var t_id *int
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
+        }
+        return &handler.MsgIdName{Name:t_name, Id:t_id}
+    } else {
+        return nil
+    }
+}
+
 func build_plan_server_msgscheduleoption(d *schema.ResourceData, r []interface{}) *handler.MsgScheduleOption {
     if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
@@ -1649,11 +1605,19 @@ func build_plan_server_msgscheduleoption(d *schema.ResourceData, r []interface{}
         if val, ok := tmp["commitfrequencyinhours"]; ok {
             t_commitfrequencyinhours = handler.ToIntValue(val, true)
         }
+        var t_jobrunningtimeinmins *int
+        if val, ok := tmp["jobrunningtimeinmins"]; ok {
+            t_jobrunningtimeinmins = handler.ToIntValue(val, true)
+        }
+        var t_o365itemselectionoption *string
+        if val, ok := tmp["o365itemselectionoption"]; ok {
+            t_o365itemselectionoption = handler.ToStringValue(val, true)
+        }
         var t_usediskcacheforlogbackups *bool
         if val, ok := tmp["usediskcacheforlogbackups"]; ok {
             t_usediskcacheforlogbackups = handler.ToBooleanValue(val, true)
         }
-        return &handler.MsgScheduleOption{DaysBetweenAutoConvert:t_daysbetweenautoconvert, CommitFrequencyInHours:t_commitfrequencyinhours, UseDiskCacheForLogBackups:t_usediskcacheforlogbackups}
+        return &handler.MsgScheduleOption{DaysBetweenAutoConvert:t_daysbetweenautoconvert, CommitFrequencyInHours:t_commitfrequencyinhours, JobRunningTimeInMins:t_jobrunningtimeinmins, O365ItemSelectionOption:t_o365itemselectionoption, UseDiskCacheForLogBackups:t_usediskcacheforlogbackups}
     } else {
         return nil
     }
@@ -1683,6 +1647,52 @@ func build_plan_server_msgslaupdateoptions(d *schema.ResourceData, r []interface
             t_slaperiod = handler.ToIntValue(val, true)
         }
         return &handler.MsgSLAUpdateOptions{ExclusionReason:t_exclusionreason, UseSystemDefaultSLA:t_usesystemdefaultsla, EnableAfterDelay:t_enableafterdelay, ExcludeFromSLA:t_excludefromsla, SLAPeriod:t_slaperiod}
+    } else {
+        return nil
+    }
+}
+
+func build_plan_server_msgplanoverrideinheritsetting(d *schema.ResourceData, r []interface{}) *handler.MsgPlanOverrideInheritSetting {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_rpo *bool
+        if val, ok := tmp["rpo"]; ok {
+            t_rpo = handler.ToBooleanValue(val, true)
+        }
+        var t_backupcontent *bool
+        if val, ok := tmp["backupcontent"]; ok {
+            t_backupcontent = handler.ToBooleanValue(val, true)
+        }
+        var t_backupdestination *bool
+        if val, ok := tmp["backupdestination"]; ok {
+            t_backupdestination = handler.ToBooleanValue(val, true)
+        }
+        return &handler.MsgPlanOverrideInheritSetting{Rpo:t_rpo, BackupContent:t_backupcontent, BackupDestination:t_backupdestination}
+    } else {
+        return nil
+    }
+}
+
+func build_plan_server_msgserverplandatabaseoptionsinfo(d *schema.ResourceData, r []interface{}) *handler.MsgServerPlanDatabaseOptionsInfo {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_logbackuprpomins *int
+        if val, ok := tmp["logbackuprpomins"]; ok {
+            t_logbackuprpomins = handler.ToIntValue(val, true)
+        }
+        var t_runfullbackupevery *int
+        if val, ok := tmp["runfullbackupevery"]; ok {
+            t_runfullbackupevery = handler.ToIntValue(val, true)
+        }
+        var t_commitfrequencyinhours *int
+        if val, ok := tmp["commitfrequencyinhours"]; ok {
+            t_commitfrequencyinhours = handler.ToIntValue(val, true)
+        }
+        var t_usediskcacheforlogbackups *bool
+        if val, ok := tmp["usediskcacheforlogbackups"]; ok {
+            t_usediskcacheforlogbackups = handler.ToBooleanValue(val, true)
+        }
+        return &handler.MsgServerPlanDatabaseOptionsInfo{LogBackupRPOMins:t_logbackuprpomins, RunFullBackupEvery:t_runfullbackupevery, CommitFrequencyInHours:t_commitfrequencyinhours, UseDiskCacheForLogBackups:t_usediskcacheforlogbackups}
     } else {
         return nil
     }
@@ -1766,6 +1776,215 @@ func build_plan_server_msgplanoverridesettings(d *schema.ResourceData, r []inter
             t_storagepool = handler.ToStringValue(val, true)
         }
         return &handler.MsgPlanOverrideSettings{RPO:t_rpo, BackupContent:t_backupcontent, StoragePool:t_storagepool}
+    } else {
+        return nil
+    }
+}
+
+func build_plan_server_msgplanbackupdestinationset_array(d *schema.ResourceData, r []interface{}) []handler.MsgPlanBackupDestinationSet {
+    if r != nil {
+        tmp := make([]handler.MsgPlanBackupDestinationSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_ismirrorcopy *bool
+            if val, ok := raw_a["ismirrorcopy"]; ok {
+                t_ismirrorcopy = handler.ToBooleanValue(val, true)
+            }
+            var t_copyprecedence *int
+            if val, ok := raw_a["copyprecedence"]; ok {
+                t_copyprecedence = handler.ToIntValue(val, true)
+            }
+            var t_retentionperioddays *int
+            if val, ok := raw_a["retentionperioddays"]; ok {
+                t_retentionperioddays = handler.ToIntValue(val, true)
+            }
+            var t_copytypename *string
+            if val, ok := raw_a["copytypename"]; ok {
+                t_copytypename = handler.ToStringValue(val, true)
+            }
+            var t_backupstocopy *string
+            if val, ok := raw_a["backupstocopy"]; ok {
+                t_backupstocopy = handler.ToStringValue(val, true)
+            }
+            var t_extendedretentionrules *handler.MsgExtendedRetentionRules
+            if val, ok := raw_a["extendedretentionrules"]; ok {
+                t_extendedretentionrules = build_plan_server_msgextendedretentionrules(d, val.([]interface{}))
+            }
+            var t_retentionruletype *string
+            if val, ok := raw_a["retentionruletype"]; ok {
+                t_retentionruletype = handler.ToStringValue(val, true)
+            }
+            var t_snaprecoverypoints *int
+            if val, ok := raw_a["snaprecoverypoints"]; ok {
+                t_snaprecoverypoints = handler.ToIntValue(val, true)
+            }
+            var t_sourcecopy *handler.MsgIdName
+            if val, ok := raw_a["sourcecopy"]; ok {
+                t_sourcecopy = build_plan_server_msgidname(d, val.([]interface{}))
+            }
+            var t_fullbackuptypestocopy *string
+            if val, ok := raw_a["fullbackuptypestocopy"]; ok {
+                t_fullbackuptypestocopy = handler.ToStringValue(val, true)
+            }
+            var t_useextendedretentionrules *bool
+            if val, ok := raw_a["useextendedretentionrules"]; ok {
+                t_useextendedretentionrules = handler.ToBooleanValue(val, true)
+            }
+            var t_backupstarttime *int
+            if val, ok := raw_a["backupstarttime"]; ok {
+                t_backupstarttime = handler.ToIntValue(val, true)
+            }
+            var t_overrideretentionsettings *bool
+            if val, ok := raw_a["overrideretentionsettings"]; ok {
+                t_overrideretentionsettings = handler.ToBooleanValue(val, true)
+            }
+            var t_netappcloudtarget *bool
+            if val, ok := raw_a["netappcloudtarget"]; ok {
+                t_netappcloudtarget = handler.ToBooleanValue(val, true)
+            }
+            var t_isdefault *bool
+            if val, ok := raw_a["isdefault"]; ok {
+                t_isdefault = handler.ToBooleanValue(val, true)
+            }
+            var t_mappings []handler.MsgSnapshotCopyMappingSet
+            if val, ok := raw_a["mappings"]; ok {
+                t_mappings = build_plan_server_msgsnapshotcopymappingset_array(d, val.(*schema.Set).List())
+            }
+            var t_planbackupdestination *handler.MsgIdName
+            if val, ok := raw_a["planbackupdestination"]; ok {
+                t_planbackupdestination = build_plan_server_msgidname(d, val.([]interface{}))
+            }
+            var t_issnapcopy *bool
+            if val, ok := raw_a["issnapcopy"]; ok {
+                t_issnapcopy = handler.ToBooleanValue(val, true)
+            }
+            var t_copytype *string
+            if val, ok := raw_a["copytype"]; ok {
+                t_copytype = handler.ToStringValue(val, true)
+            }
+            var t_storagetype *string
+            if val, ok := raw_a["storagetype"]; ok {
+                t_storagetype = handler.ToStringValue(val, true)
+            }
+            var t_enabledataaging *bool
+            if val, ok := raw_a["enabledataaging"]; ok {
+                t_enabledataaging = handler.ToBooleanValue(val, true)
+            }
+            var t_region *handler.MsgIdName
+            if val, ok := raw_a["region"]; ok {
+                t_region = build_plan_server_msgidname(d, val.([]interface{}))
+            }
+            var t_storagepool *handler.MsgStoragePool
+            if val, ok := raw_a["storagepool"]; ok {
+                t_storagepool = build_plan_server_msgstoragepool(d, val.([]interface{}))
+            }
+            tmp[a] = handler.MsgPlanBackupDestinationSet{IsMirrorCopy:t_ismirrorcopy, CopyPrecedence:t_copyprecedence, RetentionPeriodDays:t_retentionperioddays, CopyTypeName:t_copytypename, BackupsToCopy:t_backupstocopy, ExtendedRetentionRules:t_extendedretentionrules, RetentionRuleType:t_retentionruletype, SnapRecoveryPoints:t_snaprecoverypoints, SourceCopy:t_sourcecopy, FullBackupTypesToCopy:t_fullbackuptypestocopy, UseExtendedRetentionRules:t_useextendedretentionrules, BackupStartTime:t_backupstarttime, OverrideRetentionSettings:t_overrideretentionsettings, NetAppCloudTarget:t_netappcloudtarget, IsDefault:t_isdefault, Mappings:t_mappings, PlanBackupDestination:t_planbackupdestination, IsSnapCopy:t_issnapcopy, CopyType:t_copytype, StorageType:t_storagetype, EnableDataAging:t_enabledataaging, Region:t_region, StoragePool:t_storagepool}
+        }
+        return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_plan_server_msgstoragepool(d *schema.ResourceData, r []interface{}) *handler.MsgStoragePool {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_retentionperioddays *int
+        if val, ok := tmp["retentionperioddays"]; ok {
+            t_retentionperioddays = handler.ToIntValue(val, true)
+        }
+        var t_wormstoragepoolflag *int
+        if val, ok := tmp["wormstoragepoolflag"]; ok {
+            t_wormstoragepoolflag = handler.ToIntValue(val, true)
+        }
+        var t_name *string
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
+        }
+        var t_id *int
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
+        }
+        var t_type *string
+        if val, ok := tmp["type"]; ok {
+            t_type = handler.ToStringValue(val, true)
+        }
+        return &handler.MsgStoragePool{RetentionPeriodDays:t_retentionperioddays, WormStoragePoolFlag:t_wormstoragepoolflag, Name:t_name, Id:t_id, Type:t_type}
+    } else {
+        return nil
+    }
+}
+
+func build_plan_server_msgsnapshotcopymappingset_array(d *schema.ResourceData, r []interface{}) []handler.MsgSnapshotCopyMappingSet {
+    if r != nil {
+        tmp := make([]handler.MsgSnapshotCopyMappingSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_vendor *string
+            if val, ok := raw_a["vendor"]; ok {
+                t_vendor = handler.ToStringValue(val, true)
+            }
+            var t_targetvendor *handler.MsgIdName
+            if val, ok := raw_a["targetvendor"]; ok {
+                t_targetvendor = build_plan_server_msgidname(d, val.([]interface{}))
+            }
+            var t_source *handler.MsgIdName
+            if val, ok := raw_a["source"]; ok {
+                t_source = build_plan_server_msgidname(d, val.([]interface{}))
+            }
+            var t_sourcevendor *handler.MsgIdName
+            if val, ok := raw_a["sourcevendor"]; ok {
+                t_sourcevendor = build_plan_server_msgidname(d, val.([]interface{}))
+            }
+            var t_target *handler.MsgIdName
+            if val, ok := raw_a["target"]; ok {
+                t_target = build_plan_server_msgidname(d, val.([]interface{}))
+            }
+            tmp[a] = handler.MsgSnapshotCopyMappingSet{Vendor:t_vendor, TargetVendor:t_targetvendor, Source:t_source, SourceVendor:t_sourcevendor, Target:t_target}
+        }
+        return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_plan_server_msgextendedretentionrules(d *schema.ResourceData, r []interface{}) *handler.MsgExtendedRetentionRules {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_thirdextendedretentionrule *handler.MsgPlanRetentionRule
+        if val, ok := tmp["thirdextendedretentionrule"]; ok {
+            t_thirdextendedretentionrule = build_plan_server_msgplanretentionrule(d, val.([]interface{}))
+        }
+        var t_firstextendedretentionrule *handler.MsgPlanRetentionRule
+        if val, ok := tmp["firstextendedretentionrule"]; ok {
+            t_firstextendedretentionrule = build_plan_server_msgplanretentionrule(d, val.([]interface{}))
+        }
+        var t_secondextendedretentionrule *handler.MsgPlanRetentionRule
+        if val, ok := tmp["secondextendedretentionrule"]; ok {
+            t_secondextendedretentionrule = build_plan_server_msgplanretentionrule(d, val.([]interface{}))
+        }
+        return &handler.MsgExtendedRetentionRules{ThirdExtendedRetentionRule:t_thirdextendedretentionrule, FirstExtendedRetentionRule:t_firstextendedretentionrule, SecondExtendedRetentionRule:t_secondextendedretentionrule}
+    } else {
+        return nil
+    }
+}
+
+func build_plan_server_msgplanretentionrule(d *schema.ResourceData, r []interface{}) *handler.MsgPlanRetentionRule {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_isinfiniteretention *bool
+        if val, ok := tmp["isinfiniteretention"]; ok {
+            t_isinfiniteretention = handler.ToBooleanValue(val, true)
+        }
+        var t_retentionperioddays *int
+        if val, ok := tmp["retentionperioddays"]; ok {
+            t_retentionperioddays = handler.ToIntValue(val, true)
+        }
+        var t_type *string
+        if val, ok := tmp["type"]; ok {
+            t_type = handler.ToStringValue(val, true)
+        }
+        return &handler.MsgPlanRetentionRule{IsInfiniteRetention:t_isinfiniteretention, RetentionPeriodDays:t_retentionperioddays, Type:t_type}
     } else {
         return nil
     }
@@ -2043,81 +2262,6 @@ func build_plan_server_msgcreateplanbackupdestinationset_array(d *schema.Resourc
     }
 }
 
-func build_plan_server_msgsnapshotcopymappingset_array(d *schema.ResourceData, r []interface{}) []handler.MsgSnapshotCopyMappingSet {
-    if r != nil {
-        tmp := make([]handler.MsgSnapshotCopyMappingSet, len(r))
-        for a, iter_a := range r {
-            raw_a := iter_a.(map[string]interface{})
-            var t_vendor *string
-            if val, ok := raw_a["vendor"]; ok {
-                t_vendor = handler.ToStringValue(val, true)
-            }
-            var t_targetvendor *handler.MsgIdName
-            if val, ok := raw_a["targetvendor"]; ok {
-                t_targetvendor = build_plan_server_msgidname(d, val.([]interface{}))
-            }
-            var t_source *handler.MsgIdName
-            if val, ok := raw_a["source"]; ok {
-                t_source = build_plan_server_msgidname(d, val.([]interface{}))
-            }
-            var t_sourcevendor *handler.MsgIdName
-            if val, ok := raw_a["sourcevendor"]; ok {
-                t_sourcevendor = build_plan_server_msgidname(d, val.([]interface{}))
-            }
-            var t_target *handler.MsgIdName
-            if val, ok := raw_a["target"]; ok {
-                t_target = build_plan_server_msgidname(d, val.([]interface{}))
-            }
-            tmp[a] = handler.MsgSnapshotCopyMappingSet{Vendor:t_vendor, TargetVendor:t_targetvendor, Source:t_source, SourceVendor:t_sourcevendor, Target:t_target}
-        }
-        return tmp
-    } else {
-        return nil
-    }
-}
-
-func build_plan_server_msgextendedretentionrules(d *schema.ResourceData, r []interface{}) *handler.MsgExtendedRetentionRules {
-    if len(r) > 0 && r[0] != nil {
-        tmp := r[0].(map[string]interface{})
-        var t_thirdextendedretentionrule *handler.MsgPlanRetentionRule
-        if val, ok := tmp["thirdextendedretentionrule"]; ok {
-            t_thirdextendedretentionrule = build_plan_server_msgplanretentionrule(d, val.([]interface{}))
-        }
-        var t_firstextendedretentionrule *handler.MsgPlanRetentionRule
-        if val, ok := tmp["firstextendedretentionrule"]; ok {
-            t_firstextendedretentionrule = build_plan_server_msgplanretentionrule(d, val.([]interface{}))
-        }
-        var t_secondextendedretentionrule *handler.MsgPlanRetentionRule
-        if val, ok := tmp["secondextendedretentionrule"]; ok {
-            t_secondextendedretentionrule = build_plan_server_msgplanretentionrule(d, val.([]interface{}))
-        }
-        return &handler.MsgExtendedRetentionRules{ThirdExtendedRetentionRule:t_thirdextendedretentionrule, FirstExtendedRetentionRule:t_firstextendedretentionrule, SecondExtendedRetentionRule:t_secondextendedretentionrule}
-    } else {
-        return nil
-    }
-}
-
-func build_plan_server_msgplanretentionrule(d *schema.ResourceData, r []interface{}) *handler.MsgPlanRetentionRule {
-    if len(r) > 0 && r[0] != nil {
-        tmp := r[0].(map[string]interface{})
-        var t_isinfiniteretention *bool
-        if val, ok := tmp["isinfiniteretention"]; ok {
-            t_isinfiniteretention = handler.ToBooleanValue(val, true)
-        }
-        var t_retentionperioddays *int
-        if val, ok := tmp["retentionperioddays"]; ok {
-            t_retentionperioddays = handler.ToIntValue(val, true)
-        }
-        var t_type *string
-        if val, ok := tmp["type"]; ok {
-            t_type = handler.ToStringValue(val, true)
-        }
-        return &handler.MsgPlanRetentionRule{IsInfiniteRetention:t_isinfiniteretention, RetentionPeriodDays:t_retentionperioddays, Type:t_type}
-    } else {
-        return nil
-    }
-}
-
 func serialize_plan_server_msgplansnapshotoptions(d *schema.ResourceData, data *handler.MsgPlanSnapshotOptions) ([]map[string]interface{}, bool) {
     //MsgCreatePlanSnapshotOptions
     //MsgPlanSnapshotOptions
@@ -2279,10 +2423,6 @@ func serialize_plan_server_msgplanscheduleset_array(d *schema.ResourceData, data
             tmp["scheduleoption"] = rtn
             added = true
         }
-        if data[i].PolicyId != nil {
-            tmp["policyid"] = data[i].PolicyId
-            added = true
-        }
         if data[i].VmOperationType != nil {
             tmp["vmoperationtype"] = data[i].VmOperationType
             added = true
@@ -2293,10 +2433,6 @@ func serialize_plan_server_msgplanscheduleset_array(d *schema.ResourceData, data
         }
         if rtn, ok := serialize_plan_server_msgschedulepattern(d, data[i].SchedulePattern); ok {
             tmp["schedulepattern"] = rtn
-            added = true
-        }
-        if data[i].ScheduleId != nil {
-            tmp["scheduleid"] = data[i].ScheduleId
             added = true
         }
         if data[i].BackupType != nil {
@@ -2462,6 +2598,14 @@ func serialize_plan_server_msgscheduleoption(d *schema.ResourceData, data *handl
     }
     if data.CommitFrequencyInHours != nil {
         val[0]["commitfrequencyinhours"] = data.CommitFrequencyInHours
+        added = true
+    }
+    if data.JobRunningTimeInMins != nil {
+        val[0]["jobrunningtimeinmins"] = data.JobRunningTimeInMins
+        added = true
+    }
+    if data.O365ItemSelectionOption != nil {
+        val[0]["o365itemselectionoption"] = data.O365ItemSelectionOption
         added = true
     }
     if data.UseDiskCacheForLogBackups != nil {

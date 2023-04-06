@@ -472,11 +472,23 @@ func resourceVMGroup_V2() *schema.Resource {
                             Computed:    true,
                             Description: "[APPLICATION_AWARE, FILE_SYSTEM_AND_APPLICATION_CONSISTENT, CRASH_CONSISTENT, APP_BASED_BACKUP, INHERITED]",
                         },
+                        "isvmgroupdiskfiltersincluded": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Is VM group disk filters included in VM instance disk filters",
+                        },
                         "datastorefreespacecheck": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if Datastore Free space check is enabled",
+                        },
+                        "allowemptysubclient": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "True if empty subclient is allowed",
                         },
                         "datastorefreespacerequired": {
                             Type:        schema.TypeInt,
@@ -2270,9 +2282,17 @@ func build_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, r []interface{}
         if val, ok := tmp["vmbackuptype"]; ok {
             t_vmbackuptype = handler.ToStringValue(val, true)
         }
+        var t_isvmgroupdiskfiltersincluded *bool
+        if val, ok := tmp["isvmgroupdiskfiltersincluded"]; ok {
+            t_isvmgroupdiskfiltersincluded = handler.ToBooleanValue(val, true)
+        }
         var t_datastorefreespacecheck *bool
         if val, ok := tmp["datastorefreespacecheck"]; ok {
             t_datastorefreespacecheck = handler.ToBooleanValue(val, true)
+        }
+        var t_allowemptysubclient *bool
+        if val, ok := tmp["allowemptysubclient"]; ok {
+            t_allowemptysubclient = handler.ToBooleanValue(val, true)
         }
         var t_datastorefreespacerequired *int
         if val, ok := tmp["datastorefreespacerequired"]; ok {
@@ -2298,7 +2318,7 @@ func build_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, r []interface{}
         if val, ok := tmp["crossaccount"]; ok {
             t_crossaccount = build_vmgroup_v2_msgamazoncrossaccount(d, val.([]interface{}))
         }
-        return &handler.MsgvmGroupSettings{AutoDetectVMOwner:t_autodetectvmowner, CollectFileDetailsforGranularRecovery:t_collectfiledetailsforgranularrecovery, NoOfReaders:t_noofreaders, UseChangedBlockTrackingOnVM:t_usechangedblocktrackingonvm, JobStartTime:t_jobstarttime, UseVMCheckpointSetting:t_usevmcheckpointsetting, CustomSnapshotResourceGroup:t_customsnapshotresourcegroup, RegionalSnapshot:t_regionalsnapshot, GuestCredentials:t_guestcredentials, VmBackupType:t_vmbackuptype, DatastoreFreespaceCheck:t_datastorefreespacecheck, DatastoreFreespaceRequired:t_datastorefreespacerequired, CustomSnapshotTags:t_customsnapshottags, IsApplicationAware:t_isapplicationaware, TransportMode:t_transportmode, CollectFileDetailsFromSnapshotCopy:t_collectfiledetailsfromsnapshotcopy, CrossAccount:t_crossaccount}
+        return &handler.MsgvmGroupSettings{AutoDetectVMOwner:t_autodetectvmowner, CollectFileDetailsforGranularRecovery:t_collectfiledetailsforgranularrecovery, NoOfReaders:t_noofreaders, UseChangedBlockTrackingOnVM:t_usechangedblocktrackingonvm, JobStartTime:t_jobstarttime, UseVMCheckpointSetting:t_usevmcheckpointsetting, CustomSnapshotResourceGroup:t_customsnapshotresourcegroup, RegionalSnapshot:t_regionalsnapshot, GuestCredentials:t_guestcredentials, VmBackupType:t_vmbackuptype, IsVMGroupDiskFiltersIncluded:t_isvmgroupdiskfiltersincluded, DatastoreFreespaceCheck:t_datastorefreespacecheck, AllowEmptySubclient:t_allowemptysubclient, DatastoreFreespaceRequired:t_datastorefreespacerequired, CustomSnapshotTags:t_customsnapshottags, IsApplicationAware:t_isapplicationaware, TransportMode:t_transportmode, CollectFileDetailsFromSnapshotCopy:t_collectfiledetailsfromsnapshotcopy, CrossAccount:t_crossaccount}
     } else {
         return nil
     }
@@ -3093,8 +3113,16 @@ func serialize_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, data *handl
         val[0]["vmbackuptype"] = data.VmBackupType
         added = true
     }
+    if data.IsVMGroupDiskFiltersIncluded != nil {
+        val[0]["isvmgroupdiskfiltersincluded"] = strconv.FormatBool(*data.IsVMGroupDiskFiltersIncluded)
+        added = true
+    }
     if data.DatastoreFreespaceCheck != nil {
         val[0]["datastorefreespacecheck"] = strconv.FormatBool(*data.DatastoreFreespaceCheck)
+        added = true
+    }
+    if data.AllowEmptySubclient != nil {
+        val[0]["allowemptysubclient"] = strconv.FormatBool(*data.AllowEmptySubclient)
         added = true
     }
     if data.DatastoreFreespaceRequired != nil {

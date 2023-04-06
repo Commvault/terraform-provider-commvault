@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func datasourceRole() *schema.Resource {
+func datasourceRegion() *schema.Resource {
 	return &schema.Resource{
-		Read: datasourceReadRole,
+		Read: datasourceReadRegion,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -23,13 +23,13 @@ func datasourceRole() *schema.Resource {
 	}
 }
 
-func datasourceReadRole(d *schema.ResourceData, m interface{}) error {
-	resp, _ := handler.CvRoleIdByName(d.Get("name").(string))
+func datasourceReadRegion(d *schema.ResourceData, m interface{}) error {
+	resp, _ := handler.CvRegionIdByName(d.Get("name").(string))
 
-	if resp.RoleId > 0 {
-		d.SetId(strconv.Itoa(resp.RoleId))
+	if resp.RegionId > 0 {
+		d.SetId(strconv.Itoa(resp.RegionId))
 	} else {
-		return fmt.Errorf("unknown role %s", d.Get("name").(string))
+		return fmt.Errorf("unknown region %s", d.Get("name").(string))
 	}
 
 	return nil

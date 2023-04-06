@@ -75,6 +75,8 @@ func Provider() *schema.Provider {
 			"commvault_vmgroup_v2":                               resourceVMGroup_V2(),
 			"commvault_hypervisor_azure":                         resourceHypervisor_Azure(),
 			"commvault_usergroup":                                resourceUserGroup(),
+            "commvault_role":                                     resourceRole(),
+            "commvault_security_association_v2":                  securityAssociation_v2(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"commvault_user":        datasourceUser(),
@@ -86,6 +88,9 @@ func Provider() *schema.Provider {
 			"commvault_plan":        datasourcePlan(),
 			"commvault_role":        datasourceRole(),
 			"commvault_storagepool": datasourceStoragePool(),
+            "commvault_timezone":    datasourceTimezone(),
+			"commvault_region":      datasourceRegion(),
+			"commvault_permission":  datasourcePermissions(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

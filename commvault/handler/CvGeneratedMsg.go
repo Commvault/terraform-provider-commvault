@@ -1,15 +1,97 @@
 package handler
 
-type MsgCreateBackupLocationRequest struct {
-    MediaAgent           *MsgIdName `json:"mediaAgent,omitempty"`
-    Credentials          *MsgUserNamePassword `json:"credentials,omitempty"`
-    BackupLocation       *string `json:"backupLocation,omitempty"`
-    SavedCredentials     *MsgIdName `json:"savedCredentials,omitempty"`
+type MsgGetRoleDetailsResponse struct {
+    Security[]       MsgSecurityAssocSet `json:"security,omitempty"`
+    Permissions[]    MsgPermissionCategoryTypeSet `json:"permissions,omitempty"`
+    Name             *string `json:"name,omitempty"`
+    Id               *int `json:"id,omitempty"`
+    VisibleToAll     *bool `json:"visibleToAll,omitempty"`
+    Status           *string `json:"status,omitempty"`
+}
+
+type MsgSecurityAssocSet struct {
+    Role                     *MsgIdName `json:"role,omitempty"`
+    IsCreatorAssociation     *bool `json:"isCreatorAssociation,omitempty"`
+    ExternalUserGroup        *MsgexternalUserGroup `json:"externalUserGroup,omitempty"`
+    PermissionList[]         MsgPermissionRespSet `json:"permissionList,omitempty"`
+    User                     *MsgIdName `json:"user,omitempty"`
+    UserGroup                *MsgIdName `json:"userGroup,omitempty"`
 }
 
 type MsgIdName struct {
     Name     *string `json:"name,omitempty"`
     Id       *int `json:"id,omitempty"`
+}
+
+type MsgexternalUserGroup struct {
+    ProviderId       *int `json:"providerId,omitempty"`
+    Name             *string `json:"name,omitempty"`
+    Id               *int `json:"id,omitempty"`
+    ProviderName     *string `json:"providerName,omitempty"`
+}
+
+type MsgPermissionRespSet struct {
+    PermissionId       *int `json:"permissionId,omitempty"`
+    Exclude            *bool `json:"exclude,omitempty"`
+    Type               *string `json:"type,omitempty"`
+    CategoryName       *string `json:"categoryName,omitempty"`
+    CategoryId         *int `json:"categoryId,omitempty"`
+    PermissionName     *string `json:"permissionName,omitempty"`
+}
+
+type MsgPermissionCategoryTypeSet struct {
+    Permission     *MsgIdName `json:"permission,omitempty"`
+    Category       *MsgIdName `json:"category,omitempty"`
+    Type           *string `json:"type,omitempty"`
+}
+
+type MsgDeleteRolesResponse struct {
+    ErrorMessage     *string `json:"errorMessage,omitempty"`
+    ErrorCode        *int `json:"errorCode,omitempty"`
+}
+
+type MsgModifyRoleRequest struct {
+    PermissionOperationType     *string `json:"permissionOperationType,omitempty"`
+    Security[]                  MsgUpdateSecurityAssocSet `json:"security,omitempty"`
+    NewName                     *string `json:"newName,omitempty"`
+    PermissionList[]            MsgPermissionsSet `json:"permissionList,omitempty"`
+    VisibleToAll                *bool `json:"visibleToAll,omitempty"`
+    Enabled                     *bool `json:"enabled,omitempty"`
+}
+
+type MsgUpdateSecurityAssocSet struct {
+    Role          *MsgIdName `json:"role,omitempty"`
+    User          *MsgIdName `json:"user,omitempty"`
+    UserGroup     *MsgIdName `json:"userGroup,omitempty"`
+}
+
+type MsgPermissionsSet struct {
+    Permission     *MsgIdName `json:"permission,omitempty"`
+    Category       *MsgIdName `json:"category,omitempty"`
+}
+
+type MsgModifyRoleResponse struct {
+    ErrorMessage     *string `json:"errorMessage,omitempty"`
+    ErrorCode        *int `json:"errorCode,omitempty"`
+}
+
+type MsgCreateNewRoleRequest struct {
+    Name               *string `json:"name,omitempty"`
+    PermissionList[]   MsgPermissionsSet `json:"permissionList,omitempty"`
+    VisibleToAll       *bool `json:"visibleToAll,omitempty"`
+    Enabled            *bool `json:"enabled,omitempty"`
+}
+
+type MsgCreateNewRoleResponse struct {
+    Name     *string `json:"name,omitempty"`
+    Id       *int `json:"id,omitempty"`
+}
+
+type MsgCreateBackupLocationRequest struct {
+    MediaAgent           *MsgIdName `json:"mediaAgent,omitempty"`
+    Credentials          *MsgUserNamePassword `json:"credentials,omitempty"`
+    BackupLocation       *string `json:"backupLocation,omitempty"`
+    SavedCredentials     *MsgIdName `json:"savedCredentials,omitempty"`
 }
 
 type MsgUserNamePassword struct {
@@ -108,31 +190,6 @@ type MsgCloudStorageGeneralInfo struct {
     SizeOnDisk               *int `json:"sizeOnDisk,omitempty"`
 }
 
-type MsgSecurityAssocSet struct {
-    Role                     *MsgIdName `json:"role,omitempty"`
-    IsCreatorAssociation     *bool `json:"isCreatorAssociation,omitempty"`
-    ExternalUserGroup        *MsgexternalUserGroup `json:"externalUserGroup,omitempty"`
-    PermissionList[]         MsgPermissionRespSet `json:"permissionList,omitempty"`
-    User                     *MsgIdName `json:"user,omitempty"`
-    UserGroup                *MsgIdName `json:"userGroup,omitempty"`
-}
-
-type MsgexternalUserGroup struct {
-    ProviderId       *int `json:"providerId,omitempty"`
-    Name             *string `json:"name,omitempty"`
-    Id               *int `json:"id,omitempty"`
-    ProviderName     *string `json:"providerName,omitempty"`
-}
-
-type MsgPermissionRespSet struct {
-    PermissionId       *int `json:"permissionId,omitempty"`
-    Exclude            *bool `json:"exclude,omitempty"`
-    Type               *string `json:"type,omitempty"`
-    CategoryName       *string `json:"categoryName,omitempty"`
-    CategoryId         *int `json:"categoryId,omitempty"`
-    PermissionName     *string `json:"permissionName,omitempty"`
-}
-
 type MsgEncryption struct {
     Cipher          *string `json:"cipher,omitempty"`
     KeyLength       *int `json:"keyLength,omitempty"`
@@ -165,12 +222,6 @@ type MsgModifyCloudStorageByIdRequest struct {
     Encryption     *MsgEncryption `json:"encryption,omitempty"`
 }
 
-type MsgUpdateSecurityAssocSet struct {
-    Role          *MsgIdName `json:"role,omitempty"`
-    User          *MsgIdName `json:"user,omitempty"`
-    UserGroup     *MsgIdName `json:"userGroup,omitempty"`
-}
-
 type MsgModifyCloudStorageByIdResponse struct {
     ErrorMessage     *string `json:"errorMessage,omitempty"`
     ErrorCode        *int `json:"errorCode,omitempty"`
@@ -178,7 +229,7 @@ type MsgModifyCloudStorageByIdResponse struct {
 
 type MsgGetDiskStorageDetailsResponse struct {
     General                *MsgDiskStorageGeneralInfo `json:"general,omitempty"`
-    Security               *MsgSecurityAssoc `json:"security,omitempty"`
+    Security[]             MsgSecurityAssocSet `json:"security,omitempty"`
     AssociatedPlanList[]   MsgIdNameSet `json:"associatedPlanList,omitempty"`
     Encryption             *MsgEncryption `json:"encryption,omitempty"`
     Name                   *string `json:"name,omitempty"`
@@ -191,15 +242,6 @@ type MsgDiskStorageGeneralInfo struct {
     SizeOnDisk               *int `json:"sizeOnDisk,omitempty"`
     DedupeSavingsPercent     *int `json:"dedupeSavingsPercent,omitempty"`
     Capacity                 *int `json:"capacity,omitempty"`
-}
-
-type MsgSecurityAssoc struct {
-    Role                     *MsgIdName `json:"role,omitempty"`
-    IsCreatorAssociation     *bool `json:"isCreatorAssociation,omitempty"`
-    ExternalUserGroup        *MsgexternalUserGroup `json:"externalUserGroup,omitempty"`
-    PermissionList[]         MsgPermissionRespSet `json:"permissionList,omitempty"`
-    User                     *MsgIdName `json:"user,omitempty"`
-    UserGroup                *MsgIdName `json:"userGroup,omitempty"`
 }
 
 type MsgDeleteDiskStorageResponse struct {
@@ -235,6 +277,210 @@ type MsgPathSet struct {
 type MsgCreateDiskStorageResponse struct {
     Name     *string `json:"name,omitempty"`
     Id       *int `json:"id,omitempty"`
+}
+
+type MsgCreateCredentialAzureRequest struct {
+    VendorType      *string `json:"vendorType,omitempty"`
+    AccountType     *string `json:"accountType,omitempty"`
+    Name            *string `json:"name,omitempty"`
+    AccessKeyId     *string `json:"accessKeyId,omitempty"`
+    AccountName     *string `json:"accountName,omitempty"`
+    AuthType        *string `json:"authType,omitempty"`
+    Security        *MsgCredentialSecurity `json:"security,omitempty"`
+    Description     *string `json:"description,omitempty"`
+}
+
+type MsgCredentialSecurity struct {
+    Owner            *MsgCredentialOwner `json:"owner,omitempty"`
+    Associations[]   MsgCredentialSecurityAssociationsSet `json:"associations,omitempty"`
+}
+
+type MsgCredentialOwner struct {
+    User          *MsgIdName `json:"user,omitempty"`
+    UserGroup     *MsgIdName `json:"userGroup,omitempty"`
+}
+
+type MsgCredentialSecurityAssociationsSet struct {
+    IsCreatorAssociation     *bool `json:"isCreatorAssociation,omitempty"`
+    Permissions              *MsgPermissionResp `json:"permissions,omitempty"`
+    User                     *MsgIdName `json:"user,omitempty"`
+    UserGroup                *MsgIdName `json:"userGroup,omitempty"`
+}
+
+type MsgPermissionResp struct {
+    PermissionId       *int `json:"permissionId,omitempty"`
+    Exclude            *bool `json:"exclude,omitempty"`
+    Type               *string `json:"type,omitempty"`
+    CategoryName       *string `json:"categoryName,omitempty"`
+    CategoryId         *int `json:"categoryId,omitempty"`
+    PermissionName     *string `json:"permissionName,omitempty"`
+}
+
+type MsgCreateCredentialAzureResponse struct {
+    Id       *int `json:"id,omitempty"`
+    Type     *string `json:"type,omitempty"`
+}
+
+type MsgGetCredentailDetailsAzureRequest struct {
+    VendorType      *string `json:"vendorType,omitempty"`
+    AccountType     *string `json:"accountType,omitempty"`
+    Name            *string `json:"name,omitempty"`
+    AccessKeyId     *string `json:"accessKeyId,omitempty"`
+    AccountName     *string `json:"accountName,omitempty"`
+    AuthType        *string `json:"authType,omitempty"`
+    Security        *MsgCredentialSecurity `json:"security,omitempty"`
+    Description     *string `json:"description,omitempty"`
+}
+
+type MsgUpdateCredentialAzureRequest struct {
+    AccessKeyId     *string `json:"accessKeyId,omitempty"`
+    Security        *MsgCredentialSecurity `json:"security,omitempty"`
+    NewName         *string `json:"newName,omitempty"`
+    AccountName     *string `json:"accountName,omitempty"`
+    Description     *string `json:"description,omitempty"`
+}
+
+type MsgUpdateCredentialAzureResponse struct {
+}
+
+type MsgDeleteCredentialResponse struct {
+    ErrorMessage     *string `json:"errorMessage,omitempty"`
+    ErrorCode        *int `json:"errorCode,omitempty"`
+}
+
+type MsgCreateCredentialAWSRequest struct {
+    VendorType          *string `json:"vendorType,omitempty"`
+    AccountType         *string `json:"accountType,omitempty"`
+    Name                *string `json:"name,omitempty"`
+    AccessKeyId         *string `json:"accessKeyId,omitempty"`
+    SecretAccessKey     *string `json:"secretAccessKey,omitempty"`
+    AuthType            *string `json:"authType,omitempty"`
+    Security            *MsgCredentialSecurity `json:"security,omitempty"`
+    Description         *string `json:"description,omitempty"`
+}
+
+type MsgCreateCredentialAWSResponse struct {
+    Id       *int `json:"id,omitempty"`
+    Type     *string `json:"type,omitempty"`
+}
+
+type MsgGetCredentailDetailsAWSRequest struct {
+    VendorType          *string `json:"vendorType,omitempty"`
+    AccountType         *string `json:"accountType,omitempty"`
+    Name                *string `json:"name,omitempty"`
+    AccessKeyId         *string `json:"accessKeyId,omitempty"`
+    SecretAccessKey     *string `json:"secretAccessKey,omitempty"`
+    AuthType            *string `json:"authType,omitempty"`
+    Security            *MsgCredentialSecurity `json:"security,omitempty"`
+    Description         *string `json:"description,omitempty"`
+}
+
+type MsgUpdateCredentialAWSRequest struct {
+    AccessKeyId         *string `json:"accessKeyId,omitempty"`
+    SecretAccessKey     *string `json:"secretAccessKey,omitempty"`
+    Security            *MsgUpdateCredentialSecurity `json:"security,omitempty"`
+    NewName             *string `json:"newName,omitempty"`
+    Description         *string `json:"description,omitempty"`
+}
+
+type MsgUpdateCredentialSecurity struct {
+    Owner            *MsgCredentialOwner `json:"owner,omitempty"`
+    Associations[]   MsgCredentialSecurityAssociationsSet `json:"associations,omitempty"`
+}
+
+type MsgUpdateCredentialAWSResponse struct {
+}
+
+type MsgCreateCredentialAWSWithRoleArnRequest struct {
+    VendorType      *string `json:"vendorType,omitempty"`
+    AccountType     *string `json:"accountType,omitempty"`
+    Name            *string `json:"name,omitempty"`
+    Password        *string `json:"password,omitempty"`
+    RoleArn         *string `json:"roleArn,omitempty"`
+    AuthType        *string `json:"authType,omitempty"`
+    Security        *MsgCredentialSecurity `json:"security,omitempty"`
+    Description     *string `json:"description,omitempty"`
+}
+
+type MsgCreateCredentialAWSWithRoleArnResponse struct {
+    Id       *int `json:"id,omitempty"`
+    Type     *string `json:"type,omitempty"`
+}
+
+type MsgGetCredentailDetailsAWSWithRoleArnRequest struct {
+    VendorType      *string `json:"vendorType,omitempty"`
+    AccountType     *string `json:"accountType,omitempty"`
+    Name            *string `json:"name,omitempty"`
+    Password        *string `json:"password,omitempty"`
+    RoleArn         *string `json:"roleArn,omitempty"`
+    AuthType        *string `json:"authType,omitempty"`
+    Security        *MsgCredentialSecurity `json:"security,omitempty"`
+    Description     *string `json:"description,omitempty"`
+}
+
+type MsgUpdateCredentialAWSWithRoleArnRequest struct {
+    Password        *string `json:"password,omitempty"`
+    Security        *MsgUpdateCredentialSecurity `json:"security,omitempty"`
+    NewName         *string `json:"newName,omitempty"`
+    RoleArn         *string `json:"roleArn,omitempty"`
+    Description     *string `json:"description,omitempty"`
+}
+
+type MsgUpdateCredentialAWSWithRoleArnResponse struct {
+}
+
+type MsgCreateCredentialAzureWithTenantIdRequest struct {
+    VendorType            *string `json:"vendorType,omitempty"`
+    AccountType           *string `json:"accountType,omitempty"`
+    Name                  *string `json:"name,omitempty"`
+    Environment           *string `json:"environment,omitempty"`
+    Endpoints             *MsgAzureEndpoints `json:"endpoints,omitempty"`
+    TenantId              *string `json:"tenantId,omitempty"`
+    AuthType              *string `json:"authType,omitempty"`
+    ApplicationId         *string `json:"applicationId,omitempty"`
+    ApplicationSecret     *string `json:"applicationSecret,omitempty"`
+    Security              *MsgCredentialSecurity `json:"security,omitempty"`
+    Description           *string `json:"description,omitempty"`
+}
+
+type MsgAzureEndpoints struct {
+    Storage             *string `json:"storage,omitempty"`
+    ActiveDirectory     *string `json:"activeDirectory,omitempty"`
+    ResourceManager     *string `json:"resourceManager,omitempty"`
+}
+
+type MsgCreateCredentialAzureWithTenantIdResponse struct {
+    Id       *int `json:"id,omitempty"`
+    Type     *string `json:"type,omitempty"`
+}
+
+type MsgGetCredentailDetailsAzureWithTenantIdRequest struct {
+    VendorType            *string `json:"vendorType,omitempty"`
+    AccountType           *string `json:"accountType,omitempty"`
+    Name                  *string `json:"name,omitempty"`
+    Environment           *string `json:"environment,omitempty"`
+    Endpoints             *MsgAzureEndpoints `json:"endpoints,omitempty"`
+    TenantId              *string `json:"tenantId,omitempty"`
+    AuthType              *string `json:"authType,omitempty"`
+    ApplicationId         *string `json:"applicationId,omitempty"`
+    ApplicationSecret     *string `json:"applicationSecret,omitempty"`
+    Security              *MsgCredentialSecurity `json:"security,omitempty"`
+    Description           *string `json:"description,omitempty"`
+}
+
+type MsgUpdateCredentialAzureWithTenantIdRequest struct {
+    Environment              *string `json:"environment,omitempty"`
+    Endpoints                *MsgAzureEndpoints `json:"endpoints,omitempty"`
+    Security                 *MsgCredentialSecurity `json:"security,omitempty"`
+    NewName                  *string `json:"newName,omitempty"`
+    NewApplicationSecret     *string `json:"newApplicationSecret,omitempty"`
+    TenantId                 *string `json:"tenantId,omitempty"`
+    Description              *string `json:"description,omitempty"`
+    AuthType                 *string `json:"authType,omitempty"`
+    ApplicationId            *string `json:"applicationId,omitempty"`
+}
+
+type MsgUpdateCredentialAzureWithTenantIdResponse struct {
 }
 
 type MsgGetPlanByIdResponse struct {
@@ -347,17 +593,17 @@ type MsgPlanSchedules struct {
 type MsgPlanScheduleSet struct {
     ScheduleName         *string `json:"scheduleName,omitempty"`
     ScheduleOption       *MsgScheduleOption `json:"scheduleOption,omitempty"`
-    PolicyId             *int `json:"policyId,omitempty"`
     VmOperationType      *string `json:"vmOperationType,omitempty"`
     ForDatabasesOnly     *bool `json:"forDatabasesOnly,omitempty"`
     SchedulePattern      *MsgSchedulePattern `json:"schedulePattern,omitempty"`
-    ScheduleId           *int `json:"scheduleId,omitempty"`
     BackupType           *string `json:"backupType,omitempty"`
 }
 
 type MsgScheduleOption struct {
     DaysBetweenAutoConvert        *int `json:"daysBetweenAutoConvert,omitempty"`
     CommitFrequencyInHours        *int `json:"commitFrequencyInHours,omitempty"`
+    JobRunningTimeInMins          *int `json:"jobRunningTimeInMins,omitempty"`
+    O365ItemSelectionOption       *string `json:"o365ItemSelectionOption,omitempty"`
     UseDiskCacheForLogBackups     *bool `json:"useDiskCacheForLogBackups,omitempty"`
 }
 
@@ -415,7 +661,7 @@ type MsgPlanBackupDestinationSet struct {
     CopyType                      *string `json:"copyType,omitempty"`
     StorageType                   *string `json:"storageType,omitempty"`
     EnableDataAging               *bool `json:"enableDataAging,omitempty"`
-    Region                        *MsgIdNameDisplayName `json:"region,omitempty"`
+    Region                        *MsgIdName `json:"region,omitempty"`
     StoragePool                   *MsgStoragePool `json:"storagePool,omitempty"`
 }
 
@@ -437,12 +683,6 @@ type MsgSnapshotCopyMappingSet struct {
     Source           *MsgIdName `json:"source,omitempty"`
     SourceVendor     *MsgIdName `json:"sourceVendor,omitempty"`
     Target           *MsgIdName `json:"target,omitempty"`
-}
-
-type MsgIdNameDisplayName struct {
-    DisplayName     *string `json:"displayName,omitempty"`
-    Name            *string `json:"name,omitempty"`
-    Id              *int `json:"id,omitempty"`
 }
 
 type MsgStoragePool struct {
@@ -496,18 +736,26 @@ type MsgDeletePlanResponse struct {
 }
 
 type MsgModifyPlanRequest struct {
-    Rpo                         *MsgServerPlanUpdateRPO `json:"rpo,omitempty"`
-    RegionToConfigure           *MsgIdName `json:"regionToConfigure,omitempty"`
-    Settings                    *MsgServerPlanSettings `json:"settings,omitempty"`
-    BackupContent               *MsgPlanContent `json:"backupContent,omitempty"`
-    DatabaseOptions             *MsgServerPlanDatabaseOptionsInfo `json:"databaseOptions,omitempty"`
-    NewName                     *string `json:"newName,omitempty"`
-    OverrideInheritSettings     *MsgPlanOverrideInheritSetting `json:"overrideInheritSettings,omitempty"`
-    FilesystemAddon             *bool `json:"filesystemAddon,omitempty"`
-    AllowPlanOverride           *bool `json:"allowPlanOverride,omitempty"`
-    Workload                    *MsgPlanWorkloads `json:"workload,omitempty"`
-    OverrideRestrictions        *MsgPlanOverrideSettings `json:"overrideRestrictions,omitempty"`
-    SnapshotOptions             *MsgPlanSnapshotOptions `json:"snapshotOptions,omitempty"`
+    RegionToConfigure                   *MsgIdName `json:"regionToConfigure,omitempty"`
+    Settings                            *MsgServerPlanSettings `json:"settings,omitempty"`
+    BackupContent                       *MsgPlanContent `json:"backupContent,omitempty"`
+    DatabaseOptions                     *MsgServerPlanDatabaseOptionsInfo `json:"databaseOptions,omitempty"`
+    OverrideInheritSettings             *MsgPlanOverrideInheritSetting `json:"overrideInheritSettings,omitempty"`
+    FilesystemAddon                     *bool `json:"filesystemAddon,omitempty"`
+    AllowPlanOverride                   *bool `json:"allowPlanOverride,omitempty"`
+    Workload                            *MsgPlanWorkloads `json:"workload,omitempty"`
+    Rpo                                 *MsgServerPlanUpdateRPO `json:"rpo,omitempty"`
+    NewName                             *string `json:"newName,omitempty"`
+    BackupDestinations[]                MsgPlanBackupDestinationSet `json:"backupDestinations,omitempty"`
+    BackupDestinationsOperationType     *string `json:"backupDestinationsOperationType,omitempty"`
+    OverrideRestrictions                *MsgPlanOverrideSettings `json:"overrideRestrictions,omitempty"`
+    SnapshotOptions                     *MsgPlanSnapshotOptions `json:"snapshotOptions,omitempty"`
+}
+
+type MsgPlanOverrideInheritSetting struct {
+    Rpo                   *bool `json:"rpo,omitempty"`
+    BackupContent         *bool `json:"backupContent,omitempty"`
+    BackupDestination     *bool `json:"backupDestination,omitempty"`
 }
 
 type MsgServerPlanUpdateRPO struct {
@@ -523,12 +771,6 @@ type MsgSLAUpdateOptions struct {
     EnableAfterDelay        *int `json:"enableAfterDelay,omitempty"`
     ExcludeFromSLA          *bool `json:"excludeFromSLA,omitempty"`
     SLAPeriod               *int `json:"SLAPeriod,omitempty"`
-}
-
-type MsgPlanOverrideInheritSetting struct {
-    Rpo                   *bool `json:"rpo,omitempty"`
-    BackupContent         *bool `json:"backupContent,omitempty"`
-    BackupDestination     *bool `json:"backupDestination,omitempty"`
 }
 
 type MsgModifyPlanResponse struct {
@@ -938,7 +1180,9 @@ type MsgvmGroupSettings struct {
     RegionalSnapshot                          *bool `json:"regionalSnapshot,omitempty"`
     GuestCredentials                          *MsgguestCredentialInfo `json:"guestCredentials,omitempty"`
     VmBackupType                              *string `json:"vmBackupType,omitempty"`
+    IsVMGroupDiskFiltersIncluded              *bool `json:"isVMGroupDiskFiltersIncluded,omitempty"`
     DatastoreFreespaceCheck                   *bool `json:"datastoreFreespaceCheck,omitempty"`
+    AllowEmptySubclient                       *bool `json:"allowEmptySubclient,omitempty"`
     DatastoreFreespaceRequired                *int `json:"datastoreFreespaceRequired,omitempty"`
     CustomSnapshotTags[]                      MsgresourceTagSet `json:"customSnapshotTags,omitempty"`
     IsApplicationAware                        *bool `json:"isApplicationAware,omitempty"`
@@ -1202,6 +1446,12 @@ type MsgCloudAccessPathsRespSet struct {
     Username         *string `json:"username,omitempty"`
 }
 
+type MsgIdNameDisplayName struct {
+    DisplayName     *string `json:"displayName,omitempty"`
+    Name            *string `json:"name,omitempty"`
+    Id              *int `json:"id,omitempty"`
+}
+
 type MsgDeleteBucketOfCloudStorageResponse struct {
     ErrorMessage     *string `json:"errorMessage,omitempty"`
     ErrorCode        *int `json:"errorCode,omitempty"`
@@ -1251,6 +1501,7 @@ type MsgGetUserGroupDetailsResponse struct {
     AzureGUID                                 *string `json:"azureGUID,omitempty"`
     Name                                      *string `json:"name,omitempty"`
     Company                                   *MsgIdName `json:"company,omitempty"`
+    DoNotInheritRestrictConsoleTypes          *bool `json:"doNotInheritRestrictConsoleTypes,omitempty"`
     Id                                        *string `json:"id,omitempty"`
     Plan                                      *MsgIdName `json:"plan,omitempty"`
     Email                                     *string `json:"email,omitempty"`
@@ -1269,38 +1520,30 @@ type MsgAssocEntitySet struct {
     Type               *string `json:"type,omitempty"`
 }
 
-type MsgPermissionResp struct {
-    PermissionId       *int `json:"permissionId,omitempty"`
-    Exclude            *bool `json:"exclude,omitempty"`
-    Type               *string `json:"type,omitempty"`
-    CategoryName       *string `json:"categoryName,omitempty"`
-    CategoryId         *int `json:"categoryId,omitempty"`
-    PermissionName     *string `json:"permissionName,omitempty"`
-}
-
 type MsgDeleteUserGroupResponse struct {
     ErrorMessage     *string `json:"errorMessage,omitempty"`
     ErrorCode        *int `json:"errorCode,omitempty"`
 }
 
 type MsgModifyUserGroupRequest struct {
-    EnableLocalAuthentication           *string `json:"enableLocalAuthentication,omitempty"`
-    EnableTwoFactorAuthentication       *string `json:"enableTwoFactorAuthentication,omitempty"`
-    LaptopAdmins                        *bool `json:"laptopAdmins,omitempty"`
-    AllowMultipleCompanyMembers         *bool `json:"allowMultipleCompanyMembers,omitempty"`
-    EnforceFSQuota                      *bool `json:"enforceFSQuota,omitempty"`
-    QuotaLimitInGB                      *int `json:"quotaLimitInGB,omitempty"`
-    ExternalUserGroupsOperationType     *string `json:"externalUserGroupsOperationType,omitempty"`
-    NewDescription                      *string `json:"newDescription,omitempty"`
-    Enabled                             *bool `json:"enabled,omitempty"`
-    Users[]                             MsgIdNameSet `json:"users,omitempty"`
-    UserOperationType                   *string `json:"userOperationType,omitempty"`
-    RestrictConsoleTypes                *MsgRestrictConsoleTypes `json:"restrictConsoleTypes,omitempty"`
-    NewName                             *string `json:"newName,omitempty"`
-    AzureGUID                           *string `json:"azureGUID,omitempty"`
-    ConsoleTypeOperationType            *string `json:"consoleTypeOperationType,omitempty"`
-    PlanOperationType                   *string `json:"planOperationType,omitempty"`
-    AssociatedExternalGroups[]          MsgIdNameSet `json:"associatedExternalGroups,omitempty"`
+    EnableLocalAuthentication            *string `json:"enableLocalAuthentication,omitempty"`
+    EnableTwoFactorAuthentication        *string `json:"enableTwoFactorAuthentication,omitempty"`
+    LaptopAdmins                         *bool `json:"laptopAdmins,omitempty"`
+    AllowMultipleCompanyMembers          *bool `json:"allowMultipleCompanyMembers,omitempty"`
+    EnforceFSQuota                       *bool `json:"enforceFSQuota,omitempty"`
+    QuotaLimitInGB                       *int `json:"quotaLimitInGB,omitempty"`
+    ExternalUserGroupsOperationType      *string `json:"externalUserGroupsOperationType,omitempty"`
+    NewDescription                       *string `json:"newDescription,omitempty"`
+    Enabled                              *bool `json:"enabled,omitempty"`
+    Users[]                              MsgIdNameSet `json:"users,omitempty"`
+    UserOperationType                    *string `json:"userOperationType,omitempty"`
+    RestrictConsoleTypes                 *MsgRestrictConsoleTypes `json:"restrictConsoleTypes,omitempty"`
+    NewName                              *string `json:"newName,omitempty"`
+    AzureGUID                            *string `json:"azureGUID,omitempty"`
+    DoNotInheritRestrictConsoleTypes     *bool `json:"doNotInheritRestrictConsoleTypes,omitempty"`
+    ConsoleTypeOperationType             *string `json:"consoleTypeOperationType,omitempty"`
+    PlanOperationType                    *string `json:"planOperationType,omitempty"`
+    AssociatedExternalGroups[]           MsgIdNameSet `json:"associatedExternalGroups,omitempty"`
 }
 
 type MsgRestrictConsoleTypes struct {

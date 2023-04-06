@@ -165,8 +165,38 @@ func CvRoleIdByName(name string) (MsgReadRoleDS, error) {
 	return obj, err
 }
 
+type MsgReadHyperscaleDSResp struct {
+	Hyperscale []MsgReadHyperscaleDS `json:"hyperscale"`
+}
+
+type MsgReadHyperscaleDS struct {
+	HyperscaleId   int    `json:"id"`
+	HyperscaleName string `json:"name"`
+}
+
+func CvHyperscaleIdByName(name string) (MsgReadHyperscaleDS, error) {
+	url := os.Getenv("CV_CSIP") + "/V4/Storage/Hyperscale"
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgReadHyperscaleDSResp
+	json.Unmarshal(respBody, &respObj)
+	var obj MsgReadHyperscaleDS
+
+	for _, r := range respObj.Hyperscale {
+		if strings.EqualFold(r.HyperscaleName, name) {
+			obj = r
+		}
+	}
+
+	return obj, err
+}
+
 type MsgReadRegionDSResp struct {
-	Regions []MsgReadRegionDS `json:"regions"`
+	Regions []MsgReadRegionEntity `json:"regions"`
+}
+
+type MsgReadRegionEntity struct {
+	RegionEntity MsgReadRegionDS `json:"regionEntity"`
 }
 
 type MsgReadRegionDS struct {
@@ -183,8 +213,10 @@ func CvRegionIdByName(name string) (MsgReadRegionDS, error) {
 	var obj MsgReadRegionDS
 
 	for _, r := range respObj.Regions {
-		if strings.EqualFold(r.RegionName, name) {
-			obj = r
+		LogEntry(">>>>>>>>>>>>>", r.RegionEntity.RegionName)
+		if strings.EqualFold(r.RegionEntity.RegionName, name) {
+			LogEntry("!!!!!!!!!!!!!!", "FOUND ["+name+"]")
+			obj = r.RegionEntity
 		}
 	}
 
@@ -238,6 +270,32 @@ func CvStoragePoolIdByName(name string) (MsgReadStoragePoolDS, error) {
 
 	for _, r := range respObj.StoragePoolList {
 		if strings.EqualFold(r.StoragePolicyEntity.StoragePolicyName, name) {
+			obj = r
+		}
+	}
+
+	return obj, err
+}
+
+type MsgReadPermissionDSResp struct {
+	Permissions []MsgReadPermissionDS `json:"permissions"`
+}
+
+type MsgReadPermissionDS struct {
+	PermissionName string `json:"permissionName"`
+	PermissionId   int    `json:"permissionId"`
+}
+
+func CvPermissionIdByName(name string) (MsgReadPermissionDS, error) {
+	url := os.Getenv("CV_CSIP") + "/Security/COMMCELL_ENTITY/2/Permissions"
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgReadPermissionDSResp
+	json.Unmarshal(respBody, &respObj)
+	var obj MsgReadPermissionDS
+
+	for _, r := range respObj.Permissions {
+		if strings.EqualFold(r.PermissionName, name) {
 			obj = r
 		}
 	}

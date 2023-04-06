@@ -36,7 +36,7 @@ func datasourceReadClient(d *schema.ResourceData, m interface{}) error {
 	if resp.ClientProperties != nil && len(resp.ClientProperties) > 0 && resp.ClientProperties[0].Client.ClientEntity.ClientId > 0 {
 		d.SetId(strconv.Itoa(resp.ClientProperties[0].Client.ClientEntity.ClientId))
 	} else {
-		return fmt.Errorf("unknown user %s", d.Get("name").(string))
+		return fmt.Errorf("unknown client %s", d.Get("name").(string))
 	}
 
 	return nil
