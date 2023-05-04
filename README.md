@@ -48,3 +48,9 @@ go build -o terraform-provider-commvault
 ## <a name ="using-the-provider"></a> Using the provider :arrow_forward:
 
 The Commvault provider documentation can be found on [provider's website](https://documentation.commvault.com/11.23/essential/129185_commvault_terraform_module.html) or in [Terraform Registry](https://registry.terraform.io/providers/Commvault/commvault/latest/docs/index.html)
+
+
+Questions/Comments/Suggestions
+--------------
+If you have any questions or comments, please contact us [here](https://ma.commvault.com/).
+Also Check out our community for [Automation](https://community.commvault.com/developer-tools-integration-and-automation-workflow-rest-powershell-etc-50) incase of queries.
