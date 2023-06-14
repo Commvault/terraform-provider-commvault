@@ -28,7 +28,7 @@ func resourceUser_V2() *schema.Resource {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "Used to provide the new user with a username. This username can be used for logging in the user instead of email-id when duplicate email-ids are present. For external user, it is necessary to provide the domain name along with the username (domainName\\username). To create a company user, the company id or name needs to be provided in the company entity.",
+                Description: "Used to provide the new user with a username. This username can be used for logging in the user instead of email-id when duplicate email-ids are present. For external user, it is necessary to provide the domain name along with the username (domainName\\\\username). To create a company user, the company id or name needs to be provided in the company entity.",
             },
             "fullname": {
                 Type:        schema.TypeString,
@@ -73,20 +73,17 @@ func resourceUser_V2() *schema.Resource {
             "plan": {
                 Type:        schema.TypeList,
                 Optional:    true,
-                Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "name": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                         },
                         "id": {
                             Type:        schema.TypeInt,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                         },
                     },

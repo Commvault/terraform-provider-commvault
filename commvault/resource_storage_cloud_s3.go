@@ -306,11 +306,6 @@ func resourceReadStorage_Cloud_S3(d *schema.ResourceData, m interface{}) error {
     if resp.Name != nil {
         d.Set("name", resp.Name)
     }
-    if rtn, ok := serialize_storage_cloud_s3_msgidnamestatusset_array(d, resp.Bucket); ok {
-        d.Set("bucket", rtn)
-    } else {
-        d.Set("bucket", make([]map[string]interface{}, 0))
-    }
     if rtn, ok := serialize_storage_cloud_s3_msgsecurityassocset_array(d, resp.Security); ok {
         d.Set("security", rtn)
     } else {
@@ -552,11 +547,4 @@ func serialize_storage_cloud_s3_msgsecurityassocset_array(d *schema.ResourceData
         }
     }
     return val, true
-}
-
-func serialize_storage_cloud_s3_msgidnamestatusset_array(d *schema.ResourceData, data []handler.MsgIdNameStatusSet) ([]map[string]interface{}, bool) {
-    //Msgnull
-    //MsgIdNameStatusSet
-    //no child properties in schema
-    return nil, false
 }

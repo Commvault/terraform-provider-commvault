@@ -14,13 +14,15 @@ func GenerateAuthToken(username string, password string) string {
 	loginJson, _ := json.Marshal(&loginReq)
 	respBody, err := makeHttpRequestErr(url, http.MethodPost, XML, loginJson, JSON, "", 0)
 	if err != nil {
-		panic(err)
+		os.Setenv("AuthToken", "")
+		return ""
+	} else {
+		var loginResponse DM2ContentIndexingCheckCredentialResp
+		xml.Unmarshal(respBody, &loginResponse)
+		os.Setenv("AuthToken", loginResponse.Token)
+		fmt.Println(loginResponse.Token)
+		return loginResponse.Token
 	}
-	var loginResponse DM2ContentIndexingCheckCredentialResp
-	xml.Unmarshal(respBody, &loginResponse)
-	os.Setenv("AuthToken", loginResponse.Token)
-	fmt.Println(loginResponse.Token)
-	return loginResponse.Token
 }
 
 func LoginWithProviderCredentials(username string, password string) {
@@ -32,12 +34,11 @@ func LoginWithProviderCredentials(username string, password string) {
 	}
 	loginXML, _ := xml.Marshal(&loginReq)
 	respBody, err := makeHttpRequestErr(url, http.MethodPost, XML, loginXML, XML, "", 0)
-	if err != nil {
-		panic(err)
+	if err == nil {
+		var loginResponse DM2ContentIndexingCheckCredentialResp
+		xml.Unmarshal(respBody, &loginResponse)
+		os.Setenv("AuthToken", loginResponse.Token)
 	}
-	var loginResponse DM2ContentIndexingCheckCredentialResp
-	xml.Unmarshal(respBody, &loginResponse)
-	os.Setenv("AuthToken", loginResponse.Token)
 }
 
 type LoginReq struct {

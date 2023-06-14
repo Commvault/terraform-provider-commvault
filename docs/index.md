@@ -46,5 +46,6 @@ provider "commvault" {
 | SOFTWARE VERSION  | SUPPORTED RESOURCES |
 | --------  | ------------------- | 
 | 11.24 |  <ul><li>commvault_plan</li><li>commvault_user</li><li>commvault_vm_group</li><li>commvault_vmware_hypervisor</li><li>commvault_amazon_hypervisor</li><li>commvault_azure_hypervisor</li><li>commvault_plan_to_vm</li><li>commvault_company</li><li>commvault_disk_storage</li><li>commvault_aws_storage</li><li>commvault_azure_storage</li><li>commvault_google_storage</li><li>commvault_install_ma</li><li>commvault_security_association</li></ul> |
-| 11.28      | <ul><li>commvault_user_v2</li><li>commvault_usergroup</li><li>commvault_role</li><li>commvault_security_association_v2/li></ul> | 
-| 11.30.28      | <ul><li>commvault_hypervisor_aws</li><li>commvault_hypervisor_azure</li><li>commvault_vmgroup_v2</li></ul> | 
+| 11.28      | <ul><li>commvault_user_v2</li><li>commvault_usergroup</li><li>commvault_role</li><li>commvault_security_association_v2</li></ul> | 
+| 11.30.28      | <ul><li>commvault_hypervisor_aws</li><li>commvault_hypervisor_azure</li><li>commvault_vmgroup_v2</li></ul> |
+| 11.32      | <ul><li>commvault_credential_aws</li><li>commvault_credential_awswithrolearn</li><li>commvault_credential_azure</li><li>commvault_credential_azurewithtenantid</li><li>commvault_kubernetes_appgroup</li><li>commvault_kubernetes_cluster</li><li>commvault_plan_backupdestination</li><li>commvault_plan_server</li><li>commvault_storage_cloud_accesspath</li><li>commvault_storage_cloud_azure</li><li>commvault_storage_cloud_bucket_s3</li><li>commvault_storage_cloud_s3</li><li>commvault_storage_container_azure</li><li>commvault_storage_disk</li><li>commvault_storage_disk_backup_location</li><li>commvault_disk_accesspath</li></ul> |  

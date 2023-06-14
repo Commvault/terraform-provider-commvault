@@ -24,10 +24,42 @@ func resourceHypervisor_AWS() *schema.Resource {
                 Description: "if credential validation has to be skipped.",
             },
             "etcdprotection": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
-                Description: "Flag to create an application group etcd (system generated) with pre-defined content",
+                Description: "ETCD Protection options for a cluster",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "plan": {
+                            Type:        schema.TypeList,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "name": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "",
+                                    },
+                                    "id": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "",
+                                    },
+                                },
+                            },
+                        },
+                        "enabled": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Denote if etcd protection is enabled",
+                        },
+                    },
+                },
             },
             "credentials": {
                 Type:        schema.TypeList,
@@ -77,14 +109,12 @@ func resourceHypervisor_AWS() *schema.Resource {
             },
             "secretkey": {
                 Type:        schema.TypeString,
-                Optional:    true,
-                Computed:    true,
+                Required:    true,
                 Description: "secret Key of Amazon login",
             },
             "accesskey": {
                 Type:        schema.TypeString,
-                Optional:    true,
-                Computed:    true,
+                Required:    true,
                 Description: "Access Key of Amazon login",
             },
             "region": {
@@ -101,8 +131,7 @@ func resourceHypervisor_AWS() *schema.Resource {
             },
             "useiamrole": {
                 Type:        schema.TypeString,
-                Optional:    true,
-                Computed:    true,
+                Required:    true,
                 Description: "if Iam Role is used",
             },
             "rolearn": {
@@ -550,9 +579,9 @@ func resourceCreateHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     if val, ok := d.GetOk("skipcredentialvalidation"); ok {
         t_skipcredentialvalidation = handler.ToBooleanValue(val, false)
     }
-    var t_etcdprotection *bool
+    var t_etcdprotection *handler.MsgEtcdProtectionItem
     if val, ok := d.GetOk("etcdprotection"); ok {
-        t_etcdprotection = handler.ToBooleanValue(val, false)
+        t_etcdprotection = build_hypervisor_aws_msgetcdprotectionitem(d, val.([]interface{}))
     }
     var t_credentials *handler.MsgIdName
     if val, ok := d.GetOk("credentials"); ok {
@@ -1036,6 +1065,23 @@ func build_hypervisor_aws_msgaccessnodemodelset_array(d *schema.ResourceData, r 
             tmp[a] = handler.MsgaccessNodeModelSet{Id:t_id, Type:t_type}
         }
         return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_hypervisor_aws_msgetcdprotectionitem(d *schema.ResourceData, r []interface{}) *handler.MsgEtcdProtectionItem {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_plan *handler.MsgIdName
+        if val, ok := tmp["plan"]; ok {
+            t_plan = build_hypervisor_aws_msgidname(d, val.([]interface{}))
+        }
+        var t_enabled *bool
+        if val, ok := tmp["enabled"]; ok {
+            t_enabled = handler.ToBooleanValue(val, true)
+        }
+        return &handler.MsgEtcdProtectionItem{Plan:t_plan, Enabled:t_enabled}
     } else {
         return nil
     }

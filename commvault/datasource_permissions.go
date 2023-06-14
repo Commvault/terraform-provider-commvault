@@ -19,15 +19,21 @@ func datasourcePermissions() *schema.Resource {
 				Required:    true,
 				Description: "",
 			},
+			"categoryid": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "",
+			},
 		},
 	}
 }
 
 func datasourceReadPermissions(d *schema.ResourceData, m interface{}) error {
-	resp, _ := handler.CvPermissionIdByName(d.Get("name").(string))
-
-	if resp.PermissionId > 0 {
-		d.SetId(strconv.Itoa(resp.PermissionId))
+	pid, cid := handler.CvPermissionIdByName(d.Get("name").(string))
+	print("pid %d cid %d", pid, cid)
+	if pid > 0 {
+		d.SetId(strconv.Itoa(pid))
+		d.Set("categoryid", cid)
 	} else {
 		return fmt.Errorf("unknown permission %s", d.Get("name").(string))
 	}
