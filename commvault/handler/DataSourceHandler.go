@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -30,7 +31,7 @@ func CvGetUserByName(name string) (*MsgReadUserDS, error) {
 	url := os.Getenv("CV_CSIP") + "/User?fq=" + urlEscape("name:eq:") + urlEscape(name)
 	token := os.Getenv("AuthToken")
 	//respBody, err := makeHttpRequest(url, http.MethodGet, JSON, nil, JSON, token, 0)
-	req := buildHttpReq(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	req, _ := buildHttpReq(url, http.MethodGet, JSON, nil, JSON, token, 0)
 	req.Header.Set("mode", "EdgeMode")
 	respBody, err := executeHttpReq(req)
 	//LogEntry("Response: ", string(respBody))
@@ -213,9 +214,7 @@ func CvRegionIdByName(name string) (MsgReadRegionDS, error) {
 	var obj MsgReadRegionDS
 
 	for _, r := range respObj.Regions {
-		LogEntry(">>>>>>>>>>>>>", r.RegionEntity.RegionName)
 		if strings.EqualFold(r.RegionEntity.RegionName, name) {
-			LogEntry("!!!!!!!!!!!!!!", "FOUND ["+name+"]")
 			obj = r.RegionEntity
 		}
 	}
@@ -278,27 +277,160 @@ func CvStoragePoolIdByName(name string) (MsgReadStoragePoolDS, error) {
 }
 
 type MsgReadPermissionDSResp struct {
-	Permissions []MsgReadPermissionDS `json:"permissions"`
+	Permissions []MsgReadPermissionGroupDSResp `json:"permissions"`
+}
+
+type MsgReadPermissionGroupDSResp struct {
+	Permissions []MsgReadPermissionDS       `json:"permissions"`
+	Category    MsgReadPermissionCategoryDS `json:"category"`
+}
+
+type MsgReadPermissionCategoryDS struct {
+	CategoryId   int    `json:"id"`
+	CategoryName string `json:"name"`
 }
 
 type MsgReadPermissionDS struct {
-	PermissionName string `json:"permissionName"`
-	PermissionId   int    `json:"permissionId"`
+	PermissionName string `json:"name"`
+	PermissionId   int    `json:"id"`
 }
 
-func CvPermissionIdByName(name string) (MsgReadPermissionDS, error) {
-	url := os.Getenv("CV_CSIP") + "/Security/COMMCELL_ENTITY/2/Permissions"
+func CvPermissionIdByName(name string) (int, int) {
+	url := os.Getenv("CV_CSIP") + "/v4/Permissions"
 	token := os.Getenv("AuthToken")
-	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	respBody, _ := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
 	var respObj MsgReadPermissionDSResp
 	json.Unmarshal(respBody, &respObj)
-	var obj MsgReadPermissionDS
+	//var obj MsgReadPermissionDS
 
 	for _, r := range respObj.Permissions {
-		if strings.EqualFold(r.PermissionName, name) {
+		for _, p := range r.Permissions {
+			if strings.EqualFold(p.PermissionName, name) {
+				return p.PermissionId, r.Category.CategoryId
+			}
+		}
+	}
+
+	return 0, 0
+}
+
+type MsgAccessPathDSResp struct {
+	DiskAccessPaths []MsgAccessPathDS `json:"diskAccessPaths"`
+}
+
+type MsgAccessPathDS struct {
+	AccessPathId int             `json:"id"`
+	MediaAgent   MsgMediaAgentDS `json:"mediaAgent"`
+}
+
+type MsgMediaAgentDS struct {
+	MediaAgentId   int    `json:"id"`
+	MediaAgentName string `json:"name"`
+}
+
+func CvGetAccessPathForMediaAgent(storagePoolId string, backupLocationId string, mediaAgentId int) (int, error) {
+	url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId + "/BackupLocation/" + backupLocationId
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgAccessPathDSResp
+	json.Unmarshal(respBody, &respObj)
+	resp := 0
+
+	for _, r := range respObj.DiskAccessPaths {
+		if r.MediaAgent.MediaAgentId == mediaAgentId {
+			resp = r.AccessPathId
+		}
+	}
+
+	if resp == 0 {
+		LogEntry("ERROR", "could not find media agent id ["+strconv.Itoa(mediaAgentId)+"] from response ["+url+"]")
+	}
+
+	return resp, err
+}
+
+type MsgCloudAccessPathDSResp struct {
+	CloudAccessPaths []MsgCloudAccessPathDS `json:"cloudAccessPaths"`
+}
+
+type MsgCloudAccessPathDS struct {
+	AccessPathId int                  `json:"accessPathId"`
+	MediaAgent   MsgCloudMediaAgentDS `json:"mediaAgent"`
+}
+
+type MsgCloudMediaAgentDS struct {
+	MediaAgentId   int    `json:"id"`
+	MediaAgentName string `json:"name"`
+}
+
+func CvGetCloudAccessPathForMediaAgent(cloudStorageId string, bucketId string, mediaAgentId int) (int, error) {
+	url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgCloudAccessPathDSResp
+	json.Unmarshal(respBody, &respObj)
+	resp := 0
+
+	for _, r := range respObj.CloudAccessPaths {
+		if r.MediaAgent.MediaAgentId == mediaAgentId {
+			resp = r.AccessPathId
+		}
+	}
+
+	if resp == 0 {
+		LogEntry("ERROR", "could not find media agent id ["+strconv.Itoa(mediaAgentId)+"] from response ["+url+"]")
+	}
+
+	return resp, err
+}
+
+type MsgReadKubernetesDSResp struct {
+	Items []MsgReadKubernetesDS `json:"items"`
+}
+
+type MsgReadKubernetesDS struct {
+	KubernetesGuid string `json:"GUID"`
+	KubernetesName string `json:"name"`
+}
+
+func CvKubernetesGUIDByName(query string, name string) (MsgReadKubernetesDS, error) {
+	url := os.Getenv("CV_CSIP") + query
+	token := os.Getenv("AuthToken")
+	respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, JSON, token, 0)
+	var respObj MsgReadKubernetesDSResp
+	json.Unmarshal(respBody, &respObj)
+	var obj MsgReadKubernetesDS
+
+	for _, r := range respObj.Items {
+		if strings.EqualFold(r.KubernetesName, name) {
 			obj = r
 		}
 	}
 
 	return obj, err
+}
+
+func CvKubernetesNamespacesByName(clusterId int, name string) (MsgReadKubernetesDS, error) {
+	url := "/V5/Kubernetes/Cluster/" + strconv.Itoa(clusterId) + "/Content/Namespace"
+	return CvKubernetesGUIDByName(url, name)
+}
+
+func CvKubernetesStorageClassesByName(clusterId int, name string) (MsgReadKubernetesDS, error) {
+	url := "/V5/Kubernetes/Cluster/" + strconv.Itoa(clusterId) + "/Content/StorageClass"
+	return CvKubernetesGUIDByName(url, name)
+}
+
+func CvKubernetesApplicationsByName(clusterId int, namespace string, name string) (MsgReadKubernetesDS, error) {
+	url := "/V5/Kubernetes/Cluster/" + strconv.Itoa(clusterId) + "/Content/Namespace/" + urlEscape(namespace) + "/Applications"
+	return CvKubernetesGUIDByName(url, name)
+}
+
+func CvKubernetesVolumesByName(clusterId int, namespace string, name string) (MsgReadKubernetesDS, error) {
+	url := "/V5/Kubernetes/Cluster/" + strconv.Itoa(clusterId) + "/Content/Namespace/" + urlEscape(namespace) + "/Volumes"
+	return CvKubernetesGUIDByName(url, name)
+}
+
+func CvKubernetesLabelsByName(clusterId int, namespace string, name string) (MsgReadKubernetesDS, error) {
+	url := "/V5/Kubernetes/Cluster/" + strconv.Itoa(clusterId) + "/Content/Namespace/" + urlEscape(namespace) + "/Labels"
+	return CvKubernetesGUIDByName(url, name)
 }

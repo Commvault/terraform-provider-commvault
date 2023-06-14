@@ -3,9 +3,20 @@ package handler
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
+
+func RetrieveBackupLocationAccessPathId(req MsgAddMediaAgentRequest, resp *MsgAddMediaAgentResponse, d *schema.ResourceData, m interface{}) string {
+	id, _ := CvGetAccessPathForMediaAgent(strconv.Itoa(d.Get("storagepoolid").(int)), strconv.Itoa(d.Get("backuplocationid").(int)), *req.MediaAgents[0].Id)
+	return strconv.Itoa(id)
+}
+
+func RetrieveBucketAccessPathId(req MsgCreateAccessPathForBucketOfCloudStorageRequest, resp *MsgCreateAccessPathForBucketOfCloudStorageResponse, d *schema.ResourceData, m interface{}) string {
+	id, _ := CvGetCloudAccessPathForMediaAgent(strconv.Itoa(d.Get("cloudstorageid").(int)), strconv.Itoa(d.Get("bucketid").(int)), *req.MediaAgent.Id)
+	return strconv.Itoa(id)
+}
 
 func ConfigureCredential_AWSWithRoleArn(req *MsgCreateCredentialAWSWithRoleArnRequest, d *schema.ResourceData, m interface{}) error {
 	accountType := "CLOUD_ACCOUNT"

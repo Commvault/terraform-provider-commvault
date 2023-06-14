@@ -61,7 +61,7 @@ func resourceStorage_Disk() *schema.Resource {
                 },
             },
             "storage": {
-                Type:        schema.TypeSet,
+                Type:        schema.TypeList,
                 Required:    true,
                 Description: "A list of backup locations can be provided for the storage pool being created.",
                 Elem: &schema.Resource{
@@ -254,7 +254,7 @@ func resourceCreateStorage_Disk(d *schema.ResourceData, m interface{}) error {
     }
     var t_storage []handler.MsgPathSet
     if val, ok := d.GetOk("storage"); ok {
-        t_storage = build_storage_disk_msgpathset_array(d, val.(*schema.Set).List())
+        t_storage = build_storage_disk_msgpathset_array(d, val.([]interface{}))
     }
     var req = handler.MsgCreateDiskStorageRequest{Name:t_name, EnableDeduplication:t_enablededuplication, DeduplicationDBStorage:t_deduplicationdbstorage, Storage:t_storage}
     resp, err := handler.CvCreateDiskStorage(req)
@@ -282,6 +282,11 @@ func resourceReadStorage_Disk(d *schema.ResourceData, m interface{}) error {
         d.Set("security", rtn)
     } else {
         d.Set("security", make([]map[string]interface{}, 0))
+    }
+    if rtn, ok := serialize_storage_disk_msgencryption(d, resp.Encryption); ok {
+        d.Set("dataencryption", rtn)
+    } else {
+        d.Set("dataencryption", make([]map[string]interface{}, 0))
     }
     if resp.Name != nil {
         d.Set("name", resp.Name)
@@ -480,6 +485,62 @@ func build_storage_disk_msgdedupepathset_array(d *schema.ResourceData, r []inter
     }
 }
 
+func serialize_storage_disk_msgencryption(d *schema.ResourceData, data *handler.MsgEncryption) ([]map[string]interface{}, bool) {
+    //MsgEncryption
+    //MsgEncryption
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if data.Cipher != nil {
+        val[0]["cipher"] = data.Cipher
+        added = true
+    }
+    if data.KeyLength != nil {
+        val[0]["keylength"] = data.KeyLength
+        added = true
+    }
+    if data.Encrypt != nil {
+        val[0]["encrypt"] = strconv.FormatBool(*data.Encrypt)
+        added = true
+    }
+    if rtn, ok := serialize_storage_disk_msgidname(d, data.KeyProvider); ok {
+        val[0]["keyprovider"] = rtn
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
+func serialize_storage_disk_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
+    //MsgEncryption -> MsgIdName
+    //MsgEncryption -> MsgIdName
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if data.Name != nil {
+        val[0]["name"] = data.Name
+        added = true
+    }
+    if data.Id != nil {
+        val[0]["id"] = data.Id
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
 func serialize_storage_disk_msgsecurityassocset_array(d *schema.ResourceData, data []handler.MsgSecurityAssocSet) ([]map[string]interface{}, bool) {
     //MsgUpdateSecurityAssocSet
     //MsgSecurityAssocSet
@@ -507,24 +568,4 @@ func serialize_storage_disk_msgsecurityassocset_array(d *schema.ResourceData, da
         }
     }
     return val, true
-}
-
-func serialize_storage_disk_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
-    //MsgUpdateSecurityAssocSet -> MsgIdName
-    //MsgSecurityAssocSet -> MsgIdName
-    if data == nil {
-        return nil, false
-    }
-    val := make([]map[string]interface{}, 1)
-    val[0] = make(map[string]interface{})
-    added := false
-    if data.Id != nil {
-        val[0]["id"] = data.Id
-        added = true
-    }
-    if added {
-        return val, true
-    } else {
-        return nil, false
-    }
 }

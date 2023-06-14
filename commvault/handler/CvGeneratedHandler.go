@@ -6,44 +6,23 @@ import (
     "os"
 )
 
-func CvGetRoleDetails(roleId string) (*MsgGetRoleDetailsResponse, error) {
-    //API: (GET) /V4/Role/{roleId}
-    url := os.Getenv("CV_CSIP") + "/V4/Role/" + roleId
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
-    var respObj MsgGetRoleDetailsResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvDeleteRoles(roleId string) (*MsgDeleteRolesResponse, error) {
-    //API: (DELETE) /V4/Role/{roleId}
-    url := os.Getenv("CV_CSIP") + "/V4/Role/" + roleId
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
-    var respObj MsgDeleteRolesResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvModifyRole(modifyRoleRequest MsgModifyRoleRequest, roleId string) (*MsgModifyRoleResponse, error) {
-    //API: (PUT) /V4/Role/{roleId}
-    reqBody, _ := json.Marshal(modifyRoleRequest)
-    url := os.Getenv("CV_CSIP") + "/V4/Role/" + roleId
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
-    var respObj MsgModifyRoleResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvCreateNewRole(createNewRoleRequest MsgCreateNewRoleRequest) (*MsgCreateNewRoleResponse, error) {
-    //API: (POST) /V4/Role
-    reqBody, _ := json.Marshal(createNewRoleRequest)
-    url := os.Getenv("CV_CSIP") + "/V4/Role"
+func CvCreateAccessPathForBucketOfCloudStorage(createAccessPathForBucketOfCloudStorageRequest MsgCreateAccessPathForBucketOfCloudStorageRequest, cloudStorageId string, bucketId string) (*MsgCreateAccessPathForBucketOfCloudStorageResponse, error) {
+    //API: (POST) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}/AccessPath
+    reqBody, _ := json.Marshal(createAccessPathForBucketOfCloudStorageRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId + "/AccessPath"
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
-    var respObj MsgCreateNewRoleResponse
+    var respObj MsgCreateAccessPathForBucketOfCloudStorageResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteAccessPathForBucketOfCloudStorage(cloudStorageId string, bucketId string, accessPathId string) (*MsgDeleteAccessPathForBucketOfCloudStorageResponse, error) {
+    //API: (DELETE) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}/AccessPath/{accessPathId}
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId + "/AccessPath/" + accessPathId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteAccessPathForBucketOfCloudStorageResponse
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }
@@ -90,13 +69,13 @@ func CvModifyBackupLocation(modifyBackupLocationRequest MsgModifyBackupLocationR
     return &respObj, err
 }
 
-func CvCreateCloudStorageS3(createCloudStorageS3Request MsgCreateCloudStorageS3Request) (*MsgCreateCloudStorageS3Response, error) {
+func CvCreateCloudStorageAzure(createCloudStorageAzureRequest MsgCreateCloudStorageAzureRequest) (*MsgCreateCloudStorageAzureResponse, error) {
     //API: (POST) /V4/Storage/Cloud
-    reqBody, _ := json.Marshal(createCloudStorageS3Request)
+    reqBody, _ := json.Marshal(createCloudStorageAzureRequest)
     url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud"
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
-    var respObj MsgCreateCloudStorageS3Response
+    var respObj MsgCreateCloudStorageAzureResponse
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }
@@ -132,44 +111,13 @@ func CvModifyCloudStorageById(modifyCloudStorageByIdRequest MsgModifyCloudStorag
     return &respObj, err
 }
 
-func CvGetDiskStorageDetails(storagePoolId string) (*MsgGetDiskStorageDetailsResponse, error) {
-    //API: (GET) /V4/Storage/Disk/{storagePoolId}
-    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
-    var respObj MsgGetDiskStorageDetailsResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvDeleteDiskStorage(storagePoolId string) (*MsgDeleteDiskStorageResponse, error) {
-    //API: (DELETE) /V4/Storage/Disk/{storagePoolId}
-    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
-    var respObj MsgDeleteDiskStorageResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvModifyDiskStorage(modifyDiskStorageRequest MsgModifyDiskStorageRequest, storagePoolId string) (*MsgModifyDiskStorageResponse, error) {
-    //API: (PUT) /V4/Storage/Disk/{storagePoolId}
-    reqBody, _ := json.Marshal(modifyDiskStorageRequest)
-    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
-    var respObj MsgModifyDiskStorageResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvCreateDiskStorage(createDiskStorageRequest MsgCreateDiskStorageRequest) (*MsgCreateDiskStorageResponse, error) {
-    //API: (POST) /V4/Storage/Disk
-    reqBody, _ := json.Marshal(createDiskStorageRequest)
-    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk"
+func CvCreateCloudStorageS3(createCloudStorageS3Request MsgCreateCloudStorageS3Request) (*MsgCreateCloudStorageS3Response, error) {
+    //API: (POST) /V4/Storage/Cloud
+    reqBody, _ := json.Marshal(createCloudStorageS3Request)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud"
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
-    var respObj MsgCreateDiskStorageResponse
+    var respObj MsgCreateCloudStorageS3Response
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }
@@ -396,6 +344,80 @@ func CvModifyUser(modifyUserRequest MsgModifyUserRequest, userId string) (*MsgMo
     return &respObj, err
 }
 
+func CvCreateBucketforCloudStorageAzure(createBucketforCloudStorageAzureRequest MsgCreateBucketforCloudStorageAzureRequest, cloudStorageId string) (*MsgCreateBucketforCloudStorageAzureResponse, error) {
+    //API: (POST) /V4/Storage/Cloud/{cloudStorageId}/Bucket
+    reqBody, _ := json.Marshal(createBucketforCloudStorageAzureRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateBucketforCloudStorageAzureResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetBucketDetailsOfCloudStorageAzure(cloudStorageId string, bucketId string) (*MsgGetBucketDetailsOfCloudStorageAzureRequest, error) {
+    //API: (GET) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetBucketDetailsOfCloudStorageAzureRequest
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvModifyBucketOfCloudStorageAzure(modifyBucketOfCloudStorageAzureRequest MsgModifyBucketOfCloudStorageAzureRequest, cloudStorageId string, bucketId string) (*MsgModifyBucketOfCloudStorageAzureResponse, error) {
+    //API: (PUT) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}
+    reqBody, _ := json.Marshal(modifyBucketOfCloudStorageAzureRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgModifyBucketOfCloudStorageAzureResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteBucketOfCloudStorage(cloudStorageId string, bucketId string) (*MsgDeleteBucketOfCloudStorageResponse, error) {
+    //API: (DELETE) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteBucketOfCloudStorageResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateBucketforCloudStorageS3(createBucketforCloudStorageS3Request MsgCreateBucketforCloudStorageS3Request, cloudStorageId string) (*MsgCreateBucketforCloudStorageS3Response, error) {
+    //API: (POST) /V4/Storage/Cloud/{cloudStorageId}/Bucket
+    reqBody, _ := json.Marshal(createBucketforCloudStorageS3Request)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateBucketforCloudStorageS3Response
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetBucketDetailsOfCloudStorageS3(cloudStorageId string, bucketId string) (*MsgGetBucketDetailsOfCloudStorageS3Request, error) {
+    //API: (GET) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetBucketDetailsOfCloudStorageS3Request
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvModifyBucketOfCloudStorageS3(modifyBucketOfCloudStorageS3Request MsgModifyBucketOfCloudStorageS3Request, cloudStorageId string, bucketId string) (*MsgModifyBucketOfCloudStorageS3Response, error) {
+    //API: (PUT) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}
+    reqBody, _ := json.Marshal(modifyBucketOfCloudStorageS3Request)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgModifyBucketOfCloudStorageS3Response
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
 func CvCreateHypervisorAWS(createHypervisorAWSRequest MsgCreateHypervisorAWSRequest) (*MsgCreateHypervisorAWSResponse, error) {
     //API: (POST) /V4/Hypervisor
     reqBody, _ := json.Marshal(createHypervisorAWSRequest)
@@ -460,86 +482,44 @@ func CvupdateHypervisorAzure(updateHypervisorAzureRequest MsgupdateHypervisorAzu
     return &respObj, err
 }
 
-func CvGetVMGroup(VmGroupId string) (*MsgGetVMGroupResponse, error) {
-    //API: (GET) /V4/VmGroup/{VmGroupId}
-    url := os.Getenv("CV_CSIP") + "/V4/VmGroup/" + VmGroupId
+func CvGetKubernetesClusterDetails(clusterId string) (*MsgGetKubernetesClusterDetailsResponse, error) {
+    //API: (GET) /V5/Kubernetes/Cluster/{clusterId}
+    url := os.Getenv("CV_CSIP") + "/V5/Kubernetes/Cluster/" + clusterId
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
-    var respObj MsgGetVMGroupResponse
+    var respObj MsgGetKubernetesClusterDetailsResponse
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }
 
-func CvDeleteVMGroup(VmGroupId string) (*MsgDeleteVMGroupResponse, error) {
-    //API: (DELETE) /V4/VmGroup/{VmGroupId}
-    url := os.Getenv("CV_CSIP") + "/V4/VmGroup/" + VmGroupId
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
-    var respObj MsgDeleteVMGroupResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvUpdateVMGroup(updateVMGroupRequest MsgUpdateVMGroupRequest, VmGroupId string) (*MsgUpdateVMGroupResponse, error) {
-    //API: (PUT) /V4/VmGroup/{VmGroupId}
-    reqBody, _ := json.Marshal(updateVMGroupRequest)
-    url := os.Getenv("CV_CSIP") + "/V4/VmGroup/" + VmGroupId
+func CvUpdateKubernetesProperties(updateKubernetesPropertiesRequest MsgUpdateKubernetesPropertiesRequest, clusterId string) (*MsgUpdateKubernetesPropertiesResponse, error) {
+    //API: (PUT) /V5/Kubernetes/Cluster/{clusterId}
+    reqBody, _ := json.Marshal(updateKubernetesPropertiesRequest)
+    url := os.Getenv("CV_CSIP") + "/V5/Kubernetes/Cluster/" + clusterId
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
-    var respObj MsgUpdateVMGroupResponse
+    var respObj MsgUpdateKubernetesPropertiesResponse
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }
 
-func CvCreateVMGroup(createVMGroupRequest MsgCreateVMGroupRequest) (*MsgCreateVMGroupResponse, error) {
-    //API: (POST) /V4/VMGroup
-    reqBody, _ := json.Marshal(createVMGroupRequest)
-    url := os.Getenv("CV_CSIP") + "/V4/VMGroup"
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
-    var respObj MsgCreateVMGroupResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvCreateBucketforCloudStorageS3(createBucketforCloudStorageS3Request MsgCreateBucketforCloudStorageS3Request, cloudStorageId string) (*MsgCreateBucketforCloudStorageS3Response, error) {
-    //API: (POST) /V4/Storage/Cloud/{cloudStorageId}/Bucket
-    reqBody, _ := json.Marshal(createBucketforCloudStorageS3Request)
-    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket"
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
-    var respObj MsgCreateBucketforCloudStorageS3Response
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvGetBucketDetailsOfCloudStorage(cloudStorageId string, bucketId string) (*MsgGetBucketDetailsOfCloudStorageResponse, error) {
-    //API: (GET) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}
-    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId
-    token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
-    var respObj MsgGetBucketDetailsOfCloudStorageResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
-}
-
-func CvDeleteBucketOfCloudStorage(cloudStorageId string, bucketId string) (*MsgDeleteBucketOfCloudStorageResponse, error) {
-    //API: (DELETE) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}
-    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId
+func CvRetireKubernetesCluster(clusterId string) (*MsgRetireKubernetesClusterResponse, error) {
+    //API: (DELETE) /V5/Kubernetes/Cluster/{clusterId}/Retire
+    url := os.Getenv("CV_CSIP") + "/V5/Kubernetes/Cluster/" + clusterId + "/Retire"
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
-    var respObj MsgDeleteBucketOfCloudStorageResponse
+    var respObj MsgRetireKubernetesClusterResponse
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }
 
-func CvModifyBucketOfCloudStorage(modifyBucketOfCloudStorageRequest MsgModifyBucketOfCloudStorageRequest, cloudStorageId string, bucketId string) (*MsgModifyBucketOfCloudStorageResponse, error) {
-    //API: (PUT) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}
-    reqBody, _ := json.Marshal(modifyBucketOfCloudStorageRequest)
-    url := os.Getenv("CV_CSIP") + "/V4/Storage/Cloud/" + cloudStorageId + "/Bucket/" + bucketId
+func CvCreateKubernetesClusterOp(createKubernetesClusterOpRequest MsgCreateKubernetesClusterOpRequest) (*MsgCreateKubernetesClusterOpResponse, error) {
+    //API: (POST) /V5/Kubernetes/Cluster
+    reqBody, _ := json.Marshal(createKubernetesClusterOpRequest)
+    url := os.Getenv("CV_CSIP") + "/V5/Kubernetes/Cluster"
     token := os.Getenv("AuthToken")
-    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
-    var respObj MsgModifyBucketOfCloudStorageResponse
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateKubernetesClusterOpResponse
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }
@@ -582,6 +562,248 @@ func CvModifyUserGroup(modifyUserGroupRequest MsgModifyUserGroupRequest, userGro
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
     var respObj MsgModifyUserGroupResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetRoleDetails(roleId string) (*MsgGetRoleDetailsResponse, error) {
+    //API: (GET) /V4/Role/{roleId}
+    url := os.Getenv("CV_CSIP") + "/V4/Role/" + roleId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetRoleDetailsResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteRoles(roleId string) (*MsgDeleteRolesResponse, error) {
+    //API: (DELETE) /V4/Role/{roleId}
+    url := os.Getenv("CV_CSIP") + "/V4/Role/" + roleId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteRolesResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvModifyRole(modifyRoleRequest MsgModifyRoleRequest, roleId string) (*MsgModifyRoleResponse, error) {
+    //API: (PUT) /V4/Role/{roleId}
+    reqBody, _ := json.Marshal(modifyRoleRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Role/" + roleId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgModifyRoleResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateNewRole(createNewRoleRequest MsgCreateNewRoleRequest) (*MsgCreateNewRoleResponse, error) {
+    //API: (POST) /V4/Role
+    reqBody, _ := json.Marshal(createNewRoleRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Role"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateNewRoleResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetDiskStorageDetails(storagePoolId string) (*MsgGetDiskStorageDetailsResponse, error) {
+    //API: (GET) /V4/Storage/Disk/{storagePoolId}
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetDiskStorageDetailsResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteDiskStorage(storagePoolId string) (*MsgDeleteDiskStorageResponse, error) {
+    //API: (DELETE) /V4/Storage/Disk/{storagePoolId}
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteDiskStorageResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvModifyDiskStorage(modifyDiskStorageRequest MsgModifyDiskStorageRequest, storagePoolId string) (*MsgModifyDiskStorageResponse, error) {
+    //API: (PUT) /V4/Storage/Disk/{storagePoolId}
+    reqBody, _ := json.Marshal(modifyDiskStorageRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgModifyDiskStorageResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateDiskStorage(createDiskStorageRequest MsgCreateDiskStorageRequest) (*MsgCreateDiskStorageResponse, error) {
+    //API: (POST) /V4/Storage/Disk
+    reqBody, _ := json.Marshal(createDiskStorageRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateDiskStorageResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateBackupDestinationWithoutPlanInfo(createBackupDestinationWithoutPlanInfoRequest MsgCreateBackupDestinationWithoutPlanInfoRequest) (*MsgCreateBackupDestinationWithoutPlanInfoResponse, error) {
+    //API: (POST) /V4/Plan/BackupDestinations
+    reqBody, _ := json.Marshal(createBackupDestinationWithoutPlanInfoRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Plan/BackupDestinations"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateBackupDestinationWithoutPlanInfoResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetBackupDestinationDetailsWithoutPlanInfo(BackupDestinationId string) (*MsgGetBackupDestinationDetailsWithoutPlanInfoResponse, error) {
+    //API: (GET) /V4/Plan/BackupDestination/{BackupDestinationId}
+    url := os.Getenv("CV_CSIP") + "/V4/Plan/BackupDestination/" + BackupDestinationId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetBackupDestinationDetailsWithoutPlanInfoResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteBackupDestinationWithoutPlanInfo(BackupDestinationId string) (*MsgDeleteBackupDestinationWithoutPlanInfoResponse, error) {
+    //API: (DELETE) /V4/Plan/BackupDestination/{BackupDestinationId}
+    url := os.Getenv("CV_CSIP") + "/V4/Plan/BackupDestination/" + BackupDestinationId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteBackupDestinationWithoutPlanInfoResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvModifyBackupDestinationWithoutPlanInfo(modifyBackupDestinationWithoutPlanInfoRequest MsgModifyBackupDestinationWithoutPlanInfoRequest, BackupDestinationId string) (*MsgModifyBackupDestinationWithoutPlanInfoResponse, error) {
+    //API: (PUT) /V4/Plan/BackupDestination/{BackupDestinationId}
+    reqBody, _ := json.Marshal(modifyBackupDestinationWithoutPlanInfoRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Plan/BackupDestination/" + BackupDestinationId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgModifyBackupDestinationWithoutPlanInfoResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvAddMediaAgent(addMediaAgentRequest MsgAddMediaAgentRequest, storagePoolId string, backupLocationId string) (*MsgAddMediaAgentResponse, error) {
+    //API: (POST) /V4/Storage/Disk/{storagePoolId}/BackupLocation/{backupLocationId}/AccessPath
+    reqBody, _ := json.Marshal(addMediaAgentRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId + "/BackupLocation/" + backupLocationId + "/AccessPath"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgAddMediaAgentResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteDiskAccessPath(storagePoolId string, backupLocationId string, accessPathId string) (*MsgDeleteDiskAccessPathResponse, error) {
+    //API: (DELETE) /V4/Storage/Disk/{storagePoolId}/BackupLocation/{backupLocationId}/AccessPath/{accessPathId}
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId + "/BackupLocation/" + backupLocationId + "/AccessPath/" + accessPathId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteDiskAccessPathResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvModifyDiskAccessPath(modifyDiskAccessPathRequest MsgModifyDiskAccessPathRequest, storagePoolId string, backupLocationId string, accessPathId string) (*MsgModifyDiskAccessPathResponse, error) {
+    //API: (PUT) /V4/Storage/Disk/{storagePoolId}/BackupLocation/{backupLocationId}/AccessPath/{accessPathId}
+    reqBody, _ := json.Marshal(modifyDiskAccessPathRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/Storage/Disk/" + storagePoolId + "/BackupLocation/" + backupLocationId + "/AccessPath/" + accessPathId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgModifyDiskAccessPathResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetApplicationGroupDetails(applicationGroupId string) (*MsgGetApplicationGroupDetailsResponse, error) {
+    //API: (GET) /V5/Kubernetes/ApplicationGroup/{applicationGroupId}
+    url := os.Getenv("CV_CSIP") + "/V5/Kubernetes/ApplicationGroup/" + applicationGroupId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetApplicationGroupDetailsResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteKubernetesAppGroup(applicationGroupId string) (*MsgDeleteKubernetesAppGroupResponse, error) {
+    //API: (DELETE) /V5/Kubernetes/ApplicationGroup/{applicationGroupId}
+    url := os.Getenv("CV_CSIP") + "/V5/Kubernetes/ApplicationGroup/" + applicationGroupId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteKubernetesAppGroupResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvUpdateKubernetesAppGroupOp(updateKubernetesAppGroupOpRequest MsgUpdateKubernetesAppGroupOpRequest, applicationGroupId string) (*MsgUpdateKubernetesAppGroupOpResponse, error) {
+    //API: (PUT) /V5/Kubernetes/ApplicationGroup/{applicationGroupId}
+    reqBody, _ := json.Marshal(updateKubernetesAppGroupOpRequest)
+    url := os.Getenv("CV_CSIP") + "/V5/Kubernetes/ApplicationGroup/" + applicationGroupId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgUpdateKubernetesAppGroupOpResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateKubernetesApplicationGroup(createKubernetesApplicationGroupRequest MsgCreateKubernetesApplicationGroupRequest) (*MsgCreateKubernetesApplicationGroupResponse, error) {
+    //API: (POST) /V5/Kubernetes/ApplicationGroup
+    reqBody, _ := json.Marshal(createKubernetesApplicationGroupRequest)
+    url := os.Getenv("CV_CSIP") + "/V5/Kubernetes/ApplicationGroup"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateKubernetesApplicationGroupResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvGetVMGroup(VmGroupId string) (*MsgGetVMGroupResponse, error) {
+    //API: (GET) /V4/VmGroup/{VmGroupId}
+    url := os.Getenv("CV_CSIP") + "/V4/VmGroup/" + VmGroupId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    var respObj MsgGetVMGroupResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvDeleteVMGroup(VmGroupId string) (*MsgDeleteVMGroupResponse, error) {
+    //API: (DELETE) /V4/VmGroup/{VmGroupId}
+    url := os.Getenv("CV_CSIP") + "/V4/VmGroup/" + VmGroupId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodDelete, JSON, nil, "", token, 0)
+    var respObj MsgDeleteVMGroupResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvUpdateVMGroup(updateVMGroupRequest MsgUpdateVMGroupRequest, VmGroupId string) (*MsgUpdateVMGroupResponse, error) {
+    //API: (PUT) /V4/VmGroup/{VmGroupId}
+    reqBody, _ := json.Marshal(updateVMGroupRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/VmGroup/" + VmGroupId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    var respObj MsgUpdateVMGroupResponse
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
+
+func CvCreateVMGroup(createVMGroupRequest MsgCreateVMGroupRequest) (*MsgCreateVMGroupResponse, error) {
+    //API: (POST) /V4/VMGroup
+    reqBody, _ := json.Marshal(createVMGroupRequest)
+    url := os.Getenv("CV_CSIP") + "/V4/VMGroup"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateVMGroupResponse
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }

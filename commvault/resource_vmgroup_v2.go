@@ -365,83 +365,70 @@ func resourceVMGroup_V2() *schema.Resource {
             "settings": {
                 Type:        schema.TypeList,
                 Optional:    true,
-                Computed:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "autodetectvmowner": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "True if auto detect VM Owner enabled",
                         },
                         "collectfiledetailsforgranularrecovery": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "True if metadata collection is enabled. Only applicable for Indexing v1",
                         },
                         "noofreaders": {
                             Type:        schema.TypeInt,
                             Optional:    true,
-                            Computed:    true,
                             Description: "Number of readers for backup",
                         },
                         "usechangedblocktrackingonvm": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "True if Changed Block Tracking is enabled",
                         },
                         "jobstarttime": {
                             Type:        schema.TypeInt,
                             Optional:    true,
-                            Computed:    true,
                             Description: "Start Time for the VM Group Job",
                         },
                         "usevmcheckpointsetting": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "True if use VM CheckPoint setting is enabled",
                         },
                         "customsnapshotresourcegroup": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "Custom snapshot resource group name for Azure",
                         },
                         "regionalsnapshot": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "True when snapshot storage location is regional",
                         },
                         "guestcredentials": {
                             Type:        schema.TypeList,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "credentials": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
                                                 "password": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
-                                                    Computed:    true,
                                                     Sensitive:    true,
                                                     Description: "password to access the network path",
                                                 },
                                                 "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
-                                                    Computed:    true,
                                                     Description: "username to access the network path",
                                                 },
                                             },
@@ -450,14 +437,12 @@ func resourceVMGroup_V2() *schema.Resource {
                                     "savedcredentials": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
                                                 "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
-                                                    Computed:    true,
                                                     Description: "",
                                                 },
                                             },
@@ -469,50 +454,42 @@ func resourceVMGroup_V2() *schema.Resource {
                         "vmbackuptype": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "[APPLICATION_AWARE, FILE_SYSTEM_AND_APPLICATION_CONSISTENT, CRASH_CONSISTENT, APP_BASED_BACKUP, INHERITED]",
                         },
                         "isvmgroupdiskfiltersincluded": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "Is VM group disk filters included in VM instance disk filters",
                         },
                         "datastorefreespacecheck": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "True if Datastore Free space check is enabled",
                         },
                         "allowemptysubclient": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "True if empty subclient is allowed",
                         },
                         "datastorefreespacerequired": {
                             Type:        schema.TypeInt,
                             Optional:    true,
-                            Computed:    true,
                             Description: "precentage of datastore free space check value",
                         },
                         "customsnapshottags": {
                             Type:        schema.TypeSet,
                             Optional:    true,
-                            Computed:    true,
                             Description: "represents custom tags to be set on snapshots",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "represents name of the tag",
                                     },
                                     "value": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "represents value of the tag",
                                     },
                                 },
@@ -521,57 +498,48 @@ func resourceVMGroup_V2() *schema.Resource {
                         "isapplicationaware": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "Is the VM App Aware",
                         },
                         "transportmode": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "transport mode based on environment. Values are case sensitive [AUTO, SAN, HOT_ADD, NAS, NBD_SSL, NBD]",
                         },
                         "collectfiledetailsfromsnapshotcopy": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Computed:    true,
                             Description: "True if metadata collection is enabled for intellisnap jobs. Only applicable for Indexing v1",
                         },
                         "crossaccount": {
                             Type:        schema.TypeList,
                             Optional:    true,
-                            Computed:    true,
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "shareonly": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "True if replicate and copy or sharing of amazon snapshot to different amazon account in same or different geographic location is enabled",
                                     },
                                     "fullcopy": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "True if full copy of amazon snapshot to different amazon account is enabled",
                                     },
                                     "destinationaccount": {
                                         Type:        schema.TypeList,
                                         Optional:    true,
-                                        Computed:    true,
                                         Description: "",
                                         Elem: &schema.Resource{
                                             Schema: map[string]*schema.Schema{
                                                 "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
-                                                    Computed:    true,
                                                     Description: "",
                                                 },
                                                 "id": {
                                                     Type:        schema.TypeInt,
                                                     Optional:    true,
-                                                    Computed:    true,
                                                     Description: "",
                                                 },
                                             },
@@ -1290,27 +1258,9 @@ func resourceVMGroup_V2() *schema.Resource {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
-                            Description: "",
+                            Description: "Application validation source copy details",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "ismirrorcopy": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Is this a mirror copy?",
-                                    },
-                                    "snapcopytype": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "[DEFAULT_MIRROR, DEFAULT_VAULT_REPLICA, MIRROR, VAULT_REPLICA, SNAPSHOT_PRIMARY]",
-                                    },
-                                    "isdefault": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Is this a default backup destination?",
-                                    },
                                     "copyprecedence": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
@@ -1323,29 +1273,23 @@ func resourceVMGroup_V2() *schema.Resource {
                                         Computed:    true,
                                         Description: "Is this a snap copy?",
                                     },
-                                    "copytype": {
+                                    "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "[SYNCHRONOUS, SELECTIVE]",
+                                        Description: "Name of the source copy",
                                     },
-                                    "defaultreplicacopy": {
-                                        Type:        schema.TypeString,
+                                    "id": {
+                                        Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "Is this a default replica copy?",
+                                        Description: "Id of the source copy",
                                     },
                                     "isactive": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Is this an active backup destination?",
-                                    },
-                                    "arrayreplicacopy": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Is this an array replica copy?",
                                     },
                                     "backupdestination": {
                                         Type:        schema.TypeList,
@@ -1789,9 +1733,9 @@ func build_vmgroup_v2_msgvmappvalidation(d *schema.ResourceData, r []interface{}
         if val, ok := tmp["customvalidationscript"]; ok {
             t_customvalidationscript = build_vmgroup_v2_msgappvalidationscript(d, val.([]interface{}))
         }
-        var t_copy *handler.MsgPlanSourceCopy
+        var t_copy *handler.MsgAppValidationSourceCopy
         if val, ok := tmp["copy"]; ok {
-            t_copy = build_vmgroup_v2_msgplansourcecopy(d, val.([]interface{}))
+            t_copy = build_vmgroup_v2_msgappvalidationsourcecopy(d, val.([]interface{}))
         }
         return &handler.MsgvmAppValidation{RecoveryTarget:t_recoverytarget, Schedule:t_schedule, MaximumNoOfThreads:t_maximumnoofthreads, GuestCredentials:t_guestcredentials, KeepValidatedVMsRunning:t_keepvalidatedvmsrunning, ValidateVMBackups:t_validatevmbackups, UseSourceVmESXToMount:t_usesourcevmesxtomount, CustomValidationScript:t_customvalidationscript, Copy:t_copy}
     } else {
@@ -1799,21 +1743,9 @@ func build_vmgroup_v2_msgvmappvalidation(d *schema.ResourceData, r []interface{}
     }
 }
 
-func build_vmgroup_v2_msgplansourcecopy(d *schema.ResourceData, r []interface{}) *handler.MsgPlanSourceCopy {
+func build_vmgroup_v2_msgappvalidationsourcecopy(d *schema.ResourceData, r []interface{}) *handler.MsgAppValidationSourceCopy {
     if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
-        var t_ismirrorcopy *bool
-        if val, ok := tmp["ismirrorcopy"]; ok {
-            t_ismirrorcopy = handler.ToBooleanValue(val, true)
-        }
-        var t_snapcopytype *string
-        if val, ok := tmp["snapcopytype"]; ok {
-            t_snapcopytype = handler.ToStringValue(val, true)
-        }
-        var t_isdefault *bool
-        if val, ok := tmp["isdefault"]; ok {
-            t_isdefault = handler.ToBooleanValue(val, true)
-        }
         var t_copyprecedence *int
         if val, ok := tmp["copyprecedence"]; ok {
             t_copyprecedence = handler.ToIntValue(val, true)
@@ -1822,27 +1754,23 @@ func build_vmgroup_v2_msgplansourcecopy(d *schema.ResourceData, r []interface{})
         if val, ok := tmp["issnapcopy"]; ok {
             t_issnapcopy = handler.ToBooleanValue(val, true)
         }
-        var t_copytype *string
-        if val, ok := tmp["copytype"]; ok {
-            t_copytype = handler.ToStringValue(val, true)
+        var t_name *string
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
         }
-        var t_defaultreplicacopy *bool
-        if val, ok := tmp["defaultreplicacopy"]; ok {
-            t_defaultreplicacopy = handler.ToBooleanValue(val, true)
+        var t_id *int
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
         }
         var t_isactive *bool
         if val, ok := tmp["isactive"]; ok {
             t_isactive = handler.ToBooleanValue(val, true)
         }
-        var t_arrayreplicacopy *bool
-        if val, ok := tmp["arrayreplicacopy"]; ok {
-            t_arrayreplicacopy = handler.ToBooleanValue(val, true)
-        }
         var t_backupdestination *handler.MsgIdName
         if val, ok := tmp["backupdestination"]; ok {
             t_backupdestination = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         }
-        return &handler.MsgPlanSourceCopy{IsMirrorCopy:t_ismirrorcopy, SnapCopyType:t_snapcopytype, IsDefault:t_isdefault, CopyPrecedence:t_copyprecedence, IsSnapCopy:t_issnapcopy, CopyType:t_copytype, DefaultReplicaCopy:t_defaultreplicacopy, IsActive:t_isactive, ArrayReplicaCopy:t_arrayreplicacopy, BackupDestination:t_backupdestination}
+        return &handler.MsgAppValidationSourceCopy{CopyPrecedence:t_copyprecedence, IsSnapCopy:t_issnapcopy, Name:t_name, Id:t_id, IsActive:t_isactive, BackupDestination:t_backupdestination}
     } else {
         return nil
     }
@@ -2562,7 +2490,7 @@ func serialize_vmgroup_v2_msgvmappvalidation(d *schema.ResourceData, data *handl
         val[0]["customvalidationscript"] = rtn
         added = true
     }
-    if rtn, ok := serialize_vmgroup_v2_msgplansourcecopy(d, data.Copy); ok {
+    if rtn, ok := serialize_vmgroup_v2_msgappvalidationsourcecopy(d, data.Copy); ok {
         val[0]["copy"] = rtn
         added = true
     }
@@ -2573,27 +2501,15 @@ func serialize_vmgroup_v2_msgvmappvalidation(d *schema.ResourceData, data *handl
     }
 }
 
-func serialize_vmgroup_v2_msgplansourcecopy(d *schema.ResourceData, data *handler.MsgPlanSourceCopy) ([]map[string]interface{}, bool) {
-    //MsgvmAppValidation -> MsgPlanSourceCopy
-    //MsgvmAppValidation -> MsgPlanSourceCopy
+func serialize_vmgroup_v2_msgappvalidationsourcecopy(d *schema.ResourceData, data *handler.MsgAppValidationSourceCopy) ([]map[string]interface{}, bool) {
+    //MsgvmAppValidation -> MsgAppValidationSourceCopy
+    //MsgvmAppValidation -> MsgAppValidationSourceCopy
     if data == nil {
         return nil, false
     }
     val := make([]map[string]interface{}, 1)
     val[0] = make(map[string]interface{})
     added := false
-    if data.IsMirrorCopy != nil {
-        val[0]["ismirrorcopy"] = strconv.FormatBool(*data.IsMirrorCopy)
-        added = true
-    }
-    if data.SnapCopyType != nil {
-        val[0]["snapcopytype"] = data.SnapCopyType
-        added = true
-    }
-    if data.IsDefault != nil {
-        val[0]["isdefault"] = strconv.FormatBool(*data.IsDefault)
-        added = true
-    }
     if data.CopyPrecedence != nil {
         val[0]["copyprecedence"] = data.CopyPrecedence
         added = true
@@ -2602,20 +2518,16 @@ func serialize_vmgroup_v2_msgplansourcecopy(d *schema.ResourceData, data *handle
         val[0]["issnapcopy"] = strconv.FormatBool(*data.IsSnapCopy)
         added = true
     }
-    if data.CopyType != nil {
-        val[0]["copytype"] = data.CopyType
+    if data.Name != nil {
+        val[0]["name"] = data.Name
         added = true
     }
-    if data.DefaultReplicaCopy != nil {
-        val[0]["defaultreplicacopy"] = strconv.FormatBool(*data.DefaultReplicaCopy)
+    if data.Id != nil {
+        val[0]["id"] = data.Id
         added = true
     }
     if data.IsActive != nil {
         val[0]["isactive"] = strconv.FormatBool(*data.IsActive)
-        added = true
-    }
-    if data.ArrayReplicaCopy != nil {
-        val[0]["arrayreplicacopy"] = strconv.FormatBool(*data.ArrayReplicaCopy)
         added = true
     }
     if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.BackupDestination); ok {

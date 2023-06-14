@@ -17,21 +17,21 @@ import (
 var XML = "application/xml"
 var JSON = "application/json"
 
-func buildHttpReq(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) *http.Request {
+func buildHttpReq(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) (*http.Request, error) {
 	if !strings.HasSuffix(url, "login") {
 		LogEntry("REQUEST: ", "("+method+") "+url+"\nBODY: "+string(requestBody))
 	}
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
+	if err != nil {
+		return req, err
+	}
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept", accept)
 	req.Header.Set("AuthToken", authToken)
 	if method == "POST" {
 		req.Header.Set("operatorCompanyId", strconv.Itoa(companyID))
 	}
-	if err != nil {
-		panic(err)
-	}
-	return req
+	return req, err
 }
 
 func executeHttpReq(req *http.Request) ([]byte, error) {
@@ -62,7 +62,10 @@ func executeHttpReq(req *http.Request) ([]byte, error) {
 }
 
 func makeHttpRequestErr(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) ([]byte, error) {
-	req := buildHttpReq(url, method, accept, requestBody, contentType, authToken, companyID)
+	req, err := buildHttpReq(url, method, accept, requestBody, contentType, authToken, companyID)
+	if err != nil {
+		return nil, err
+	}
 	return executeHttpReq(req)
 }
 
@@ -236,4 +239,3 @@ func LogEntry(prefix string, entry string) {
 		logger.Println(prefix + ": " + entry)
 	}
 }
-

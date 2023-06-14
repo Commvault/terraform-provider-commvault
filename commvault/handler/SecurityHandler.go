@@ -20,7 +20,7 @@ func CreateSecurityAssociationV2(securityAssociations SecurityAssociationsV2) ([
 	url := os.Getenv("CV_CSIP") + "/Security"
 	token := os.Getenv("AuthToken")
 	//respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, securityAssociationJSON, JSON, token, 0)
-	req := buildHttpReq(url, http.MethodPost, JSON, securityAssociationJSON, JSON, token, 0)
+	req, _ := buildHttpReq(url, http.MethodPost, JSON, securityAssociationJSON, JSON, token, 0)
 	req.Header.Set("LookupNames", "1")
 	respBody, err := executeHttpReq(req)
 	return respBody, err
