@@ -1,13 +1,13 @@
 ---
-page_title: " Commvault : commvault_azure_storage Resource"
-subcategory: "Storage"
+page_title: " Commvault : commvault_azure_storage (deprecated) Resource"
+subcategory: "Deprecated"
 description: |-
   Use the commvault_azure_storage resource type to create or delete a Azure Cloud Storage in the Commcell environment.
 ---
 
 # commvault_azure_storage (Resource)
 
-Use the commvault_azure_storage resource type to create or delete a Azure Cloud Storage in the Commcell environment.
+Use the commvault_azure_storage resource type to create or delete a Azure Cloud Storage in the Commcell environment. This is deprecated in the latest version. Starting SP32, use commvault_storage_cloud_azure resource.
 
 
 ## Syntax

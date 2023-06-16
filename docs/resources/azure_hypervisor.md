@@ -1,6 +1,6 @@
 ---
 page_title: "Commvault : commvault_azure_hypervisor Resource"
-subcategory: "Virtualization"
+subcategory: "Deprecated"
 description: |-
  Use the commvault_azure_hypervisor resource type to create or delete an Azure hypervisor in the CommCell environment.
 ---
@@ -8,7 +8,7 @@ description: |-
 # commvault_azure_hypervisor (Resource)
 
 
-Use the commvault_azure_hypervisor resource type to create or delete an Azure hypervisor in the CommCell environment.
+Use the commvault_azure_hypervisor resource type to create or delete an Azure hypervisor in the CommCell environment. This is deprecated in the latest version. Starting SP32, use commvault_hypervisor_azure resource.
 
 
 ## Syntax

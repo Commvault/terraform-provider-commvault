@@ -1,13 +1,13 @@
 ---
 page_title: " Commvault : commvault_user Resource "
-subcategory: "Security"
+subcategory: "Deprecated"
 description: |-
   Use the commvault_user resource type to create or delete an User in the CommCell environment.
 ---
 
 # commvault_user (Resource)
 
-Use the commvault_user resource type to create or delete an User in the CommCell environment.
+Use the commvault_user resource type to create or delete an User in the CommCell environment. This is deprecated in the latest version. Starting SP32, use commvault_user_v2 resource.
 
 ## Syntax
 
