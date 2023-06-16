@@ -1,13 +1,13 @@
 ---
 page_title: " Commvault : commvault_security_association Resource "
-subcategory: "Security"
+subcategory: "Deprecated"
 description: |-
     Use the commvault_security_association resource type to Security Associations in the Commcell environment.  
 ---
 
 # commvault_security_association (Resource)
 
-Use the commvault_security_association resource type to Security Associations in the Commcell environment.  
+Use the commvault_security_association resource type to Security Associations in the Commcell environment. This is deprecated in the latest version. Starting SP32, use commvault_security_association_v2 resource.
 
 
 ## Syntax

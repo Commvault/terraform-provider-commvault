@@ -1,13 +1,13 @@
 ---
-page_title: " Commvault : commvault_plan Resource "
-subcategory: "Plans"
+page_title: " Commvault : commvault_plan (deprecated) Resource "
+subcategory: "Deprecated"
 description: |-
   Use the commvault_plan resource type to create or delete a Plans in the Commcell environment.
 ---
 
 # commvault_plan (Resource)
 
- Use the commvault_plan resource type to create or delete a Plans in the Commcell environment.
+ Use the commvault_plan resource type to create or delete a Plans in the Commcell environment. This is deprecated in the latest version. Starting SP32, use commvault_plan_server resource.
 
 ## Syntax
 
