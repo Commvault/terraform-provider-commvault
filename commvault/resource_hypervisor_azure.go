@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -17,6 +18,18 @@ func resourceHypervisor_Azure() *schema.Resource {
         Delete: resourceDeleteHypervisor_Azure,
 
         Schema: map[string]*schema.Schema{
+            "forceaccessnoderegion": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "If workloadRegion is set, use only access nodes from that region when true (fail if none found). When false, prefer that region but use any node if needed.",
+            },
+            "enablecloudconfigprotection": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "Protect Cloud Config entities",
+            },
             "skipcredentialvalidation": {
                 Type:        schema.TypeString,
                 Optional:    true,
@@ -63,8 +76,7 @@ func resourceHypervisor_Azure() *schema.Resource {
             },
             "credentials": {
                 Type:        schema.TypeList,
-                Optional:    true,
-                Computed:    true,
+                Required:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
@@ -107,16 +119,11 @@ func resourceHypervisor_Azure() *schema.Resource {
                     },
                 },
             },
-            "applicationpassword": {
+            "usehostedinfrastructure": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "Application Password of Azure login Application",
-            },
-            "tenantid": {
-                Type:        schema.TypeString,
-                Required:    true,
-                Description: "Tenant id of Azure login Application",
+                Description: "Describes if the infra has to be managed by commvault",
             },
             "workloadregion": {
                 Type:        schema.TypeList,
@@ -140,22 +147,40 @@ func resourceHypervisor_Azure() *schema.Resource {
                     },
                 },
             },
-            "subscriptionid": {
-                Type:        schema.TypeString,
-                Required:    true,
-                Description: "subscription id of Azure ",
-            },
-            "applicationid": {
+            "workloadtype": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "Application id of Azure login Application",
+                Description: "",
+            },
+            "managedidentityauthtype": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "Type of Managed Identity to be used for Authentication",
+            },
+            "isauthorizedusingmta": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "Indicates whether the hypervisor was created by authorizing the multitenant app in this tenant.",
+            },
+            "subscriptionid": {
+                Type:        schema.TypeString,
+                Required:    true,
+                Description: "Subscription ID of Azure",
             },
             "usemanagedidentity": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "",
+                Description: "set to true, if you want to use System Managed identitiy of Access node for Authentication",
+            },
+            "usesharedinfrastructure": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "Use Metallic hosted infrastructure",
             },
             "activitycontrol": {
                 Type:        schema.TypeList,
@@ -488,11 +513,17 @@ func resourceHypervisor_Azure() *schema.Resource {
                                 },
                             },
                         },
-                        "customattributes": {
-                            Type:        schema.TypeList,
+                        "enableregionbasedbackups": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
-                            Description: "",
+                            Description: "Flag for enabling region based Backups",
+                        },
+                        "customattributes": {
+                            Type:        schema.TypeSet,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Array of all the customAttributes associated with hypervisor.",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "type": {
@@ -573,17 +604,23 @@ func resourceHypervisor_Azure() *schema.Resource {
                     },
                 },
             },
-            "password": {
+            "applicationpassword": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
                 Description: "Application Password of Azure login Application",
             },
+            "tenantid": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "Tenant id of Azure login Application",
+            },
             "servername": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "Client Name to Update",
+                Description: "Hypervisor name to be updated",
             },
             "hypervisortype": {
                 Type:        schema.TypeString,
@@ -591,7 +628,7 @@ func resourceHypervisor_Azure() *schema.Resource {
                 Computed:    true,
                 Description: "[Azure_V2]",
             },
-            "username": {
+            "applicationid": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
@@ -604,6 +641,14 @@ func resourceHypervisor_Azure() *schema.Resource {
 func resourceCreateHypervisor_Azure(d *schema.ResourceData, m interface{}) error {
     //API: (POST) /V4/Hypervisor
     var response_id = strconv.Itoa(0)
+    var t_forceaccessnoderegion *bool
+    if val, ok := d.GetOk("forceaccessnoderegion"); ok {
+        t_forceaccessnoderegion = handler.ToBooleanValue(val, false)
+    }
+    var t_enablecloudconfigprotection *bool
+    if val, ok := d.GetOk("enablecloudconfigprotection"); ok {
+        t_enablecloudconfigprotection = handler.ToBooleanValue(val, false)
+    }
     var t_skipcredentialvalidation *bool
     if val, ok := d.GetOk("skipcredentialvalidation"); ok {
         t_skipcredentialvalidation = handler.ToBooleanValue(val, false)
@@ -624,34 +669,42 @@ func resourceCreateHypervisor_Azure(d *schema.ResourceData, m interface{}) error
     if val, ok := d.GetOk("accessnodes"); ok {
         t_accessnodes = build_hypervisor_azure_msgaccessnodemodelset_array(d, val.(*schema.Set).List())
     }
-    var t_applicationpassword *string
-    if val, ok := d.GetOk("applicationpassword"); ok {
-        t_applicationpassword = handler.ToStringValue(val, false)
+    var t_usehostedinfrastructure *bool
+    if val, ok := d.GetOk("usehostedinfrastructure"); ok {
+        t_usehostedinfrastructure = handler.ToBooleanValue(val, false)
     }
-    var t_tenantid *string
-    if val, ok := d.GetOk("tenantid"); ok {
-        t_tenantid = handler.ToStringValue(val, false)
-    }
-    var t_hypervisortype *string
-    var c_hypervisortype string = "AZURE_V2"
-    t_hypervisortype = &c_hypervisortype
     var t_workloadregion *handler.MsgIdName
     if val, ok := d.GetOk("workloadregion"); ok {
         t_workloadregion = build_hypervisor_azure_msgidname(d, val.([]interface{}))
     }
+    var t_workloadtype *string
+    if val, ok := d.GetOk("workloadtype"); ok {
+        t_workloadtype = handler.ToStringValue(val, false)
+    }
+    var t_managedidentityauthtype *string
+    if val, ok := d.GetOk("managedidentityauthtype"); ok {
+        t_managedidentityauthtype = handler.ToStringValue(val, false)
+    }
+    var t_isauthorizedusingmta *bool
+    if val, ok := d.GetOk("isauthorizedusingmta"); ok {
+        t_isauthorizedusingmta = handler.ToBooleanValue(val, false)
+    }
+    var t_hypervisortype *string
+    var c_hypervisortype string = "AZURE_V2"
+    t_hypervisortype = &c_hypervisortype
     var t_subscriptionid *string
     if val, ok := d.GetOk("subscriptionid"); ok {
         t_subscriptionid = handler.ToStringValue(val, false)
-    }
-    var t_applicationid *string
-    if val, ok := d.GetOk("applicationid"); ok {
-        t_applicationid = handler.ToStringValue(val, false)
     }
     var t_usemanagedidentity *bool
     if val, ok := d.GetOk("usemanagedidentity"); ok {
         t_usemanagedidentity = handler.ToBooleanValue(val, false)
     }
-    var req = handler.MsgCreateHypervisorAzureRequest{SkipCredentialValidation:t_skipcredentialvalidation, EtcdProtection:t_etcdprotection, Credentials:t_credentials, Name:t_name, AccessNodes:t_accessnodes, ApplicationPassword:t_applicationpassword, TenantId:t_tenantid, HypervisorType:t_hypervisortype, WorkloadRegion:t_workloadregion, SubscriptionId:t_subscriptionid, ApplicationId:t_applicationid, UseManagedIdentity:t_usemanagedidentity}
+    var t_usesharedinfrastructure *bool
+    if val, ok := d.GetOk("usesharedinfrastructure"); ok {
+        t_usesharedinfrastructure = handler.ToBooleanValue(val, false)
+    }
+    var req = handler.MsgCreateHypervisorAzureRequest{ForceAccessNodeRegion:t_forceaccessnoderegion, EnableCloudConfigProtection:t_enablecloudconfigprotection, SkipCredentialValidation:t_skipcredentialvalidation, EtcdProtection:t_etcdprotection, Credentials:t_credentials, Name:t_name, AccessNodes:t_accessnodes, UseHostedInfrastructure:t_usehostedinfrastructure, WorkloadRegion:t_workloadregion, WorkloadType:t_workloadtype, ManagedIdentityAuthType:t_managedidentityauthtype, IsAuthorizedUsingMTA:t_isauthorizedusingmta, HypervisorType:t_hypervisortype, SubscriptionId:t_subscriptionid, UseManagedIdentity:t_usemanagedidentity, UseSharedInfrastructure:t_usesharedinfrastructure}
     resp, err := handler.CvCreateHypervisorAzure(req)
     if err != nil {
         return fmt.Errorf("operation [CreateHypervisorAzure] failed, Error %s", err)
@@ -673,6 +726,11 @@ func resourceReadHypervisor_Azure(d *schema.ResourceData, m interface{}) error {
     //API: (GET) /V4/Hypervisor/{hypervisorId}
     resp, err := handler.CvGetHypervisors(d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetHypervisors] failed, Error %s", err)
     }
     if rtn, ok := serialize_hypervisor_azure_msgactivitycontroloptions(d, resp.ActivityControl); ok {
@@ -690,8 +748,19 @@ func resourceReadHypervisor_Azure(d *schema.ResourceData, m interface{}) error {
     } else {
         d.Set("accessnodes", make([]map[string]interface{}, 0))
     }
+    if rtn, ok := serialize_hypervisor_azure_msgvmexistingcredential(d, resp.Credentials); ok {
+        d.Set("credentials", rtn)
+    } else {
+        d.Set("credentials", make([]map[string]interface{}, 0))
+    }
     if resp.DisplayName != nil {
         d.Set("displayname", resp.DisplayName)
+    }
+    if resp.HypervisorType != nil {
+        d.Set("hypervisortype", resp.HypervisorType)
+    }
+    if resp.UseHostedInfrastructure != nil {
+        d.Set("usehostedinfrastructure", strconv.FormatBool(*resp.UseHostedInfrastructure))
     }
     if resp.Name != nil {
         d.Set("name", resp.Name)
@@ -741,10 +810,10 @@ func resourceUpdateHypervisor_Azure(d *schema.ResourceData, m interface{}) error
         val := d.Get("fbrunixmediaagent")
         t_fbrunixmediaagent = build_hypervisor_azure_msgidname(d, val.([]interface{}))
     }
-    var t_password *string
-    if d.HasChange("password") {
-        val := d.Get("password")
-        t_password = handler.ToStringValue(val, false)
+    var t_applicationpassword *string
+    if d.HasChange("applicationpassword") {
+        val := d.Get("applicationpassword")
+        t_applicationpassword = handler.ToStringValue(val, false)
     }
     var t_tenantid *string
     if d.HasChange("tenantid") {
@@ -756,27 +825,37 @@ func resourceUpdateHypervisor_Azure(d *schema.ResourceData, m interface{}) error
         val := d.Get("servername")
         t_servername = handler.ToStringValue(val, false)
     }
+    var t_isauthorizedusingmta *bool
+    if d.HasChange("isauthorizedusingmta") {
+        val := d.Get("isauthorizedusingmta")
+        t_isauthorizedusingmta = handler.ToBooleanValue(val, false)
+    }
     var t_hypervisortype *string
     if d.HasChange("hypervisortype") {
         val := d.Get("hypervisortype")
         t_hypervisortype = handler.ToStringValue(val, false)
+    }
+    var t_usehostedinfrastructure *bool
+    if d.HasChange("usehostedinfrastructure") {
+        val := d.Get("usehostedinfrastructure")
+        t_usehostedinfrastructure = handler.ToBooleanValue(val, false)
     }
     var t_subscriptionid *string
     if d.HasChange("subscriptionid") {
         val := d.Get("subscriptionid")
         t_subscriptionid = handler.ToStringValue(val, false)
     }
-    var t_username *string
-    if d.HasChange("username") {
-        val := d.Get("username")
-        t_username = handler.ToStringValue(val, false)
+    var t_applicationid *string
+    if d.HasChange("applicationid") {
+        val := d.Get("applicationid")
+        t_applicationid = handler.ToStringValue(val, false)
     }
     var t_usemanagedidentity *bool
     if d.HasChange("usemanagedidentity") {
         val := d.Get("usemanagedidentity")
         t_usemanagedidentity = handler.ToBooleanValue(val, false)
     }
-    var req = handler.MsgupdateHypervisorAzureRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, SkipCredentialValidation:t_skipcredentialvalidation, Credentials:t_credentials, AccessNodes:t_accessnodes, FbrUnixMediaAgent:t_fbrunixmediaagent, Password:t_password, TenantId:t_tenantid, ServerName:t_servername, HypervisorType:t_hypervisortype, SubscriptionId:t_subscriptionid, UserName:t_username, UseManagedIdentity:t_usemanagedidentity}
+    var req = handler.MsgupdateHypervisorAzureRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, SkipCredentialValidation:t_skipcredentialvalidation, Credentials:t_credentials, AccessNodes:t_accessnodes, FbrUnixMediaAgent:t_fbrunixmediaagent, ApplicationPassword:t_applicationpassword, TenantId:t_tenantid, ServerName:t_servername, IsAuthorizedUsingMTA:t_isauthorizedusingmta, HypervisorType:t_hypervisortype, UseHostedInfrastructure:t_usehostedinfrastructure, SubscriptionId:t_subscriptionid, ApplicationId:t_applicationid, UseManagedIdentity:t_usemanagedidentity}
     _, err := handler.CvupdateHypervisorAzure(req, d.Id())
     if err != nil {
         return fmt.Errorf("operation [updateHypervisorAzure] failed, Error %s", err)
@@ -812,9 +891,14 @@ func resourceCreateUpdateHypervisor_Azure(d *schema.ResourceData, m interface{})
         t_fbrunixmediaagent = build_hypervisor_azure_msgidname(d, val.([]interface{}))
         execUpdate = true
     }
-    var t_password *string
-    if val, ok := d.GetOk("password"); ok {
-        t_password = handler.ToStringValue(val, false)
+    var t_applicationpassword *string
+    if val, ok := d.GetOk("applicationpassword"); ok {
+        t_applicationpassword = handler.ToStringValue(val, false)
+        execUpdate = true
+    }
+    var t_tenantid *string
+    if val, ok := d.GetOk("tenantid"); ok {
+        t_tenantid = handler.ToStringValue(val, false)
         execUpdate = true
     }
     var t_servername *string
@@ -822,13 +906,13 @@ func resourceCreateUpdateHypervisor_Azure(d *schema.ResourceData, m interface{})
         t_servername = handler.ToStringValue(val, false)
         execUpdate = true
     }
-    var t_username *string
-    if val, ok := d.GetOk("username"); ok {
-        t_username = handler.ToStringValue(val, false)
+    var t_applicationid *string
+    if val, ok := d.GetOk("applicationid"); ok {
+        t_applicationid = handler.ToStringValue(val, false)
         execUpdate = true
     }
     if execUpdate {
-        var req = handler.MsgupdateHypervisorAzureRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, FbrUnixMediaAgent:t_fbrunixmediaagent, Password:t_password, ServerName:t_servername, UserName:t_username}
+        var req = handler.MsgupdateHypervisorAzureRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, FbrUnixMediaAgent:t_fbrunixmediaagent, ApplicationPassword:t_applicationpassword, TenantId:t_tenantid, ServerName:t_servername, ApplicationId:t_applicationid}
         _, err := handler.CvupdateHypervisorAzure(req, d.Id())
         if err != nil {
             return fmt.Errorf("operation [updateHypervisorAzure] failed, Error %s", err)
@@ -924,28 +1008,36 @@ func build_hypervisor_azure_msghypervisorsettings(d *schema.ResourceData, r []in
         if val, ok := tmp["timezone"]; ok {
             t_timezone = build_hypervisor_azure_msgidname(d, val.([]interface{}))
         }
-        var t_customattributes *handler.MsghypervisorCustomAttribute
-        if val, ok := tmp["customattributes"]; ok {
-            t_customattributes = build_hypervisor_azure_msghypervisorcustomattribute(d, val.([]interface{}))
+        var t_enableregionbasedbackups *bool
+        if val, ok := tmp["enableregionbasedbackups"]; ok {
+            t_enableregionbasedbackups = handler.ToBooleanValue(val, true)
         }
-        return &handler.MsghypervisorSettings{MetricsMonitoringPolicy:t_metricsmonitoringpolicy, ApplicationCredentials:t_applicationcredentials, GuestCredentials:t_guestcredentials, MountAccessNode:t_mountaccessnode, RegionInfo:t_regioninfo, TimeZone:t_timezone, CustomAttributes:t_customattributes}
+        var t_customattributes []handler.MsghypervisorCustomAttributeSet
+        if val, ok := tmp["customattributes"]; ok {
+            t_customattributes = build_hypervisor_azure_msghypervisorcustomattributeset_array(d, val.(*schema.Set).List())
+        }
+        return &handler.MsghypervisorSettings{MetricsMonitoringPolicy:t_metricsmonitoringpolicy, ApplicationCredentials:t_applicationcredentials, GuestCredentials:t_guestcredentials, MountAccessNode:t_mountaccessnode, RegionInfo:t_regioninfo, TimeZone:t_timezone, EnableRegionBasedBackups:t_enableregionbasedbackups, CustomAttributes:t_customattributes}
     } else {
         return nil
     }
 }
 
-func build_hypervisor_azure_msghypervisorcustomattribute(d *schema.ResourceData, r []interface{}) *handler.MsghypervisorCustomAttribute {
-    if len(r) > 0 && r[0] != nil {
-        tmp := r[0].(map[string]interface{})
-        var t_type *int
-        if val, ok := tmp["type"]; ok {
-            t_type = handler.ToIntValue(val, true)
+func build_hypervisor_azure_msghypervisorcustomattributeset_array(d *schema.ResourceData, r []interface{}) []handler.MsghypervisorCustomAttributeSet {
+    if r != nil {
+        tmp := make([]handler.MsghypervisorCustomAttributeSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_type *int
+            if val, ok := raw_a["type"]; ok {
+                t_type = handler.ToIntValue(val, true)
+            }
+            var t_value *string
+            if val, ok := raw_a["value"]; ok {
+                t_value = handler.ToStringValue(val, true)
+            }
+            tmp[a] = handler.MsghypervisorCustomAttributeSet{Type:t_type, Value:t_value}
         }
-        var t_value *string
-        if val, ok := tmp["value"]; ok {
-            t_value = handler.ToStringValue(val, true)
-        }
-        return &handler.MsghypervisorCustomAttribute{Type:t_type, Value:t_value}
+        return tmp
     } else {
         return nil
     }
@@ -1127,6 +1219,22 @@ func build_hypervisor_azure_msgetcdprotectionitem(d *schema.ResourceData, r []in
     }
 }
 
+func serialize_hypervisor_azure_msgvmexistingcredential(d *schema.ResourceData, data *handler.MsgVMExistingCredential) ([]map[string]interface{}, bool) {
+    //MsgIdName
+    //MsgVMExistingCredential
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
 func serialize_hypervisor_azure_msghypervisorsettings(d *schema.ResourceData, data *handler.MsghypervisorSettings) ([]map[string]interface{}, bool) {
     //MsghypervisorSettings
     //MsghypervisorSettings
@@ -1160,7 +1268,11 @@ func serialize_hypervisor_azure_msghypervisorsettings(d *schema.ResourceData, da
         val[0]["timezone"] = rtn
         added = true
     }
-    if rtn, ok := serialize_hypervisor_azure_msghypervisorcustomattribute(d, data.CustomAttributes); ok {
+    if data.EnableRegionBasedBackups != nil {
+        val[0]["enableregionbasedbackups"] = strconv.FormatBool(*data.EnableRegionBasedBackups)
+        added = true
+    }
+    if rtn, ok := serialize_hypervisor_azure_msghypervisorcustomattributeset_array(d, data.CustomAttributes); ok {
         val[0]["customattributes"] = rtn
         added = true
     }
@@ -1171,28 +1283,29 @@ func serialize_hypervisor_azure_msghypervisorsettings(d *schema.ResourceData, da
     }
 }
 
-func serialize_hypervisor_azure_msghypervisorcustomattribute(d *schema.ResourceData, data *handler.MsghypervisorCustomAttribute) ([]map[string]interface{}, bool) {
-    //MsghypervisorSettings -> MsghypervisorCustomAttribute
-    //MsghypervisorSettings -> MsghypervisorCustomAttribute
+func serialize_hypervisor_azure_msghypervisorcustomattributeset_array(d *schema.ResourceData, data []handler.MsghypervisorCustomAttributeSet) ([]map[string]interface{}, bool) {
+    //MsghypervisorSettings -> MsghypervisorCustomAttributeSet
+    //MsghypervisorSettings -> MsghypervisorCustomAttributeSet
     if data == nil {
         return nil, false
     }
-    val := make([]map[string]interface{}, 1)
-    val[0] = make(map[string]interface{})
-    added := false
-    if data.Type != nil {
-        val[0]["type"] = data.Type
-        added = true
+    val := make([]map[string]interface{}, 0)
+    for i := range data {
+        tmp := make(map[string]interface{})
+        added := false
+        if data[i].Type != nil {
+            tmp["type"] = data[i].Type
+            added = true
+        }
+        if data[i].Value != nil {
+            tmp["value"] = data[i].Value
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
+        }
     }
-    if data.Value != nil {
-        val[0]["value"] = data.Value
-        added = true
-    }
-    if added {
-        return val, true
-    } else {
-        return nil, false
-    }
+    return val, true
 }
 
 func serialize_hypervisor_azure_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {

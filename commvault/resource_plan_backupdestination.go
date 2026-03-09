@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -33,7 +34,7 @@ func resourcePlan_BackupDestination() *schema.Resource {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "All_JOBS means SYNCHRONOUS copy type, others are applicable for SELECTIVE copy Type only. [All_JOBS, ALL_FULLS, HOURLY_FULLS, DAILY_FULLS, WEEKLY_FULLS, MONTHLY_FULLS, QUARTERLY_FULLS, HALF_YEARLY_FULLS, YEARLY_FULLS, ADVANCED]",
+                Description: "All_JOBS means SYNCHRONOUS copy type, others are applicable for SELECTIVE copy Type only. [All_JOBS, ALL_FULLS, HOURLY_FULLS, DAILY_FULLS, WEEKLY_FULLS, MONTHLY_FULLS, QUARTERLY_FULLS, HALF_YEARLY_FULLS, YEARLY_FULLS, ADVANCED, MANUAL_JOBS]",
             },
             "extendedretentionrules": {
                 Type:        schema.TypeList,
@@ -65,7 +66,7 @@ func resourcePlan_BackupDestination() *schema.Resource {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "All_JOBS means SYNCHRONOUS copy type, others are applicable for SELECTIVE copy Type only. [All_JOBS, ALL_FULLS, HOURLY_FULLS, DAILY_FULLS, WEEKLY_FULLS, MONTHLY_FULLS, QUARTERLY_FULLS, HALF_YEARLY_FULLS, YEARLY_FULLS, ADVANCED]",
+                                        Description: "All_JOBS means SYNCHRONOUS copy type, others are applicable for SELECTIVE copy Type only. [All_JOBS, ALL_FULLS, HOURLY_FULLS, DAILY_FULLS, WEEKLY_FULLS, MONTHLY_FULLS, QUARTERLY_FULLS, HALF_YEARLY_FULLS, YEARLY_FULLS, ADVANCED, MANUAL_JOBS]",
                                     },
                                 },
                             },
@@ -93,7 +94,7 @@ func resourcePlan_BackupDestination() *schema.Resource {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "All_JOBS means SYNCHRONOUS copy type, others are applicable for SELECTIVE copy Type only. [All_JOBS, ALL_FULLS, HOURLY_FULLS, DAILY_FULLS, WEEKLY_FULLS, MONTHLY_FULLS, QUARTERLY_FULLS, HALF_YEARLY_FULLS, YEARLY_FULLS, ADVANCED]",
+                                        Description: "All_JOBS means SYNCHRONOUS copy type, others are applicable for SELECTIVE copy Type only. [All_JOBS, ALL_FULLS, HOURLY_FULLS, DAILY_FULLS, WEEKLY_FULLS, MONTHLY_FULLS, QUARTERLY_FULLS, HALF_YEARLY_FULLS, YEARLY_FULLS, ADVANCED, MANUAL_JOBS]",
                                     },
                                 },
                             },
@@ -121,7 +122,7 @@ func resourcePlan_BackupDestination() *schema.Resource {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "All_JOBS means SYNCHRONOUS copy type, others are applicable for SELECTIVE copy Type only. [All_JOBS, ALL_FULLS, HOURLY_FULLS, DAILY_FULLS, WEEKLY_FULLS, MONTHLY_FULLS, QUARTERLY_FULLS, HALF_YEARLY_FULLS, YEARLY_FULLS, ADVANCED]",
+                                        Description: "All_JOBS means SYNCHRONOUS copy type, others are applicable for SELECTIVE copy Type only. [All_JOBS, ALL_FULLS, HOURLY_FULLS, DAILY_FULLS, WEEKLY_FULLS, MONTHLY_FULLS, QUARTERLY_FULLS, HALF_YEARLY_FULLS, YEARLY_FULLS, ADVANCED, MANUAL_JOBS]",
                                     },
                                 },
                             },
@@ -208,7 +209,12 @@ func resourcePlan_BackupDestination() *schema.Resource {
                         "vendor": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Description: "Snapshot vendors available for Snap Copy mappings [NETAPP, AMAZON, PURE]",
+                            Description: "Snapshot vendors available for Snap Copy mappings [NETAPP, AMAZON, PURE, AZURE]",
+                        },
+                        "mappingtype": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "Mapping type for pure storage replicaton [DEFAULT_MAPPING, SUBCLIENT_MAPPING]",
                         },
                         "targetvendor": {
                             Type:        schema.TypeList,
@@ -240,6 +246,20 @@ func resourcePlan_BackupDestination() *schema.Resource {
                                         Optional:    true,
                                         Description: "",
                                     },
+                                    "id": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Description: "",
+                                    },
+                                },
+                            },
+                        },
+                        "subclients": {
+                            Type:        schema.TypeSet,
+                            Optional:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
                                     "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
@@ -386,6 +406,11 @@ func resourceReadPlan_BackupDestination(d *schema.ResourceData, m interface{}) e
     //API: (GET) /V4/Plan/BackupDestination/{BackupDestinationId}
     resp, err := handler.CvGetBackupDestinationDetailsWithoutPlanInfo(d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetBackupDestinationDetailsWithoutPlanInfo] failed, Error %s", err)
     }
     if resp.IsMirrorCopy != nil {
@@ -586,6 +611,10 @@ func build_plan_backupdestination_msgsnapshotcopymappingset_array(d *schema.Reso
             if val, ok := raw_a["vendor"]; ok {
                 t_vendor = handler.ToStringValue(val, true)
             }
+            var t_mappingtype *string
+            if val, ok := raw_a["mappingtype"]; ok {
+                t_mappingtype = handler.ToStringValue(val, true)
+            }
             var t_targetvendor *handler.MsgIdName
             if val, ok := raw_a["targetvendor"]; ok {
                 t_targetvendor = build_plan_backupdestination_msgidname(d, val.([]interface{}))
@@ -593,6 +622,10 @@ func build_plan_backupdestination_msgsnapshotcopymappingset_array(d *schema.Reso
             var t_source *handler.MsgIdName
             if val, ok := raw_a["source"]; ok {
                 t_source = build_plan_backupdestination_msgidname(d, val.([]interface{}))
+            }
+            var t_subclients []handler.MsgIdNameSet
+            if val, ok := raw_a["subclients"]; ok {
+                t_subclients = build_plan_backupdestination_msgidnameset_array(d, val.(*schema.Set).List())
             }
             var t_sourcevendor *handler.MsgIdName
             if val, ok := raw_a["sourcevendor"]; ok {
@@ -602,7 +635,24 @@ func build_plan_backupdestination_msgsnapshotcopymappingset_array(d *schema.Reso
             if val, ok := raw_a["target"]; ok {
                 t_target = build_plan_backupdestination_msgidname(d, val.([]interface{}))
             }
-            tmp[a] = handler.MsgSnapshotCopyMappingSet{Vendor:t_vendor, TargetVendor:t_targetvendor, Source:t_source, SourceVendor:t_sourcevendor, Target:t_target}
+            tmp[a] = handler.MsgSnapshotCopyMappingSet{Vendor:t_vendor, MappingType:t_mappingtype, TargetVendor:t_targetvendor, Source:t_source, Subclients:t_subclients, SourceVendor:t_sourcevendor, Target:t_target}
+        }
+        return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_plan_backupdestination_msgidnameset_array(d *schema.ResourceData, r []interface{}) []handler.MsgIdNameSet {
+    if r != nil {
+        tmp := make([]handler.MsgIdNameSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_id *int
+            if val, ok := raw_a["id"]; ok {
+                t_id = handler.ToIntValue(val, true)
+            }
+            tmp[a] = handler.MsgIdNameSet{Id:t_id}
         }
         return tmp
     } else {
@@ -796,12 +846,20 @@ func serialize_plan_backupdestination_msgsnapshotcopymappingset_array(d *schema.
             tmp["vendor"] = data[i].Vendor
             added = true
         }
+        if data[i].MappingType != nil {
+            tmp["mappingtype"] = data[i].MappingType
+            added = true
+        }
         if rtn, ok := serialize_plan_backupdestination_msgidname(d, data[i].TargetVendor); ok {
             tmp["targetvendor"] = rtn
             added = true
         }
         if rtn, ok := serialize_plan_backupdestination_msgidname(d, data[i].Source); ok {
             tmp["source"] = rtn
+            added = true
+        }
+        if rtn, ok := serialize_plan_backupdestination_msgidnameset_array(d, data[i].Subclients); ok {
+            tmp["subclients"] = rtn
             added = true
         }
         if rtn, ok := serialize_plan_backupdestination_msgidname(d, data[i].SourceVendor); ok {
@@ -841,6 +899,27 @@ func serialize_plan_backupdestination_msgidname(d *schema.ResourceData, data *ha
     } else {
         return nil, false
     }
+}
+
+func serialize_plan_backupdestination_msgidnameset_array(d *schema.ResourceData, data []handler.MsgIdNameSet) ([]map[string]interface{}, bool) {
+    //MsgSnapshotCopyMappingSet -> MsgIdNameSet
+    //MsgSnapshotCopyMappingSet -> MsgIdNameSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
+    for i := range data {
+        tmp := make(map[string]interface{})
+        added := false
+        if data[i].Id != nil {
+            tmp["id"] = data[i].Id
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
+        }
+    }
+    return val, true
 }
 
 func serialize_plan_backupdestination_msgextendedretentionrules(d *schema.ResourceData, data *handler.MsgExtendedRetentionRules) ([]map[string]interface{}, bool) {

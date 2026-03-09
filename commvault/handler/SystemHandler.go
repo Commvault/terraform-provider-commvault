@@ -96,7 +96,7 @@ func build_endpoints() *MsgAzureEndpoints {
 	t_storage := "blob.core.windows.net"
 	t_activedirectory := "https://login.microsoftonline.com/"
 	t_resourcemanager := "https://management.azure.com/"
-	return &MsgAzureEndpoints{Storage: &t_storage, ActiveDirectory: &t_activedirectory, ResourceManager: &t_resourcemanager}
+	return &MsgAzureEndpoints{StorageEndpoint: &t_storage, ActiveDirectoryEndpoint: &t_activedirectory, ResourceManagerEndpoint: &t_resourcemanager}
 }
 
 func UpdateBackupDestinations(req *MsgCreateServerPlanRequest, d *schema.ResourceData, m interface{}) error {

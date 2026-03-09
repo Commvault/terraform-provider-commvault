@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -301,6 +302,11 @@ func resourceReadStorage_Cloud_S3(d *schema.ResourceData, m interface{}) error {
     //API: (GET) /V4/Storage/Cloud/{cloudStorageId}
     resp, err := handler.CvGetCloudStorageById(d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetCloudStorageById] failed, Error %s", err)
     }
     if resp.Name != nil {

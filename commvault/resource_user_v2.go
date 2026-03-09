@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -142,6 +143,11 @@ func resourceReadUser_V2(d *schema.ResourceData, m interface{}) error {
     //API: (GET) /V4/user/{userId}
     resp, err := handler.CvGetUserDetails(d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetUserDetails] failed, Error %s", err)
     }
     if resp.FullName != nil {

@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -125,6 +126,58 @@ func resourceStorage_Disk() *schema.Resource {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Description: "",
+                                    },
+                                },
+                            },
+                        },
+                        "sharedbackuplocations": {
+                            Type:        schema.TypeSet,
+                            Optional:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "savedcredentials": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "name": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                                "id": {
+                                                    Type:        schema.TypeInt,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "sharedpath": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "ostype": {
+                                                    Type:        schema.TypeString,
+                                                    Required:    true,
+                                                    Description: "Operating system type for shared path [WINDOWS, UNIX]",
+                                                },
+                                                "sharedmountpath": {
+                                                    Type:        schema.TypeString,
+                                                    Required:    true,
+                                                    Description: "Shared mount path",
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "mountpathid": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Description: "Id of mount path",
                                     },
                                 },
                             },
@@ -276,6 +329,11 @@ func resourceReadStorage_Disk(d *schema.ResourceData, m interface{}) error {
     //API: (GET) /V4/Storage/Disk/{storagePoolId}
     resp, err := handler.CvGetDiskStorageDetails(d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetDiskStorageDetails] failed, Error %s", err)
     }
     if rtn, ok := serialize_storage_disk_msgsecurityassocset_array(d, resp.Security); ok {
@@ -439,9 +497,55 @@ func build_storage_disk_msgpathset_array(d *schema.ResourceData, r []interface{}
             if val, ok := raw_a["savedcredentials"]; ok {
                 t_savedcredentials = build_storage_disk_msgidname(d, val.([]interface{}))
             }
-            tmp[a] = handler.MsgPathSet{MediaAgent:t_mediaagent, Credentials:t_credentials, BackupLocation:t_backuplocation, SavedCredentials:t_savedcredentials}
+            var t_sharedbackuplocations []handler.MsgSharedBackupLocationSet
+            if val, ok := raw_a["sharedbackuplocations"]; ok {
+                t_sharedbackuplocations = build_storage_disk_msgsharedbackuplocationset_array(d, val.(*schema.Set).List())
+            }
+            tmp[a] = handler.MsgPathSet{MediaAgent:t_mediaagent, Credentials:t_credentials, BackupLocation:t_backuplocation, SavedCredentials:t_savedcredentials, SharedBackupLocations:t_sharedbackuplocations}
         }
         return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_storage_disk_msgsharedbackuplocationset_array(d *schema.ResourceData, r []interface{}) []handler.MsgSharedBackupLocationSet {
+    if r != nil {
+        tmp := make([]handler.MsgSharedBackupLocationSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_savedcredentials *handler.MsgIdName
+            if val, ok := raw_a["savedcredentials"]; ok {
+                t_savedcredentials = build_storage_disk_msgidname(d, val.([]interface{}))
+            }
+            var t_sharedpath *handler.MsgSharedPath
+            if val, ok := raw_a["sharedpath"]; ok {
+                t_sharedpath = build_storage_disk_msgsharedpath(d, val.([]interface{}))
+            }
+            var t_mountpathid *int
+            if val, ok := raw_a["mountpathid"]; ok {
+                t_mountpathid = handler.ToIntValue(val, true)
+            }
+            tmp[a] = handler.MsgSharedBackupLocationSet{SavedCredentials:t_savedcredentials, SharedPath:t_sharedpath, MountPathId:t_mountpathid}
+        }
+        return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_storage_disk_msgsharedpath(d *schema.ResourceData, r []interface{}) *handler.MsgSharedPath {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_ostype *string
+        if val, ok := tmp["ostype"]; ok {
+            t_ostype = handler.ToStringValue(val, true)
+        }
+        var t_sharedmountpath *string
+        if val, ok := tmp["sharedmountpath"]; ok {
+            t_sharedmountpath = handler.ToStringValue(val, true)
+        }
+        return &handler.MsgSharedPath{OsType:t_ostype, SharedMountPath:t_sharedmountpath}
     } else {
         return nil
     }

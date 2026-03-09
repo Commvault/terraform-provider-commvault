@@ -10,18 +10,18 @@ import (
     "github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceRole() *schema.Resource {
+func resourceRegion() *schema.Resource {
     return &schema.Resource{
-        Create: resourceCreateRole,
-        Read:   resourceReadRole,
-        Update: resourceUpdateRole,
-        Delete: resourceDeleteRole,
+        Create: resourceCreateRegion,
+        Read:   resourceReadRegion,
+        Update: resourceUpdateRegion,
+        Delete: resourceDeleteRegion,
 
         Schema: map[string]*schema.Schema{
             "name": {
                 Type:        schema.TypeString,
                 Required:    true,
-                Description: "Name of the new role",
+                Description: "Region name",
             },
             "globalconfiginfo": {
                 Type:        schema.TypeList,
@@ -131,118 +131,52 @@ func resourceRole() *schema.Resource {
                     },
                 },
             },
-            "permissionlist": {
+            "locations": {
                 Type:        schema.TypeSet,
                 Required:    true,
-                Description: "Used to provide the list of permissions associated with the role.",
+                Description: "List of locations which are part of the region",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "permission": {
-                            Type:        schema.TypeList,
-                            Optional:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "id": {
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
-                                },
-                            },
+                        "country": {
+                            Type:        schema.TypeString,
+                            Required:    true,
+                            Description: "Name of country",
                         },
-                        "category": {
-                            Type:        schema.TypeList,
+                        "city": {
+                            Type:        schema.TypeString,
                             Optional:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "id": {
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
-                                },
-                            },
+                            Description: "Name of city",
+                        },
+                        "latitude": {
+                            Type:        schema.TypeFloat,
+                            Required:    true,
+                            Description: "Latitude for the location",
+                        },
+                        "state": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "Name of state",
+                        },
+                        "longitude": {
+                            Type:        schema.TypeFloat,
+                            Required:    true,
+                            Description: "Longitude for the location",
                         },
                     },
                 },
             },
-            "description": {
+            "type": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "Description of the new role",
-            },
-            "visibletoall": {
-                Type:        schema.TypeString,
-                Optional:    true,
-                Computed:    true,
-                Description: "Determines if the role is visible to everyone. if not provided, it will be set to false by default.",
-            },
-            "enabled": {
-                Type:        schema.TypeString,
-                Optional:    true,
-                Computed:    true,
-                Description: "Used to determine if the role is enabled or disabled. If not provided, role will be enabled by default.",
-            },
-            "security": {
-                Type:        schema.TypeSet,
-                Optional:    true,
-                Description: "Used to update the security association for the role",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "role": {
-                            Type:        schema.TypeList,
-                            Optional:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "id": {
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
-                                },
-                            },
-                        },
-                        "user": {
-                            Type:        schema.TypeList,
-                            Optional:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "id": {
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
-                                },
-                            },
-                        },
-                        "usergroup": {
-                            Type:        schema.TypeList,
-                            Optional:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "id": {
-                                        Type:        schema.TypeInt,
-                                        Optional:    true,
-                                        Description: "",
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
+                Description: "Type of the region [USER_CREATED, AWS, AZURE, OCI, GCP]",
             },
         },
     }
 }
 
-func resourceCreateRole(d *schema.ResourceData, m interface{}) error {
-    //API: (POST) /V4/Role
+func resourceCreateRegion(d *schema.ResourceData, m interface{}) error {
+    //API: (POST) /V4/Regions
     var response_id = strconv.Itoa(0)
     var t_name *string
     if val, ok := d.GetOk("name"); ok {
@@ -250,164 +184,141 @@ func resourceCreateRole(d *schema.ResourceData, m interface{}) error {
     }
     var t_globalconfiginfo *handler.MsgCreateGlobalConfigInfo
     if val, ok := d.GetOk("globalconfiginfo"); ok {
-        t_globalconfiginfo = build_role_msgcreateglobalconfiginfo(d, val.([]interface{}))
+        t_globalconfiginfo = build_region_msgcreateglobalconfiginfo(d, val.([]interface{}))
     }
-    var t_permissionlist []handler.MsgPermissionsSet
-    if val, ok := d.GetOk("permissionlist"); ok {
-        t_permissionlist = build_role_msgpermissionsset_array(d, val.(*schema.Set).List())
+    var t_locations []handler.MsgLocationDetailsSet
+    if val, ok := d.GetOk("locations"); ok {
+        t_locations = build_region_msglocationdetailsset_array(d, val.(*schema.Set).List())
     }
-    var t_description *string
-    if val, ok := d.GetOk("description"); ok {
-        t_description = handler.ToStringValue(val, false)
+    var t_type *string
+    if val, ok := d.GetOk("type"); ok {
+        t_type = handler.ToStringValue(val, false)
     }
-    var t_visibletoall *bool
-    if val, ok := d.GetOk("visibletoall"); ok {
-        t_visibletoall = handler.ToBooleanValue(val, false)
-    }
-    var t_enabled *bool
-    if val, ok := d.GetOk("enabled"); ok {
-        t_enabled = handler.ToBooleanValue(val, false)
-    }
-    var req = handler.MsgCreateNewRoleRequest{Name:t_name, GlobalConfigInfo:t_globalconfiginfo, PermissionList:t_permissionlist, Description:t_description, VisibleToAll:t_visibletoall, Enabled:t_enabled}
-    resp, err := handler.CvCreateNewRole(req)
+    var req = handler.MsgCreateRegionRequest{Name:t_name, GlobalConfigInfo:t_globalconfiginfo, Locations:t_locations, Type:t_type}
+    resp, err := handler.CvCreateRegion(req)
     if err != nil {
-        return fmt.Errorf("operation [CreateNewRole] failed, Error %s", err)
+        return fmt.Errorf("operation [CreateRegion] failed, Error %s", err)
     }
     if resp.Id != nil {
         response_id = strconv.Itoa(*resp.Id)
     }
     if response_id == "0" {
-        return fmt.Errorf("operation [CreateNewRole] failed")
+        return fmt.Errorf("operation [CreateRegion] failed")
     } else {
         d.SetId(response_id)
-        return resourceCreateUpdateRole(d, m)
+        return resourceCreateUpdateRegion(d, m)
     }
 }
 
-func resourceReadRole(d *schema.ResourceData, m interface{}) error {
-    //API: (GET) /V4/Role/{roleId}
-    resp, err := handler.CvGetRoleDetails(d.Id())
+func resourceReadRegion(d *schema.ResourceData, m interface{}) error {
+    //API: (GET) /V4/Regions/{regionId}
+    resp, err := handler.CvGetRegionDetails(d.Id())
     if err != nil {
         if strings.Contains(err.Error(), "status: 404") {
             handler.LogEntry("debug", "entity not present, removing from state")
             d.SetId("")
             return nil
         }
-        return fmt.Errorf("operation [GetRoleDetails] failed, Error %s", err)
-    }
-    if rtn, ok := serialize_role_msgsecurityassocset_array(d, resp.Security); ok {
-        d.Set("security", rtn)
-    } else {
-        d.Set("security", make([]map[string]interface{}, 0))
+        return fmt.Errorf("operation [GetRegionDetails] failed, Error %s", err)
     }
     if resp.Name != nil {
         d.Set("name", resp.Name)
     }
-    if rtn, ok := serialize_role_msgglobalconfiginfo(d, resp.GlobalConfigInfo); ok {
+    if rtn, ok := serialize_region_msgglobalconfiginfo(d, resp.GlobalConfigInfo); ok {
         d.Set("globalconfiginfo", rtn)
     } else {
         d.Set("globalconfiginfo", make([]map[string]interface{}, 0))
     }
-    if resp.Description != nil {
-        d.Set("description", resp.Description)
-    }
-    if resp.VisibleToAll != nil {
-        d.Set("visibletoall", strconv.FormatBool(*resp.VisibleToAll))
+    if rtn, ok := serialize_region_msglocationdetailswithzoneset_array(d, resp.Locations); ok {
+        d.Set("locations", rtn)
+    } else {
+        d.Set("locations", make([]map[string]interface{}, 0))
     }
     return nil
 }
 
-func resourceUpdateRole(d *schema.ResourceData, m interface{}) error {
-    //API: (PUT) /V4/Role/{roleId}
-    var t_permissionoperationtype *string
-    var c_permissionoperationtype string = "OVERWRITE"
-    t_permissionoperationtype = &c_permissionoperationtype
-    var t_security []handler.MsgUpdateSecurityAssocSet
-    if d.HasChange("security") {
-        val := d.Get("security")
-        t_security = build_role_msgupdatesecurityassocset_array(d, val.(*schema.Set).List())
-    }
+func resourceUpdateRegion(d *schema.ResourceData, m interface{}) error {
+    //API: (PUT) /V4/Regions/{regionId}
     var t_newname *string
     if d.HasChange("name") {
         val := d.Get("name")
         t_newname = handler.ToStringValue(val, false)
     }
-    var t_permissionlist []handler.MsgPermissionsSet
-    if d.HasChange("permissionlist") {
-        val := d.Get("permissionlist")
-        t_permissionlist = build_role_msgpermissionsset_array(d, val.(*schema.Set).List())
+    var t_locations []handler.MsgLocationDetailsWithZoneSet
+    if d.HasChange("locations") {
+        val := d.Get("locations")
+        t_locations = build_region_msglocationdetailswithzoneset_array(d, val.(*schema.Set).List())
     }
-    var t_description *string
-    if d.HasChange("description") {
-        val := d.Get("description")
-        t_description = handler.ToStringValue(val, false)
-    }
-    var t_visibletoall *bool
-    if d.HasChange("visibletoall") {
-        val := d.Get("visibletoall")
-        t_visibletoall = handler.ToBooleanValue(val, false)
-    }
-    var t_enabled *bool
-    if d.HasChange("enabled") {
-        val := d.Get("enabled")
-        t_enabled = handler.ToBooleanValue(val, false)
-    }
-    var req = handler.MsgModifyRoleRequest{PermissionOperationType:t_permissionoperationtype, Security:t_security, NewName:t_newname, PermissionList:t_permissionlist, Description:t_description, VisibleToAll:t_visibletoall, Enabled:t_enabled}
-    _, err := handler.CvModifyRole(req, d.Id())
+    var t_locationsoperationtype *string
+    var c_locationsoperationtype string = "OVERWRITE"
+    t_locationsoperationtype = &c_locationsoperationtype
+    var req = handler.MsgUpdateRegionRequest{NewName:t_newname, Locations:t_locations, LocationsOperationType:t_locationsoperationtype}
+    _, err := handler.CvUpdateRegion(req, d.Id())
     if err != nil {
-        return fmt.Errorf("operation [ModifyRole] failed, Error %s", err)
+        return fmt.Errorf("operation [UpdateRegion] failed, Error %s", err)
     }
-    return resourceReadRole(d, m)
+    return resourceReadRegion(d, m)
 }
 
-func resourceCreateUpdateRole(d *schema.ResourceData, m interface{}) error {
-    //API: (PUT) /V4/Role/{roleId}
+func resourceCreateUpdateRegion(d *schema.ResourceData, m interface{}) error {
+    //API: (PUT) /V4/Regions/{regionId}
     var execUpdate bool = false
-    var t_permissionoperationtype *string
-    var c_permissionoperationtype string = "OVERWRITE"
-    t_permissionoperationtype = &c_permissionoperationtype
-    var t_security []handler.MsgUpdateSecurityAssocSet
-    if val, ok := d.GetOk("security"); ok {
-        t_security = build_role_msgupdatesecurityassocset_array(d, val.(*schema.Set).List())
-        execUpdate = true
-    }
+    var t_locationsoperationtype *string
+    var c_locationsoperationtype string = "OVERWRITE"
+    t_locationsoperationtype = &c_locationsoperationtype
     if execUpdate {
-        var req = handler.MsgModifyRoleRequest{PermissionOperationType:t_permissionoperationtype, Security:t_security}
-        _, err := handler.CvModifyRole(req, d.Id())
+        var req = handler.MsgUpdateRegionRequest{LocationsOperationType:t_locationsoperationtype}
+        _, err := handler.CvUpdateRegion(req, d.Id())
         if err != nil {
-            return fmt.Errorf("operation [ModifyRole] failed, Error %s", err)
+            return fmt.Errorf("operation [UpdateRegion] failed, Error %s", err)
         }
     }
-    return resourceReadRole(d, m)
+    return resourceReadRegion(d, m)
 }
 
-func resourceDeleteRole(d *schema.ResourceData, m interface{}) error {
-    //API: (DELETE) /V4/Role/{roleId}
-    _, err := handler.CvDeleteRoles(d.Id())
+func resourceDeleteRegion(d *schema.ResourceData, m interface{}) error {
+    //API: (DELETE) /V4/Regions/{regionId}
+    _, err := handler.CvDeleteRegion(d.Id())
     if err != nil {
-        return fmt.Errorf("operation [DeleteRoles] failed, Error %s", err)
+        return fmt.Errorf("operation [DeleteRegion] failed, Error %s", err)
     }
     return nil
 }
 
-func build_role_msgupdatesecurityassocset_array(d *schema.ResourceData, r []interface{}) []handler.MsgUpdateSecurityAssocSet {
+func build_region_msglocationdetailswithzoneset_array(d *schema.ResourceData, r []interface{}) []handler.MsgLocationDetailsWithZoneSet {
     if r != nil {
-        tmp := make([]handler.MsgUpdateSecurityAssocSet, len(r))
+        tmp := make([]handler.MsgLocationDetailsWithZoneSet, len(r))
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
-            var t_role *handler.MsgIdName
-            if val, ok := raw_a["role"]; ok {
-                t_role = build_role_msgidname(d, val.([]interface{}))
+            var t_continent *string
+            if val, ok := raw_a["continent"]; ok {
+                t_continent = handler.ToStringValue(val, true)
             }
-            var t_user *handler.MsgIdName
-            if val, ok := raw_a["user"]; ok {
-                t_user = build_role_msgidname(d, val.([]interface{}))
+            var t_country *string
+            if val, ok := raw_a["country"]; ok {
+                t_country = handler.ToStringValue(val, true)
             }
-            var t_usergroup *handler.MsgIdName
-            if val, ok := raw_a["usergroup"]; ok {
-                t_usergroup = build_role_msgidname(d, val.([]interface{}))
+            var t_city *string
+            if val, ok := raw_a["city"]; ok {
+                t_city = handler.ToStringValue(val, true)
             }
-            tmp[a] = handler.MsgUpdateSecurityAssocSet{Role:t_role, User:t_user, UserGroup:t_usergroup}
+            var t_zone *handler.MsgIdName
+            if val, ok := raw_a["zone"]; ok {
+                t_zone = build_region_msgidname(d, val.([]interface{}))
+            }
+            var t_latitude *float64
+            if val, ok := raw_a["latitude"]; ok {
+                t_latitude = handler.ToDoubleValue(val, true)
+            }
+            var t_state *string
+            if val, ok := raw_a["state"]; ok {
+                t_state = handler.ToStringValue(val, true)
+            }
+            var t_longitude *float64
+            if val, ok := raw_a["longitude"]; ok {
+                t_longitude = handler.ToDoubleValue(val, true)
+            }
+            tmp[a] = handler.MsgLocationDetailsWithZoneSet{Continent:t_continent, Country:t_country, City:t_city, Zone:t_zone, Latitude:t_latitude, State:t_state, Longitude:t_longitude}
         }
         return tmp
     } else {
@@ -415,33 +326,49 @@ func build_role_msgupdatesecurityassocset_array(d *schema.ResourceData, r []inte
     }
 }
 
-func build_role_msgidname(d *schema.ResourceData, r []interface{}) *handler.MsgIdName {
+func build_region_msgidname(d *schema.ResourceData, r []interface{}) *handler.MsgIdName {
     if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
+        var t_name *string
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
+        }
         var t_id *int
         if val, ok := tmp["id"]; ok {
             t_id = handler.ToIntValue(val, true)
         }
-        return &handler.MsgIdName{Id:t_id}
+        return &handler.MsgIdName{Name:t_name, Id:t_id}
     } else {
         return nil
     }
 }
 
-func build_role_msgpermissionsset_array(d *schema.ResourceData, r []interface{}) []handler.MsgPermissionsSet {
+func build_region_msglocationdetailsset_array(d *schema.ResourceData, r []interface{}) []handler.MsgLocationDetailsSet {
     if r != nil {
-        tmp := make([]handler.MsgPermissionsSet, len(r))
+        tmp := make([]handler.MsgLocationDetailsSet, len(r))
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
-            var t_permission *handler.MsgIdName
-            if val, ok := raw_a["permission"]; ok {
-                t_permission = build_role_msgidname(d, val.([]interface{}))
+            var t_country *string
+            if val, ok := raw_a["country"]; ok {
+                t_country = handler.ToStringValue(val, true)
             }
-            var t_category *handler.MsgIdName
-            if val, ok := raw_a["category"]; ok {
-                t_category = build_role_msgidname(d, val.([]interface{}))
+            var t_city *string
+            if val, ok := raw_a["city"]; ok {
+                t_city = handler.ToStringValue(val, true)
             }
-            tmp[a] = handler.MsgPermissionsSet{Permission:t_permission, Category:t_category}
+            var t_latitude *float64
+            if val, ok := raw_a["latitude"]; ok {
+                t_latitude = handler.ToDoubleValue(val, true)
+            }
+            var t_state *string
+            if val, ok := raw_a["state"]; ok {
+                t_state = handler.ToStringValue(val, true)
+            }
+            var t_longitude *float64
+            if val, ok := raw_a["longitude"]; ok {
+                t_longitude = handler.ToDoubleValue(val, true)
+            }
+            tmp[a] = handler.MsgLocationDetailsSet{Country:t_country, City:t_city, Latitude:t_latitude, State:t_state, Longitude:t_longitude}
         }
         return tmp
     } else {
@@ -449,7 +376,7 @@ func build_role_msgpermissionsset_array(d *schema.ResourceData, r []interface{})
     }
 }
 
-func build_role_msgcreateglobalconfiginfo(d *schema.ResourceData, r []interface{}) *handler.MsgCreateGlobalConfigInfo {
+func build_region_msgcreateglobalconfiginfo(d *schema.ResourceData, r []interface{}) *handler.MsgCreateGlobalConfigInfo {
     if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
         var t_scopefilterquery *string
@@ -458,7 +385,7 @@ func build_role_msgcreateglobalconfiginfo(d *schema.ResourceData, r []interface{
         }
         var t_companies []handler.MsgGlobalConfigCompanyInfoSet
         if val, ok := tmp["companies"]; ok {
-            t_companies = build_role_msgglobalconfigcompanyinfoset_array(d, val.(*schema.Set).List())
+            t_companies = build_region_msgglobalconfigcompanyinfoset_array(d, val.(*schema.Set).List())
         }
         var t_applyonallcommcells *bool
         if val, ok := tmp["applyonallcommcells"]; ok {
@@ -466,7 +393,7 @@ func build_role_msgcreateglobalconfiginfo(d *schema.ResourceData, r []interface{
         }
         var t_commcells []handler.MsgGlobalConfigCommcellInfoSet
         if val, ok := tmp["commcells"]; ok {
-            t_commcells = build_role_msgglobalconfigcommcellinfoset_array(d, val.(*schema.Set).List())
+            t_commcells = build_region_msgglobalconfigcommcellinfoset_array(d, val.(*schema.Set).List())
         }
         var t_scope *string
         if val, ok := tmp["scope"]; ok {
@@ -490,7 +417,7 @@ func build_role_msgcreateglobalconfiginfo(d *schema.ResourceData, r []interface{
     }
 }
 
-func build_role_msgglobalconfigcommcellinfoset_array(d *schema.ResourceData, r []interface{}) []handler.MsgGlobalConfigCommcellInfoSet {
+func build_region_msgglobalconfigcommcellinfoset_array(d *schema.ResourceData, r []interface{}) []handler.MsgGlobalConfigCommcellInfoSet {
     if r != nil {
         tmp := make([]handler.MsgGlobalConfigCommcellInfoSet, len(r))
         for a, iter_a := range r {
@@ -519,7 +446,7 @@ func build_role_msgglobalconfigcommcellinfoset_array(d *schema.ResourceData, r [
     }
 }
 
-func build_role_msgglobalconfigcompanyinfoset_array(d *schema.ResourceData, r []interface{}) []handler.MsgGlobalConfigCompanyInfoSet {
+func build_region_msgglobalconfigcompanyinfoset_array(d *schema.ResourceData, r []interface{}) []handler.MsgGlobalConfigCompanyInfoSet {
     if r != nil {
         tmp := make([]handler.MsgGlobalConfigCompanyInfoSet, len(r))
         for a, iter_a := range r {
@@ -544,7 +471,44 @@ func build_role_msgglobalconfigcompanyinfoset_array(d *schema.ResourceData, r []
     }
 }
 
-func serialize_role_msgglobalconfiginfo(d *schema.ResourceData, data *handler.MsgGlobalConfigInfo) ([]map[string]interface{}, bool) {
+func serialize_region_msglocationdetailswithzoneset_array(d *schema.ResourceData, data []handler.MsgLocationDetailsWithZoneSet) ([]map[string]interface{}, bool) {
+    //MsgLocationDetailsSet
+    //MsgLocationDetailsWithZoneSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
+    for i := range data {
+        tmp := make(map[string]interface{})
+        added := false
+        if data[i].Country != nil {
+            tmp["country"] = data[i].Country
+            added = true
+        }
+        if data[i].City != nil {
+            tmp["city"] = data[i].City
+            added = true
+        }
+        if data[i].Latitude != nil {
+            tmp["latitude"] = data[i].Latitude
+            added = true
+        }
+        if data[i].State != nil {
+            tmp["state"] = data[i].State
+            added = true
+        }
+        if data[i].Longitude != nil {
+            tmp["longitude"] = data[i].Longitude
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
+        }
+    }
+    return val, true
+}
+
+func serialize_region_msgglobalconfiginfo(d *schema.ResourceData, data *handler.MsgGlobalConfigInfo) ([]map[string]interface{}, bool) {
     //MsgCreateGlobalConfigInfo
     //MsgGlobalConfigInfo
     if data == nil {
@@ -557,7 +521,7 @@ func serialize_role_msgglobalconfiginfo(d *schema.ResourceData, data *handler.Ms
         val[0]["scopefilterquery"] = data.ScopeFilterQuery
         added = true
     }
-    if rtn, ok := serialize_role_msgglobalconfigcompanyinfoset_array(d, data.Companies); ok {
+    if rtn, ok := serialize_region_msgglobalconfigcompanyinfoset_array(d, data.Companies); ok {
         val[0]["companies"] = rtn
         added = true
     }
@@ -565,7 +529,7 @@ func serialize_role_msgglobalconfiginfo(d *schema.ResourceData, data *handler.Ms
         val[0]["applyonallcommcells"] = strconv.FormatBool(*data.ApplyOnAllCommCells)
         added = true
     }
-    if rtn, ok := serialize_role_msgglobalconfigcommcellinfoset_array(d, data.Commcells); ok {
+    if rtn, ok := serialize_region_msgglobalconfigcommcellinfoset_array(d, data.Commcells); ok {
         val[0]["commcells"] = rtn
         added = true
     }
@@ -588,7 +552,7 @@ func serialize_role_msgglobalconfiginfo(d *schema.ResourceData, data *handler.Ms
     }
 }
 
-func serialize_role_msgglobalconfigcommcellinfoset_array(d *schema.ResourceData, data []handler.MsgGlobalConfigCommcellInfoSet) ([]map[string]interface{}, bool) {
+func serialize_region_msgglobalconfigcommcellinfoset_array(d *schema.ResourceData, data []handler.MsgGlobalConfigCommcellInfoSet) ([]map[string]interface{}, bool) {
     //MsgCreateGlobalConfigInfo -> MsgGlobalConfigCommcellInfoSet
     //MsgGlobalConfigInfo -> MsgGlobalConfigCommcellInfoSet
     if data == nil {
@@ -621,7 +585,7 @@ func serialize_role_msgglobalconfigcommcellinfoset_array(d *schema.ResourceData,
     return val, true
 }
 
-func serialize_role_msgglobalconfigcompanyinfoset_array(d *schema.ResourceData, data []handler.MsgGlobalConfigCompanyInfoSet) ([]map[string]interface{}, bool) {
+func serialize_region_msgglobalconfigcompanyinfoset_array(d *schema.ResourceData, data []handler.MsgGlobalConfigCompanyInfoSet) ([]map[string]interface{}, bool) {
     //MsgCreateGlobalConfigInfo -> MsgGlobalConfigCompanyInfoSet
     //MsgGlobalConfigInfo -> MsgGlobalConfigCompanyInfoSet
     if data == nil {
@@ -648,53 +612,4 @@ func serialize_role_msgglobalconfigcompanyinfoset_array(d *schema.ResourceData, 
         }
     }
     return val, true
-}
-
-func serialize_role_msgsecurityassocset_array(d *schema.ResourceData, data []handler.MsgSecurityAssocSet) ([]map[string]interface{}, bool) {
-    //MsgUpdateSecurityAssocSet
-    //MsgSecurityAssocSet
-    if data == nil {
-        return nil, false
-    }
-    val := make([]map[string]interface{}, 0)
-    for i := range data {
-        tmp := make(map[string]interface{})
-        added := false
-        if rtn, ok := serialize_role_msgidname(d, data[i].Role); ok {
-            tmp["role"] = rtn
-            added = true
-        }
-        if rtn, ok := serialize_role_msgidname(d, data[i].User); ok {
-            tmp["user"] = rtn
-            added = true
-        }
-        if rtn, ok := serialize_role_msgidname(d, data[i].UserGroup); ok {
-            tmp["usergroup"] = rtn
-            added = true
-        }
-        if added {
-            val = append(val, tmp)
-        }
-    }
-    return val, true
-}
-
-func serialize_role_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
-    //MsgUpdateSecurityAssocSet -> MsgIdName
-    //MsgSecurityAssocSet -> MsgIdName
-    if data == nil {
-        return nil, false
-    }
-    val := make([]map[string]interface{}, 1)
-    val[0] = make(map[string]interface{})
-    added := false
-    if data.Id != nil {
-        val[0]["id"] = data.Id
-        added = true
-    }
-    if added {
-        return val, true
-    } else {
-        return nil, false
-    }
 }
