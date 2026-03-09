@@ -18,6 +18,7 @@ provider "commvault" {
 	web_service_url = "URL of the commserver webservice/webconsole api endpoint"
 	user_name = "username that is used to call APIs" 
 	password = "password in base 64 encoded format"
+	api_token = "access token to be used"
     ignore_cert = "true/false to ignore certificate warnings for https endpoints"
 }
 ```
@@ -38,6 +39,7 @@ provider "commvault" {
 
 - `password` (String) Specifies the Password for the user name to authentication to Web Server. Alternatively set CV_TER_PASSWORD environment variable for terraform to pick it.
 - `user_name` (String) Specifies the User name used for authentication to Web Server.
+- `api_token` (String) Specifies the access token for the user. Alternatively set CV_TER_TOKEN environment variable for terraform to pick it. 
 - `ignore_cert` (Bool) true/false to ignore certificate warnings for https endpoints.
 
 
@@ -48,4 +50,5 @@ provider "commvault" {
 | 11.24 |  <ul><li>commvault_plan</li><li>commvault_user</li><li>commvault_vm_group</li><li>commvault_vmware_hypervisor</li><li>commvault_amazon_hypervisor</li><li>commvault_azure_hypervisor</li><li>commvault_plan_to_vm</li><li>commvault_company</li><li>commvault_disk_storage</li><li>commvault_aws_storage</li><li>commvault_azure_storage</li><li>commvault_google_storage</li><li>commvault_install_ma</li><li>commvault_security_association</li></ul> |
 | 11.28      | <ul><li>commvault_user_v2</li><li>commvault_usergroup</li><li>commvault_role</li><li>commvault_security_association_v2</li></ul> | 
 | 11.30.28      | <ul><li>commvault_hypervisor_aws</li><li>commvault_hypervisor_azure</li><li>commvault_vmgroup_v2</li></ul> |
-| 11.32      | <ul><li>commvault_credential_aws</li><li>commvault_credential_awswithrolearn</li><li>commvault_credential_azure</li><li>commvault_credential_azurewithtenantid</li><li>commvault_kubernetes_appgroup</li><li>commvault_kubernetes_cluster</li><li>commvault_plan_backupdestination</li><li>commvault_plan_server</li><li>commvault_storage_cloud_accesspath</li><li>commvault_storage_cloud_azure</li><li>commvault_storage_cloud_bucket_s3</li><li>commvault_storage_cloud_s3</li><li>commvault_storage_container_azure</li><li>commvault_storage_disk</li><li>commvault_storage_disk_backup_location</li><li>commvault_disk_accesspath</li></ul> |  
+| 11.32      | <ul><li>commvault_credential_aws</li><li>commvault_credential_awswithrolearn</li><li>commvault_credential_azure</li><li>commvault_credential_azurewithtenantid</li><li>commvault_kubernetes_appgroup</li><li>commvault_kubernetes_cluster</li><li>commvault_plan_backupdestination</li><li>commvault_plan_server</li><li>commvault_storage_cloud_accesspath</li><li>commvault_storage_cloud_azure</li><li>commvault_storage_cloud_bucket_s3</li><li>commvault_storage_cloud_s3</li><li>commvault_storage_container_azure</li><li>commvault_storage_disk</li><li>commvault_storage_disk_backup_location</li><li>commvault_disk_accesspath</li></ul> |
+| 11.42 (SaaS) | <ul><li>commvault_awsprotectiongroup</li><li>commvault_azureprotectiongroup</li><li>commvault_cloudconnection</li></ul> |  

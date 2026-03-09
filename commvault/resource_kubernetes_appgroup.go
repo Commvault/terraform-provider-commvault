@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -230,7 +231,7 @@ func resourceKubernetes_Appgroup() *schema.Resource {
                             Computed:    true,
                             Description: "Define number of parallel data readers",
                         },
-                        "cvnamespacescheduling": {
+                        "scheduleworkertoconfignamespace": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
@@ -270,11 +271,23 @@ func resourceKubernetes_Appgroup() *schema.Resource {
                                 },
                             },
                         },
-                        "snapfallbacktolivevolumebackup": {
+                        "workerserviceaccount": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Specify the Kubernetes service account",
+                        },
+                        "onsnapfailurefallbacktolivevolume": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
                             Description: "Define setting to enable fallback to live volume backup in case of snap failure",
+                        },
+                        "workernamespace": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Specify the Kubernetes worker namespace name",
                         },
                         "jobstarttime": {
                             Type:        schema.TypeInt,
@@ -351,6 +364,11 @@ func resourceReadKubernetes_Appgroup(d *schema.ResourceData, m interface{}) erro
     //API: (GET) /V5/Kubernetes/ApplicationGroup/{applicationGroupId}
     resp, err := handler.CvGetApplicationGroupDetails(d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetApplicationGroupDetails] failed, Error %s", err)
     }
     if resp.Name != nil {
@@ -519,23 +537,31 @@ func build_kubernetes_appgroup_msgapplicationgroupgetoptions(d *schema.ResourceD
         if val, ok := tmp["backupstreams"]; ok {
             t_backupstreams = handler.ToIntValue(val, true)
         }
-        var t_cvnamespacescheduling *bool
-        if val, ok := tmp["cvnamespacescheduling"]; ok {
-            t_cvnamespacescheduling = handler.ToBooleanValue(val, true)
+        var t_scheduleworkertoconfignamespace *bool
+        if val, ok := tmp["scheduleworkertoconfignamespace"]; ok {
+            t_scheduleworkertoconfignamespace = handler.ToBooleanValue(val, true)
         }
         var t_workerresources *handler.MsgApplicationGroupWorkerResourcesOptions
         if val, ok := tmp["workerresources"]; ok {
             t_workerresources = build_kubernetes_appgroup_msgapplicationgroupworkerresourcesoptions(d, val.([]interface{}))
         }
-        var t_snapfallbacktolivevolumebackup *bool
-        if val, ok := tmp["snapfallbacktolivevolumebackup"]; ok {
-            t_snapfallbacktolivevolumebackup = handler.ToBooleanValue(val, true)
+        var t_workerserviceaccount *string
+        if val, ok := tmp["workerserviceaccount"]; ok {
+            t_workerserviceaccount = handler.ToStringValue(val, true)
+        }
+        var t_onsnapfailurefallbacktolivevolume *bool
+        if val, ok := tmp["onsnapfailurefallbacktolivevolume"]; ok {
+            t_onsnapfailurefallbacktolivevolume = handler.ToBooleanValue(val, true)
+        }
+        var t_workernamespace *string
+        if val, ok := tmp["workernamespace"]; ok {
+            t_workernamespace = handler.ToStringValue(val, true)
         }
         var t_jobstarttime *int
         if val, ok := tmp["jobstarttime"]; ok {
             t_jobstarttime = handler.ToIntValue(val, true)
         }
-        return &handler.MsgApplicationGroupGetOptions{BackupStreams:t_backupstreams, CvNamespaceScheduling:t_cvnamespacescheduling, WorkerResources:t_workerresources, SnapFallbackToLiveVolumeBackup:t_snapfallbacktolivevolumebackup, JobStartTime:t_jobstarttime}
+        return &handler.MsgApplicationGroupGetOptions{BackupStreams:t_backupstreams, ScheduleWorkerToConfigNamespace:t_scheduleworkertoconfignamespace, WorkerResources:t_workerresources, WorkerServiceAccount:t_workerserviceaccount, OnSnapFailureFallbackToLiveVolume:t_onsnapfailurefallbacktolivevolume, WorkerNamespace:t_workernamespace, JobStartTime:t_jobstarttime}
     } else {
         return nil
     }
@@ -878,16 +904,24 @@ func serialize_kubernetes_appgroup_msgapplicationgroupgetoptions(d *schema.Resou
         val[0]["backupstreams"] = data.BackupStreams
         added = true
     }
-    if data.CvNamespaceScheduling != nil {
-        val[0]["cvnamespacescheduling"] = strconv.FormatBool(*data.CvNamespaceScheduling)
+    if data.ScheduleWorkerToConfigNamespace != nil {
+        val[0]["scheduleworkertoconfignamespace"] = strconv.FormatBool(*data.ScheduleWorkerToConfigNamespace)
         added = true
     }
     if rtn, ok := serialize_kubernetes_appgroup_msgapplicationgroupworkerresourcesoptions(d, data.WorkerResources); ok {
         val[0]["workerresources"] = rtn
         added = true
     }
-    if data.SnapFallbackToLiveVolumeBackup != nil {
-        val[0]["snapfallbacktolivevolumebackup"] = strconv.FormatBool(*data.SnapFallbackToLiveVolumeBackup)
+    if data.WorkerServiceAccount != nil {
+        val[0]["workerserviceaccount"] = data.WorkerServiceAccount
+        added = true
+    }
+    if data.OnSnapFailureFallbackToLiveVolume != nil {
+        val[0]["onsnapfailurefallbacktolivevolume"] = strconv.FormatBool(*data.OnSnapFailureFallbackToLiveVolume)
+        added = true
+    }
+    if data.WorkerNamespace != nil {
+        val[0]["workernamespace"] = data.WorkerNamespace
         added = true
     }
     if data.JobStartTime != nil {

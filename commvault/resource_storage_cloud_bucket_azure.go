@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -251,6 +252,11 @@ func resourceReadStorage_Cloud_Bucket_Azure(d *schema.ResourceData, m interface{
     //API: (GET) /V4/Storage/Cloud/{cloudStorageId}/Bucket/{bucketId}
     resp, err := handler.CvGetBucketDetailsOfCloudStorageAzure(strconv.Itoa(d.Get("cloudstorageid").(int)), d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetBucketDetailsOfCloudStorageAzure] failed, Error %s", err)
     }
     if rtn, ok := serialize_storage_cloud_bucket_azure_msgcloudbucketconfiguration(d, resp.Configuration); ok {

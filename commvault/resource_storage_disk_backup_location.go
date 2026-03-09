@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -93,6 +94,58 @@ func resourceStorage_Disk_Backup_Location() *schema.Resource {
                     },
                 },
             },
+            "sharedbackuplocations": {
+                Type:        schema.TypeSet,
+                Optional:    true,
+                Description: "list of shared paths for this new Mount Path",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "savedcredentials": {
+                            Type:        schema.TypeList,
+                            Optional:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "name": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "",
+                                    },
+                                    "id": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Description: "",
+                                    },
+                                },
+                            },
+                        },
+                        "sharedpath": {
+                            Type:        schema.TypeList,
+                            Optional:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "ostype": {
+                                        Type:        schema.TypeString,
+                                        Required:    true,
+                                        Description: "Operating system type for shared path [WINDOWS, UNIX]",
+                                    },
+                                    "sharedmountpath": {
+                                        Type:        schema.TypeString,
+                                        Required:    true,
+                                        Description: "Shared mount path",
+                                    },
+                                },
+                            },
+                        },
+                        "mountpathid": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Description: "Id of mount path",
+                        },
+                    },
+                },
+            },
             "access": {
                 Type:        schema.TypeString,
                 Optional:    true,
@@ -156,7 +209,11 @@ func resourceCreateStorage_Disk_Backup_Location(d *schema.ResourceData, m interf
     if val, ok := d.GetOk("savedcredentials"); ok {
         t_savedcredentials = build_storage_disk_backup_location_msgidname(d, val.([]interface{}))
     }
-    var req = handler.MsgCreateBackupLocationRequest{MediaAgent:t_mediaagent, Credentials:t_credentials, BackupLocation:t_backuplocation, SavedCredentials:t_savedcredentials}
+    var t_sharedbackuplocations []handler.MsgSharedBackupLocationSet
+    if val, ok := d.GetOk("sharedbackuplocations"); ok {
+        t_sharedbackuplocations = build_storage_disk_backup_location_msgsharedbackuplocationset_array(d, val.(*schema.Set).List())
+    }
+    var req = handler.MsgCreateBackupLocationRequest{MediaAgent:t_mediaagent, Credentials:t_credentials, BackupLocation:t_backuplocation, SavedCredentials:t_savedcredentials, SharedBackupLocations:t_sharedbackuplocations}
     resp, err := handler.CvCreateBackupLocation(req, strconv.Itoa(d.Get("storagepoolid").(int)))
     if err != nil {
         return fmt.Errorf("operation [CreateBackupLocation] failed, Error %s", err)
@@ -176,6 +233,11 @@ func resourceReadStorage_Disk_Backup_Location(d *schema.ResourceData, m interfac
     //API: (GET) /V4/Storage/Disk/{storagePoolId}/BackupLocation/{backupLocationId}
     resp, err := handler.CvGetBackupLocationDetails(strconv.Itoa(d.Get("storagepoolid").(int)), d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetBackupLocationDetails] failed, Error %s", err)
     }
     if rtn, ok := serialize_storage_disk_backup_location_msgidname(d, resp.MediaAgent); ok {
@@ -199,7 +261,7 @@ func resourceReadStorage_Disk_Backup_Location(d *schema.ResourceData, m interfac
     if resp.BackupLocation != nil {
         d.Set("backuplocation", resp.BackupLocation)
     }
-    if rtn, ok := statecopy_storage_disk_backup_location_savedcredentials(d); ok {
+    if rtn, ok := serialize_storage_disk_backup_location_msgidname(d, resp.SavedCredentials); ok {
         d.Set("savedcredentials", rtn)
     } else {
         d.Set("savedcredentials", make([]map[string]interface{}, 0))
@@ -241,12 +303,17 @@ func resourceUpdateStorage_Disk_Backup_Location(d *schema.ResourceData, m interf
         val := d.Get("savedcredentials")
         t_savedcredentials = build_storage_disk_backup_location_msgidname(d, val.([]interface{}))
     }
+    var t_sharedbackuplocations []handler.MsgSharedBackupLocationSet
+    if d.HasChange("sharedbackuplocations") {
+        val := d.Get("sharedbackuplocations")
+        t_sharedbackuplocations = build_storage_disk_backup_location_msgsharedbackuplocationset_array(d, val.(*schema.Set).List())
+    }
     var t_enabled *bool
     if d.HasChange("enabled") {
         val := d.Get("enabled")
         t_enabled = handler.ToBooleanValue(val, false)
     }
-    var req = handler.MsgModifyBackupLocationRequest{MediaAgent:t_mediaagent, Access:t_access, Credentials:t_credentials, Configuration:t_configuration, BackupLocation:t_backuplocation, SavedCredentials:t_savedcredentials, Enabled:t_enabled}
+    var req = handler.MsgModifyBackupLocationRequest{MediaAgent:t_mediaagent, Access:t_access, Credentials:t_credentials, Configuration:t_configuration, BackupLocation:t_backuplocation, SavedCredentials:t_savedcredentials, SharedBackupLocations:t_sharedbackuplocations, Enabled:t_enabled}
     _, err := handler.CvModifyBackupLocation(req, strconv.Itoa(d.Get("storagepoolid").(int)), d.Id())
     if err != nil {
         return fmt.Errorf("operation [ModifyBackupLocation] failed, Error %s", err)
@@ -333,6 +400,48 @@ func build_storage_disk_backup_location_msgidname(d *schema.ResourceData, r []in
     }
 }
 
+func build_storage_disk_backup_location_msgsharedbackuplocationset_array(d *schema.ResourceData, r []interface{}) []handler.MsgSharedBackupLocationSet {
+    if r != nil {
+        tmp := make([]handler.MsgSharedBackupLocationSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_savedcredentials *handler.MsgIdName
+            if val, ok := raw_a["savedcredentials"]; ok {
+                t_savedcredentials = build_storage_disk_backup_location_msgidname(d, val.([]interface{}))
+            }
+            var t_sharedpath *handler.MsgSharedPath
+            if val, ok := raw_a["sharedpath"]; ok {
+                t_sharedpath = build_storage_disk_backup_location_msgsharedpath(d, val.([]interface{}))
+            }
+            var t_mountpathid *int
+            if val, ok := raw_a["mountpathid"]; ok {
+                t_mountpathid = handler.ToIntValue(val, true)
+            }
+            tmp[a] = handler.MsgSharedBackupLocationSet{SavedCredentials:t_savedcredentials, SharedPath:t_sharedpath, MountPathId:t_mountpathid}
+        }
+        return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_storage_disk_backup_location_msgsharedpath(d *schema.ResourceData, r []interface{}) *handler.MsgSharedPath {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_ostype *string
+        if val, ok := tmp["ostype"]; ok {
+            t_ostype = handler.ToStringValue(val, true)
+        }
+        var t_sharedmountpath *string
+        if val, ok := tmp["sharedmountpath"]; ok {
+            t_sharedmountpath = handler.ToStringValue(val, true)
+        }
+        return &handler.MsgSharedPath{OsType:t_ostype, SharedMountPath:t_sharedmountpath}
+    } else {
+        return nil
+    }
+}
+
 func build_storage_disk_backup_location_msgusernamepassword(d *schema.ResourceData, r []interface{}) *handler.MsgUserNamePassword {
     if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
@@ -350,13 +459,28 @@ func build_storage_disk_backup_location_msgusernamepassword(d *schema.ResourceDa
     }
 }
 
-func statecopy_storage_disk_backup_location_savedcredentials(d *schema.ResourceData) ([]interface{}, bool) {
-    //STATE COPY
-    var_a := d.Get("savedcredentials").([]interface{})
-    if len(var_a) > 0 {
-        return var_a, true
+func serialize_storage_disk_backup_location_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
+    //MsgIdName
+    //MsgIdName
+    if data == nil {
+        return nil, false
     }
-    return nil, false
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if data.Name != nil {
+        val[0]["name"] = data.Name
+        added = true
+    }
+    if data.Id != nil {
+        val[0]["id"] = data.Id
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
 func serialize_storage_disk_backup_location_msgcredentialusername(d *schema.ResourceData, data *handler.MsgCredentialUserName) ([]map[string]interface{}, bool) {
@@ -398,30 +522,6 @@ func serialize_storage_disk_backup_location_msgdiskstorageconfiguration(d *schem
     }
     if data.PrepareForRetirement != nil {
         val[0]["prepareforretirement"] = strconv.FormatBool(*data.PrepareForRetirement)
-        added = true
-    }
-    if added {
-        return val, true
-    } else {
-        return nil, false
-    }
-}
-
-func serialize_storage_disk_backup_location_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
-    //MsgIdName
-    //MsgIdName
-    if data == nil {
-        return nil, false
-    }
-    val := make([]map[string]interface{}, 1)
-    val[0] = make(map[string]interface{})
-    added := false
-    if data.Name != nil {
-        val[0]["name"] = data.Name
-        added = true
-    }
-    if data.Id != nil {
-        val[0]["id"] = data.Id
         added = true
     }
     if added {

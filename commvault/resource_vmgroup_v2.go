@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -17,185 +18,6 @@ func resourceVMGroup_V2() *schema.Resource {
         Delete: resourceDeleteVMGroup_V2,
 
         Schema: map[string]*schema.Schema{
-            "meditech": {
-                Type:        schema.TypeList,
-                Optional:    true,
-                Computed:    true,
-                Description: "",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "systemname": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Meditech system name",
-                        },
-                        "listenerip": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Meditech Listener IP of FQDN name",
-                        },
-                        "useraccount": {
-                            Type:        schema.TypeList,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "password": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Sensitive:    true,
-                                        Description: "password to access the network path",
-                                    },
-                                    "name": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "username to access the network path",
-                                    },
-                                },
-                            },
-                        },
-                        "listenerport": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "Meditech Listener Port",
-                        },
-                        "mbftimeout": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "MBF timeout (in seconds)",
-                        },
-                    },
-                },
-            },
-            "hypervisor": {
-                Type:        schema.TypeList,
-                Required:    true,
-                Description: "",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "name": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                        "id": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                    },
-                },
-            },
-            "name": {
-                Type:        schema.TypeString,
-                Required:    true,
-                Description: "subclient name ",
-            },
-            "storage": {
-                Type:        schema.TypeList,
-                Optional:    true,
-                Computed:    true,
-                Description: "",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "name": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                        "id": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                    },
-                },
-            },
-            "plan": {
-                Type:        schema.TypeList,
-                Required:    true,
-                Description: "",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "name": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                        "id": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "",
-                        },
-                    },
-                },
-            },
-            "content": {
-                Type:        schema.TypeList,
-                Required:    true,
-                Description: "",
-                Elem: &schema.Resource{
-                    Schema: map[string]*schema.Schema{
-                        "rulegroups": {
-                            Type:        schema.TypeSet,
-                            Optional:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "matchrule": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Description: "Enum which specifies the whether to match all rules or any of the rules [ALL, ANY]",
-                                    },
-                                    "rules": {
-                                        Type:        schema.TypeSet,
-                                        Optional:    true,
-                                        Description: "",
-                                        Elem: &schema.Resource{
-                                            Schema: map[string]*schema.Schema{
-                                                "condition": {
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Description: "Operation type for VM rules/filters [CONTAINS, DOES_NOT_CONTAIN, DOES_NOT_EQUAL, ENDS_WITH, EQUALS, STARTS_WITH]",
-                                                },
-                                                "name": {
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Description: "name of the VM to be added as content",
-                                                },
-                                                "type": {
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Description: "[NONE, SERVER, RES_POOL, VAPP, DATACENTER, FOLDER, CLUSTER, DATASTORE, DATASTORE_CLUSTER, VM, VM_NAME, VM_GUEST_OS, VM_GUEST_HOST_NAME, CLUSTER_SHARED_VOLUMES, LOCAL_DISK, CLUSTER_DISK, UNPROTECTED_VMS, ROOT, FILE_SERVER, SMB_SHARE, TYPES_FOLDER, VM_FOLDER, SERVER_FOLDER, TEMPLATE_FOLDER, STORAGE_REPOSITORY_FOLDER, VAPPFOLDER, DATACENTER_FOLDER, CLUSTER_FOLDER, VM_POWER_STATE, VM_NOTES, VM_CUSTOM_ATTRIBUTE, NETWORK, USER, VM_TEMPLATE, TAG, TAG_CATEGORY, SUBCLIENT, CLIENT_GROUP, PROTECTION_DOMAIN, CONSISTENCY_GROUP, INSTANCE_SIZE, ORGANIZATION, IMAGES, STORAGE_POLICY, DATABASE, TABLE, PROJECT, SELECTOR, MANAGED_BY, REPLICATION_MODE, METADATATAG, CATALOG, VAPPTEMPLATE, VOLUME]",
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                        "overwrite": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Computed:    true,
-                            Description: "True if content in vmgroup has to be overwritten, by default it will append the content",
-                        },
-                    },
-                },
-            },
             "activitycontrol": {
                 Type:        schema.TypeList,
                 Optional:    true,
@@ -368,35 +190,35 @@ func resourceVMGroup_V2() *schema.Resource {
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
-                        "autodetectvmowner": {
+                        "encryptionflag": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Description: "True if auto detect VM Owner enabled",
+                            Description: "The encryption value in the VM Group.",
+                        },
+                        "usebackupsetdiskfilters": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "True if use of backupset disk filters is allowed",
+                        },
+                        "quiesceguestfilesystemandapplications": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "True if VM backup type is File system and application consistent",
                         },
                         "collectfiledetailsforgranularrecovery": {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Description: "True if metadata collection is enabled. Only applicable for Indexing v1",
                         },
-                        "noofreaders": {
-                            Type:        schema.TypeInt,
-                            Optional:    true,
-                            Description: "Number of readers for backup",
-                        },
-                        "usechangedblocktrackingonvm": {
+                        "snapshotstoragetype": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Description: "True if Changed Block Tracking is enabled",
+                            Description: "Default SKU for all VM snapshots created for that VM Group [Standard_LRS, Premium_LRS, Standard_ZRS]",
                         },
                         "jobstarttime": {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Description: "Start Time for the VM Group Job",
-                        },
-                        "usevmcheckpointsetting": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Description: "True if use VM CheckPoint setting is enabled",
                         },
                         "customsnapshotresourcegroup": {
                             Type:        schema.TypeString,
@@ -408,49 +230,6 @@ func resourceVMGroup_V2() *schema.Resource {
                             Optional:    true,
                             Description: "True when snapshot storage location is regional",
                         },
-                        "guestcredentials": {
-                            Type:        schema.TypeList,
-                            Optional:    true,
-                            Description: "",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "credentials": {
-                                        Type:        schema.TypeList,
-                                        Optional:    true,
-                                        Description: "",
-                                        Elem: &schema.Resource{
-                                            Schema: map[string]*schema.Schema{
-                                                "password": {
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Sensitive:    true,
-                                                    Description: "password to access the network path",
-                                                },
-                                                "name": {
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Description: "username to access the network path",
-                                                },
-                                            },
-                                        },
-                                    },
-                                    "savedcredentials": {
-                                        Type:        schema.TypeList,
-                                        Optional:    true,
-                                        Description: "",
-                                        Elem: &schema.Resource{
-                                            Schema: map[string]*schema.Schema{
-                                                "name": {
-                                                    Type:        schema.TypeString,
-                                                    Optional:    true,
-                                                    Description: "",
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
                         "vmbackuptype": {
                             Type:        schema.TypeString,
                             Optional:    true,
@@ -461,11 +240,6 @@ func resourceVMGroup_V2() *schema.Resource {
                             Optional:    true,
                             Description: "Is VM group disk filters included in VM instance disk filters",
                         },
-                        "datastorefreespacecheck": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Description: "True if Datastore Free space check is enabled",
-                        },
                         "allowemptysubclient": {
                             Type:        schema.TypeString,
                             Optional:    true,
@@ -475,35 +249,6 @@ func resourceVMGroup_V2() *schema.Resource {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Description: "precentage of datastore free space check value",
-                        },
-                        "customsnapshottags": {
-                            Type:        schema.TypeSet,
-                            Optional:    true,
-                            Description: "represents custom tags to be set on snapshots",
-                            Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                    "name": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Description: "represents name of the tag",
-                                    },
-                                    "value": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Description: "represents value of the tag",
-                                    },
-                                },
-                            },
-                        },
-                        "isapplicationaware": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Description: "Is the VM App Aware",
-                        },
-                        "transportmode": {
-                            Type:        schema.TypeString,
-                            Optional:    true,
-                            Description: "transport mode based on environment. Values are case sensitive [AUTO, SAN, HOT_ADD, NAS, NBD_SSL, NBD]",
                         },
                         "collectfiledetailsfromsnapshotcopy": {
                             Type:        schema.TypeString,
@@ -548,6 +293,141 @@ func resourceVMGroup_V2() *schema.Resource {
                                 },
                             },
                         },
+                        "canchangeencryptionsetting": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "True if encryption setting can be modified.",
+                        },
+                        "autodetectvmowner": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "True if auto detect VM Owner enabled",
+                        },
+                        "noofreaders": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Description: "Number of readers for backup",
+                        },
+                        "usechangedblocktrackingonvm": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "True if Changed Block Tracking is enabled",
+                        },
+                        "issnapshotv2": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "True if snapshotv2 prop set on VM group.",
+                        },
+                        "usevmcheckpointsetting": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "True if use VM CheckPoint setting is enabled",
+                        },
+                        "applicationcredentials": {
+                            Type:        schema.TypeList,
+                            Optional:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "savedcredentials": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "name": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "guestcredentials": {
+                            Type:        schema.TypeList,
+                            Optional:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "credentials": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "password": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Sensitive:    true,
+                                                    Description: "password to access the network path",
+                                                },
+                                                "name": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "username to access the network path",
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "savedcredentials": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "name": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "softwarecompression": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "The software compression value in the VM Group.",
+                        },
+                        "datastorefreespacecheck": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "True if Datastore Free space check is enabled",
+                        },
+                        "customsnapshottags": {
+                            Type:        schema.TypeSet,
+                            Optional:    true,
+                            Description: "represents custom tags to be set on snapshots in Azure",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "name": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "represents name of the tag",
+                                    },
+                                    "value": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "represents value of the tag",
+                                    },
+                                },
+                            },
+                        },
+                        "isapplicationaware": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "Is the VM App Aware",
+                        },
+                        "transportmode": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Description: "transport mode based on environment. Values are case sensitive [AUTO, SAN, HOT_ADD, NAS, NBD_SSL, NBD]",
+                        },
                     },
                 },
             },
@@ -577,11 +457,75 @@ func resourceVMGroup_V2() *schema.Resource {
                                         Computed:    true,
                                         Description: "VM Name of the Virtual Machine whose disk has to be filtered . This is optional. if not given, all disks of name and type from all Vms added in content will be filtered",
                                     },
+                                    "children": {
+                                        Type:        schema.TypeSet,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "Nested disk filters",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "condition": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "Operation type for VM rules/filters [CONTAINS, DOES_NOT_CONTAIN, DOES_NOT_EQUAL, ENDS_WITH, EQUALS, STARTS_WITH]",
+                                                },
+                                                "vmname": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "VM Name of the Virtual Machine whose disk has to be filtered . This is optional. if not given, all disks of name and type from all Vms added in content will be filtered",
+                                                },
+                                                "name": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "The string to be filtered",
+                                                },
+                                                "filtersubresource": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "True if filter is to be applied on sub resource of the resource being filtered.",
+                                                },
+                                                "filtertype": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "[NONE, DISK_PATH, DISK_PATTERN, DISK_VIRTUAL_DEVICE_NODE, DISK_DATASTORE, DISK_LABEL, DISK_TYPE, DISK_ADDRESS, CONTAINER_PATTERN, DISK_TAG]",
+                                                },
+                                                "overwrite": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "True if disk filter in vmgroup has to be overwritten, by default it will append the content",
+                                                },
+                                                "value": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "The value string to be filtered, in case of disk tag , value of tag to be filtered",
+                                                },
+                                                "vmguid": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Computed:    true,
+                                                    Description: "VM Guid of the Virtual Machine whose disk has to be filtered . This is optional. if not given, all disks of name and type from all Vms added in content will be filtered",
+                                                },
+                                            },
+                                        },
+                                    },
                                     "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "The string to be filtered",
+                                    },
+                                    "filtersubresource": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "True if filter is to be applied on sub resource of the resource being filtered.",
                                     },
                                     "filtertype": {
                                         Type:        schema.TypeString,
@@ -780,6 +724,28 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
+            "storage": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "name": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                        },
+                        "id": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                        },
+                    },
+                },
+            },
             "filters": {
                 Type:        schema.TypeList,
                 Optional:    true,
@@ -793,10 +759,39 @@ func resourceVMGroup_V2() *schema.Resource {
                             Description: "",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
+                                    "guestcredentialassocid": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Description: "Credential association ID given to link entity with credential id.",
+                                    },
+                                    "guestcredentials": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "password": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                                "username": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                            },
+                                        },
+                                    },
                                     "matchrule": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Description: "Enum which specifies the whether to match all rules or any of the rules [ALL, ANY]",
+                                    },
+                                    "description": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "Description of the rule group",
                                     },
                                     "rules": {
                                         Type:        schema.TypeSet,
@@ -817,7 +812,31 @@ func resourceVMGroup_V2() *schema.Resource {
                                                 "type": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
-                                                    Description: "[NONE, SERVER, RES_POOL, VAPP, DATACENTER, FOLDER, CLUSTER, DATASTORE, DATASTORE_CLUSTER, VM, VM_NAME, VM_GUEST_OS, VM_GUEST_HOST_NAME, CLUSTER_SHARED_VOLUMES, LOCAL_DISK, CLUSTER_DISK, UNPROTECTED_VMS, ROOT, FILE_SERVER, SMB_SHARE, TYPES_FOLDER, VM_FOLDER, SERVER_FOLDER, TEMPLATE_FOLDER, STORAGE_REPOSITORY_FOLDER, VAPPFOLDER, DATACENTER_FOLDER, CLUSTER_FOLDER, VM_POWER_STATE, VM_NOTES, VM_CUSTOM_ATTRIBUTE, NETWORK, USER, VM_TEMPLATE, TAG, TAG_CATEGORY, SUBCLIENT, CLIENT_GROUP, PROTECTION_DOMAIN, CONSISTENCY_GROUP, INSTANCE_SIZE, ORGANIZATION, IMAGES, STORAGE_POLICY, DATABASE, TABLE, PROJECT, SELECTOR, MANAGED_BY, REPLICATION_MODE, METADATATAG, CATALOG, VAPPTEMPLATE, VOLUME]",
+                                                    Description: "[NONE, SERVER, RES_POOL, VAPP, DATACENTER, FOLDER, CLUSTER, DATASTORE, DATASTORE_CLUSTER, VM, VM_NAME, VM_GUEST_OS, VM_GUEST_HOST_NAME, CLUSTER_SHARED_VOLUMES, LOCAL_DISK, CLUSTER_DISK, UNPROTECTED_VMS, ROOT, FILE_SERVER, SMB_SHARE, TYPES_FOLDER, VM_FOLDER, SERVER_FOLDER, TEMPLATE_FOLDER, STORAGE_REPOSITORY_FOLDER, VAPPFOLDER, DATACENTER_FOLDER, CLUSTER_FOLDER, VM_POWER_STATE, VM_NOTES, VM_CUSTOM_ATTRIBUTE, NETWORK, USER, VM_TEMPLATE, TAG, TAG_CATEGORY, SUBCLIENT, CLIENT_GROUP, PROTECTION_DOMAIN, CONSISTENCY_GROUP, INSTANCE_SIZE, ORGANIZATION, IMAGES, STORAGE_POLICY, DATABASE, TABLE, PROJECT, SELECTOR, MANAGED_BY, REPLICATION_MODE, METADATATAG, CATALOG, VAPPTEMPLATE, VOLUME, VM_BADGE, REGION]",
+                                                },
+                                                "value": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "value for the few type of VM Content like powerstate",
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "existingcredential": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "credentialid": {
+                                                    Type:        schema.TypeInt,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                                "credentialname": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
                                                 },
                                             },
                                         },
@@ -829,7 +848,7 @@ func resourceVMGroup_V2() *schema.Resource {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
-                            Description: "True if content in vmgroup has to be overwritten, by default it will append the content",
+                            Description: "False if content in vmgroup has to be appended, by default it will overwrite the content",
                         },
                     },
                 },
@@ -844,6 +863,118 @@ func resourceVMGroup_V2() *schema.Resource {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Description: "",
+                        },
+                        "type": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Description: "Type of access node , Ex: 3 - access Node , 28 - Access Node Groups",
+                        },
+                    },
+                },
+            },
+            "content": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "rulegroups": {
+                            Type:        schema.TypeSet,
+                            Optional:    true,
+                            Description: "",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "guestcredentialassocid": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Description: "Credential association ID given to link entity with credential id.",
+                                    },
+                                    "guestcredentials": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "password": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                                "username": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "matchrule": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "Enum which specifies the whether to match all rules or any of the rules [ALL, ANY]",
+                                    },
+                                    "description": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "Description of the rule group",
+                                    },
+                                    "rules": {
+                                        Type:        schema.TypeSet,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "condition": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "Operation type for VM rules/filters [CONTAINS, DOES_NOT_CONTAIN, DOES_NOT_EQUAL, ENDS_WITH, EQUALS, STARTS_WITH]",
+                                                },
+                                                "name": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "name of the VM to be added as content",
+                                                },
+                                                "type": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "[NONE, SERVER, RES_POOL, VAPP, DATACENTER, FOLDER, CLUSTER, DATASTORE, DATASTORE_CLUSTER, VM, VM_NAME, VM_GUEST_OS, VM_GUEST_HOST_NAME, CLUSTER_SHARED_VOLUMES, LOCAL_DISK, CLUSTER_DISK, UNPROTECTED_VMS, ROOT, FILE_SERVER, SMB_SHARE, TYPES_FOLDER, VM_FOLDER, SERVER_FOLDER, TEMPLATE_FOLDER, STORAGE_REPOSITORY_FOLDER, VAPPFOLDER, DATACENTER_FOLDER, CLUSTER_FOLDER, VM_POWER_STATE, VM_NOTES, VM_CUSTOM_ATTRIBUTE, NETWORK, USER, VM_TEMPLATE, TAG, TAG_CATEGORY, SUBCLIENT, CLIENT_GROUP, PROTECTION_DOMAIN, CONSISTENCY_GROUP, INSTANCE_SIZE, ORGANIZATION, IMAGES, STORAGE_POLICY, DATABASE, TABLE, PROJECT, SELECTOR, MANAGED_BY, REPLICATION_MODE, METADATATAG, CATALOG, VAPPTEMPLATE, VOLUME, VM_BADGE, REGION]",
+                                                },
+                                                "value": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "value for the few type of VM Content like powerstate",
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "existingcredential": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "credentialid": {
+                                                    Type:        schema.TypeInt,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                                "credentialname": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "overwrite": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "False if content in vmgroup has to be appended, by default it will overwrite the content",
                         },
                     },
                 },
@@ -949,6 +1080,12 @@ func resourceVMGroup_V2() *schema.Resource {
                 Optional:    true,
                 Computed:    true,
                 Description: "True if file indexing needs to be enabled",
+            },
+            "name": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "VMgroup name",
             },
             "applicationvalidation": {
                 Type:        schema.TypeList,
@@ -1319,6 +1456,34 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
+            "plan": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "name": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                        },
+                        "id": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                        },
+                    },
+                },
+            },
+            "removeplanassociation": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "True if the associated plan is to be removed.",
+            },
             "meditechsystems": {
                 Type:        schema.TypeList,
                 Optional:    true,
@@ -1381,52 +1546,18 @@ func resourceVMGroup_V2() *schema.Resource {
 }
 
 func resourceCreateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
-    //API: (POST) /V4/VMGroup
-    var response_id = strconv.Itoa(0)
-    var t_meditech *handler.MsgmeditechPropResp
-    if val, ok := d.GetOk("meditech"); ok {
-        t_meditech = build_vmgroup_v2_msgmeditechpropresp(d, val.([]interface{}))
-    }
-    var t_hypervisor *handler.MsgIdName
-    if val, ok := d.GetOk("hypervisor"); ok {
-        t_hypervisor = build_vmgroup_v2_msgidname(d, val.([]interface{}))
-    }
-    var t_name *string
-    if val, ok := d.GetOk("name"); ok {
-        t_name = handler.ToStringValue(val, false)
-    }
-    var t_storage *handler.MsgIdName
-    if val, ok := d.GetOk("storage"); ok {
-        t_storage = build_vmgroup_v2_msgidname(d, val.([]interface{}))
-    }
-    var t_plan *handler.MsgIdName
-    if val, ok := d.GetOk("plan"); ok {
-        t_plan = build_vmgroup_v2_msgidname(d, val.([]interface{}))
-    }
-    var t_content *handler.MsgvmContent
-    if val, ok := d.GetOk("content"); ok {
-        t_content = build_vmgroup_v2_msgvmcontent(d, val.([]interface{}))
-    }
-    var req = handler.MsgCreateVMGroupRequest{Meditech:t_meditech, Hypervisor:t_hypervisor, Name:t_name, Storage:t_storage, Plan:t_plan, Content:t_content}
-    resp, err := handler.CvCreateVMGroup(req)
-    if err != nil {
-        return fmt.Errorf("operation [CreateVMGroup] failed, Error %s", err)
-    }
-    if resp.SubclientId != nil {
-        response_id = strconv.Itoa(*resp.SubclientId)
-    }
-    if response_id == "0" {
-        return fmt.Errorf("operation [CreateVMGroup] failed")
-    } else {
-        d.SetId(response_id)
-        return resourceCreateUpdateVMGroup_V2(d, m)
-    }
+    return nil
 }
 
 func resourceReadVMGroup_V2(d *schema.ResourceData, m interface{}) error {
     //API: (GET) /V4/VmGroup/{VmGroupId}
     resp, err := handler.CvGetVMGroup(d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetVMGroup] failed, Error %s", err)
     }
     if rtn, ok := serialize_vmgroup_v2_msgactivitycontroloptions(d, resp.ActivityControl); ok {
@@ -1477,16 +1608,6 @@ func resourceReadVMGroup_V2(d *schema.ResourceData, m interface{}) error {
     } else {
         d.Set("meditechsystems", make([]map[string]interface{}, 0))
     }
-    if rtn, ok := serialize_vmgroup_v2_msgidname(d, resp.CommonProperties.Hypervisor); ok {
-        d.Set("hypervisor", rtn)
-    } else {
-        d.Set("hypervisor", make([]map[string]interface{}, 0))
-    }
-    if rtn, ok := serialize_vmgroup_v2_msgidname(d, resp.Summary.Plan); ok {
-        d.Set("plan", rtn)
-    } else {
-        d.Set("plan", make([]map[string]interface{}, 0))
-    }
     return nil
 }
 
@@ -1527,10 +1648,10 @@ func resourceUpdateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
         val := d.Get("filters")
         t_filters = build_vmgroup_v2_msgvmcontent(d, val.([]interface{}))
     }
-    var t_accessnode []handler.MsgIdNameSet
+    var t_accessnode []handler.MsgaccessNodeModelSet
     if d.HasChange("accessnode") {
         val := d.Get("accessnode")
-        t_accessnode = build_vmgroup_v2_msgidnameset_array(d, val.(*schema.Set).List())
+        t_accessnode = build_vmgroup_v2_msgaccessnodemodelset_array(d, val.(*schema.Set).List())
     }
     var t_content *handler.MsgvmContent
     if d.HasChange("content") {
@@ -1552,6 +1673,11 @@ func resourceUpdateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
         val := d.Get("name")
         t_newname = handler.ToStringValue(val, false)
     }
+    var t_name *string
+    if d.HasChange("name") {
+        val := d.Get("name")
+        t_name = handler.ToStringValue(val, false)
+    }
     var t_applicationvalidation *handler.MsgvmAppValidation
     if d.HasChange("applicationvalidation") {
         val := d.Get("applicationvalidation")
@@ -1562,83 +1688,20 @@ func resourceUpdateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
         val := d.Get("plan")
         t_plan = build_vmgroup_v2_msgidname(d, val.([]interface{}))
     }
+    var t_removeplanassociation *bool
+    if d.HasChange("removeplanassociation") {
+        val := d.Get("removeplanassociation")
+        t_removeplanassociation = handler.ToBooleanValue(val, false)
+    }
     var t_meditechsystems *handler.MsgmeditechPropResp
     if d.HasChange("meditechsystems") {
         val := d.Get("meditechsystems")
         t_meditechsystems = build_vmgroup_v2_msgmeditechpropresp(d, val.([]interface{}))
     }
-    var req = handler.MsgUpdateVMGroupRequest{ActivityControl:t_activitycontrol, Settings:t_settings, DiskFilters:t_diskfilters, SecurityAssociations:t_securityassociations, TimeZone:t_timezone, Storage:t_storage, Filters:t_filters, AccessNode:t_accessnode, Content:t_content, SnapshotManagement:t_snapshotmanagement, EnableFileIndexing:t_enablefileindexing, NewName:t_newname, ApplicationValidation:t_applicationvalidation, Plan:t_plan, MeditechSystems:t_meditechsystems}
+    var req = handler.MsgUpdateVMGroupRequest{ActivityControl:t_activitycontrol, Settings:t_settings, DiskFilters:t_diskfilters, SecurityAssociations:t_securityassociations, TimeZone:t_timezone, Storage:t_storage, Filters:t_filters, AccessNode:t_accessnode, Content:t_content, SnapshotManagement:t_snapshotmanagement, EnableFileIndexing:t_enablefileindexing, NewName:t_newname, Name:t_name, ApplicationValidation:t_applicationvalidation, Plan:t_plan, RemovePlanAssociation:t_removeplanassociation, MeditechSystems:t_meditechsystems}
     _, err := handler.CvUpdateVMGroup(req, d.Id())
     if err != nil {
         return fmt.Errorf("operation [UpdateVMGroup] failed, Error %s", err)
-    }
-    return resourceReadVMGroup_V2(d, m)
-}
-
-func resourceCreateUpdateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
-    //API: (PUT) /V4/VmGroup/{VmGroupId}
-    var execUpdate bool = false
-    var t_activitycontrol *handler.MsgActivityControlOptions
-    if val, ok := d.GetOk("activitycontrol"); ok {
-        t_activitycontrol = build_vmgroup_v2_msgactivitycontroloptions(d, val.([]interface{}))
-        execUpdate = true
-    }
-    var t_settings *handler.MsgvmGroupSettings
-    if val, ok := d.GetOk("settings"); ok {
-        t_settings = build_vmgroup_v2_msgvmgroupsettings(d, val.([]interface{}))
-        execUpdate = true
-    }
-    var t_diskfilters *handler.MsgvmDiskFilterProp
-    if val, ok := d.GetOk("diskfilters"); ok {
-        t_diskfilters = build_vmgroup_v2_msgvmdiskfilterprop(d, val.([]interface{}))
-        execUpdate = true
-    }
-    var t_securityassociations []handler.MsgSecurityAssocSet
-    if val, ok := d.GetOk("securityassociations"); ok {
-        t_securityassociations = build_vmgroup_v2_msgsecurityassocset_array(d, val.(*schema.Set).List())
-        execUpdate = true
-    }
-    var t_timezone *handler.MsgIdName
-    if val, ok := d.GetOk("timezone"); ok {
-        t_timezone = build_vmgroup_v2_msgidname(d, val.([]interface{}))
-        execUpdate = true
-    }
-    var t_filters *handler.MsgvmContent
-    if val, ok := d.GetOk("filters"); ok {
-        t_filters = build_vmgroup_v2_msgvmcontent(d, val.([]interface{}))
-        execUpdate = true
-    }
-    var t_accessnode []handler.MsgIdNameSet
-    if val, ok := d.GetOk("accessnode"); ok {
-        t_accessnode = build_vmgroup_v2_msgidnameset_array(d, val.(*schema.Set).List())
-        execUpdate = true
-    }
-    var t_snapshotmanagement *handler.MsgsnapCopyInfo
-    if val, ok := d.GetOk("snapshotmanagement"); ok {
-        t_snapshotmanagement = build_vmgroup_v2_msgsnapcopyinfo(d, val.([]interface{}))
-        execUpdate = true
-    }
-    var t_enablefileindexing *bool
-    if val, ok := d.GetOk("enablefileindexing"); ok {
-        t_enablefileindexing = handler.ToBooleanValue(val, false)
-        execUpdate = true
-    }
-    var t_applicationvalidation *handler.MsgvmAppValidation
-    if val, ok := d.GetOk("applicationvalidation"); ok {
-        t_applicationvalidation = build_vmgroup_v2_msgvmappvalidation(d, val.([]interface{}))
-        execUpdate = true
-    }
-    var t_meditechsystems *handler.MsgmeditechPropResp
-    if val, ok := d.GetOk("meditechsystems"); ok {
-        t_meditechsystems = build_vmgroup_v2_msgmeditechpropresp(d, val.([]interface{}))
-        execUpdate = true
-    }
-    if execUpdate {
-        var req = handler.MsgUpdateVMGroupRequest{ActivityControl:t_activitycontrol, Settings:t_settings, DiskFilters:t_diskfilters, SecurityAssociations:t_securityassociations, TimeZone:t_timezone, Filters:t_filters, AccessNode:t_accessnode, SnapshotManagement:t_snapshotmanagement, EnableFileIndexing:t_enablefileindexing, ApplicationValidation:t_applicationvalidation, MeditechSystems:t_meditechsystems}
-        _, err := handler.CvUpdateVMGroup(req, d.Id())
-        if err != nil {
-            return fmt.Errorf("operation [UpdateVMGroup] failed, Error %s", err)
-        }
     }
     return resourceReadVMGroup_V2(d, m)
 }
@@ -1693,6 +1756,23 @@ func build_vmgroup_v2_msgusernamepassword(d *schema.ResourceData, r []interface{
             t_name = handler.ToStringValue(val, true)
         }
         return &handler.MsgUserNamePassword{Password:t_password, Name:t_name}
+    } else {
+        return nil
+    }
+}
+
+func build_vmgroup_v2_msgidname(d *schema.ResourceData, r []interface{}) *handler.MsgIdName {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_name *string
+        if val, ok := tmp["name"]; ok {
+            t_name = handler.ToStringValue(val, true)
+        }
+        var t_id *int
+        if val, ok := tmp["id"]; ok {
+            t_id = handler.ToIntValue(val, true)
+        }
+        return &handler.MsgIdName{Name:t_name, Id:t_id}
     } else {
         return nil
     }
@@ -1771,23 +1851,6 @@ func build_vmgroup_v2_msgappvalidationsourcecopy(d *schema.ResourceData, r []int
             t_backupdestination = build_vmgroup_v2_msgidname(d, val.([]interface{}))
         }
         return &handler.MsgAppValidationSourceCopy{CopyPrecedence:t_copyprecedence, IsSnapCopy:t_issnapcopy, Name:t_name, Id:t_id, IsActive:t_isactive, BackupDestination:t_backupdestination}
-    } else {
-        return nil
-    }
-}
-
-func build_vmgroup_v2_msgidname(d *schema.ResourceData, r []interface{}) *handler.MsgIdName {
-    if len(r) > 0 && r[0] != nil {
-        tmp := r[0].(map[string]interface{})
-        var t_name *string
-        if val, ok := tmp["name"]; ok {
-            t_name = handler.ToStringValue(val, true)
-        }
-        var t_id *int
-        if val, ok := tmp["id"]; ok {
-            t_id = handler.ToIntValue(val, true)
-        }
-        return &handler.MsgIdName{Name:t_name, Id:t_id}
     } else {
         return nil
     }
@@ -1930,23 +1993,6 @@ func build_vmgroup_v2_msgsnapcopyinfo(d *schema.ResourceData, r []interface{}) *
     }
 }
 
-func build_vmgroup_v2_msgidnameset_array(d *schema.ResourceData, r []interface{}) []handler.MsgIdNameSet {
-    if r != nil {
-        tmp := make([]handler.MsgIdNameSet, len(r))
-        for a, iter_a := range r {
-            raw_a := iter_a.(map[string]interface{})
-            var t_id *int
-            if val, ok := raw_a["id"]; ok {
-                t_id = handler.ToIntValue(val, true)
-            }
-            tmp[a] = handler.MsgIdNameSet{Id:t_id}
-        }
-        return tmp
-    } else {
-        return nil
-    }
-}
-
 func build_vmgroup_v2_msgvmcontent(d *schema.ResourceData, r []interface{}) *handler.MsgvmContent {
     if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
@@ -1969,17 +2015,50 @@ func build_vmgroup_v2_msgrulegroupcontentset_array(d *schema.ResourceData, r []i
         tmp := make([]handler.MsgRuleGroupContentSet, len(r))
         for a, iter_a := range r {
             raw_a := iter_a.(map[string]interface{})
+            var t_guestcredentialassocid *int
+            if val, ok := raw_a["guestcredentialassocid"]; ok {
+                t_guestcredentialassocid = handler.ToIntValue(val, true)
+            }
+            var t_guestcredentials *handler.MsgVMGuestCredentials
+            if val, ok := raw_a["guestcredentials"]; ok {
+                t_guestcredentials = build_vmgroup_v2_msgvmguestcredentials(d, val.([]interface{}))
+            }
             var t_matchrule *string
             if val, ok := raw_a["matchrule"]; ok {
                 t_matchrule = handler.ToStringValue(val, true)
+            }
+            var t_description *string
+            if val, ok := raw_a["description"]; ok {
+                t_description = handler.ToStringValue(val, true)
             }
             var t_rules []handler.MsgRuleContentSet
             if val, ok := raw_a["rules"]; ok {
                 t_rules = build_vmgroup_v2_msgrulecontentset_array(d, val.(*schema.Set).List())
             }
-            tmp[a] = handler.MsgRuleGroupContentSet{MatchRule:t_matchrule, Rules:t_rules}
+            var t_existingcredential *handler.MsgVMExistingCredential
+            if val, ok := raw_a["existingcredential"]; ok {
+                t_existingcredential = build_vmgroup_v2_msgvmexistingcredential(d, val.([]interface{}))
+            }
+            tmp[a] = handler.MsgRuleGroupContentSet{GuestCredentialAssocId:t_guestcredentialassocid, GuestCredentials:t_guestcredentials, MatchRule:t_matchrule, Description:t_description, Rules:t_rules, ExistingCredential:t_existingcredential}
         }
         return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_vmgroup_v2_msgvmexistingcredential(d *schema.ResourceData, r []interface{}) *handler.MsgVMExistingCredential {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_credentialid *int
+        if val, ok := tmp["credentialid"]; ok {
+            t_credentialid = handler.ToIntValue(val, true)
+        }
+        var t_credentialname *string
+        if val, ok := tmp["credentialname"]; ok {
+            t_credentialname = handler.ToStringValue(val, true)
+        }
+        return &handler.MsgVMExistingCredential{CredentialId:t_credentialid, CredentialName:t_credentialname}
     } else {
         return nil
     }
@@ -2002,7 +2081,49 @@ func build_vmgroup_v2_msgrulecontentset_array(d *schema.ResourceData, r []interf
             if val, ok := raw_a["type"]; ok {
                 t_type = handler.ToStringValue(val, true)
             }
-            tmp[a] = handler.MsgRuleContentSet{Condition:t_condition, Name:t_name, Type:t_type}
+            var t_value *string
+            if val, ok := raw_a["value"]; ok {
+                t_value = handler.ToStringValue(val, true)
+            }
+            tmp[a] = handler.MsgRuleContentSet{Condition:t_condition, Name:t_name, Type:t_type, Value:t_value}
+        }
+        return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_vmgroup_v2_msgvmguestcredentials(d *schema.ResourceData, r []interface{}) *handler.MsgVMGuestCredentials {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_password *string
+        if val, ok := tmp["password"]; ok {
+            t_password = handler.ToStringValue(val, true)
+        }
+        var t_username *string
+        if val, ok := tmp["username"]; ok {
+            t_username = handler.ToStringValue(val, true)
+        }
+        return &handler.MsgVMGuestCredentials{Password:t_password, UserName:t_username}
+    } else {
+        return nil
+    }
+}
+
+func build_vmgroup_v2_msgaccessnodemodelset_array(d *schema.ResourceData, r []interface{}) []handler.MsgaccessNodeModelSet {
+    if r != nil {
+        tmp := make([]handler.MsgaccessNodeModelSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_id *int
+            if val, ok := raw_a["id"]; ok {
+                t_id = handler.ToIntValue(val, true)
+            }
+            var t_type *int
+            if val, ok := raw_a["type"]; ok {
+                t_type = handler.ToIntValue(val, true)
+            }
+            tmp[a] = handler.MsgaccessNodeModelSet{Id:t_id, Type:t_type}
         }
         return tmp
     } else {
@@ -2139,9 +2260,17 @@ func build_vmgroup_v2_msgvmdiskfilterset_array(d *schema.ResourceData, r []inter
             if val, ok := raw_a["vmname"]; ok {
                 t_vmname = handler.ToStringValue(val, true)
             }
+            var t_children []handler.Msg_vmDiskFilterSet
+            if val, ok := raw_a["children"]; ok {
+                t_children = build_vmgroup_v2_msg_vmdiskfilterset_array(d, val.(*schema.Set).List())
+            }
             var t_name *string
             if val, ok := raw_a["name"]; ok {
                 t_name = handler.ToStringValue(val, true)
+            }
+            var t_filtersubresource *bool
+            if val, ok := raw_a["filtersubresource"]; ok {
+                t_filtersubresource = handler.ToBooleanValue(val, true)
             }
             var t_filtertype *string
             if val, ok := raw_a["filtertype"]; ok {
@@ -2159,7 +2288,52 @@ func build_vmgroup_v2_msgvmdiskfilterset_array(d *schema.ResourceData, r []inter
             if val, ok := raw_a["vmguid"]; ok {
                 t_vmguid = handler.ToStringValue(val, true)
             }
-            tmp[a] = handler.MsgvmDiskFilterSet{Condition:t_condition, VmName:t_vmname, Name:t_name, FilterType:t_filtertype, Overwrite:t_overwrite, Value:t_value, VmGuid:t_vmguid}
+            tmp[a] = handler.MsgvmDiskFilterSet{Condition:t_condition, VmName:t_vmname, Children:t_children, Name:t_name, FilterSubResource:t_filtersubresource, FilterType:t_filtertype, Overwrite:t_overwrite, Value:t_value, VmGuid:t_vmguid}
+        }
+        return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_vmgroup_v2_msg_vmdiskfilterset_array(d *schema.ResourceData, r []interface{}) []handler.Msg_vmDiskFilterSet {
+    if r != nil {
+        tmp := make([]handler.Msg_vmDiskFilterSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_condition *string
+            if val, ok := raw_a["condition"]; ok {
+                t_condition = handler.ToStringValue(val, true)
+            }
+            var t_vmname *string
+            if val, ok := raw_a["vmname"]; ok {
+                t_vmname = handler.ToStringValue(val, true)
+            }
+            var t_name *string
+            if val, ok := raw_a["name"]; ok {
+                t_name = handler.ToStringValue(val, true)
+            }
+            var t_filtersubresource *bool
+            if val, ok := raw_a["filtersubresource"]; ok {
+                t_filtersubresource = handler.ToBooleanValue(val, true)
+            }
+            var t_filtertype *string
+            if val, ok := raw_a["filtertype"]; ok {
+                t_filtertype = handler.ToStringValue(val, true)
+            }
+            var t_overwrite *bool
+            if val, ok := raw_a["overwrite"]; ok {
+                t_overwrite = handler.ToBooleanValue(val, true)
+            }
+            var t_value *string
+            if val, ok := raw_a["value"]; ok {
+                t_value = handler.ToStringValue(val, true)
+            }
+            var t_vmguid *string
+            if val, ok := raw_a["vmguid"]; ok {
+                t_vmguid = handler.ToStringValue(val, true)
+            }
+            tmp[a] = handler.Msg_vmDiskFilterSet{Condition:t_condition, VmName:t_vmname, Name:t_name, FilterSubResource:t_filtersubresource, FilterType:t_filtertype, Overwrite:t_overwrite, Value:t_value, VmGuid:t_vmguid}
         }
         return tmp
     } else {
@@ -2170,29 +2344,29 @@ func build_vmgroup_v2_msgvmdiskfilterset_array(d *schema.ResourceData, r []inter
 func build_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, r []interface{}) *handler.MsgvmGroupSettings {
     if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
-        var t_autodetectvmowner *bool
-        if val, ok := tmp["autodetectvmowner"]; ok {
-            t_autodetectvmowner = handler.ToBooleanValue(val, true)
+        var t_encryptionflag *string
+        if val, ok := tmp["encryptionflag"]; ok {
+            t_encryptionflag = handler.ToStringValue(val, true)
+        }
+        var t_usebackupsetdiskfilters *bool
+        if val, ok := tmp["usebackupsetdiskfilters"]; ok {
+            t_usebackupsetdiskfilters = handler.ToBooleanValue(val, true)
+        }
+        var t_quiesceguestfilesystemandapplications *bool
+        if val, ok := tmp["quiesceguestfilesystemandapplications"]; ok {
+            t_quiesceguestfilesystemandapplications = handler.ToBooleanValue(val, true)
         }
         var t_collectfiledetailsforgranularrecovery *bool
         if val, ok := tmp["collectfiledetailsforgranularrecovery"]; ok {
             t_collectfiledetailsforgranularrecovery = handler.ToBooleanValue(val, true)
         }
-        var t_noofreaders *int
-        if val, ok := tmp["noofreaders"]; ok {
-            t_noofreaders = handler.ToIntValue(val, true)
-        }
-        var t_usechangedblocktrackingonvm *bool
-        if val, ok := tmp["usechangedblocktrackingonvm"]; ok {
-            t_usechangedblocktrackingonvm = handler.ToBooleanValue(val, true)
+        var t_snapshotstoragetype *string
+        if val, ok := tmp["snapshotstoragetype"]; ok {
+            t_snapshotstoragetype = handler.ToStringValue(val, true)
         }
         var t_jobstarttime *int
         if val, ok := tmp["jobstarttime"]; ok {
             t_jobstarttime = handler.ToIntValue(val, true)
-        }
-        var t_usevmcheckpointsetting *bool
-        if val, ok := tmp["usevmcheckpointsetting"]; ok {
-            t_usevmcheckpointsetting = handler.ToBooleanValue(val, true)
         }
         var t_customsnapshotresourcegroup *string
         if val, ok := tmp["customsnapshotresourcegroup"]; ok {
@@ -2202,10 +2376,6 @@ func build_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, r []interface{}
         if val, ok := tmp["regionalsnapshot"]; ok {
             t_regionalsnapshot = handler.ToBooleanValue(val, true)
         }
-        var t_guestcredentials *handler.MsgguestCredentialInfo
-        if val, ok := tmp["guestcredentials"]; ok {
-            t_guestcredentials = build_vmgroup_v2_msgguestcredentialinfo(d, val.([]interface{}))
-        }
         var t_vmbackuptype *string
         if val, ok := tmp["vmbackuptype"]; ok {
             t_vmbackuptype = handler.ToStringValue(val, true)
@@ -2214,10 +2384,6 @@ func build_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, r []interface{}
         if val, ok := tmp["isvmgroupdiskfiltersincluded"]; ok {
             t_isvmgroupdiskfiltersincluded = handler.ToBooleanValue(val, true)
         }
-        var t_datastorefreespacecheck *bool
-        if val, ok := tmp["datastorefreespacecheck"]; ok {
-            t_datastorefreespacecheck = handler.ToBooleanValue(val, true)
-        }
         var t_allowemptysubclient *bool
         if val, ok := tmp["allowemptysubclient"]; ok {
             t_allowemptysubclient = handler.ToBooleanValue(val, true)
@@ -2225,6 +2391,54 @@ func build_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, r []interface{}
         var t_datastorefreespacerequired *int
         if val, ok := tmp["datastorefreespacerequired"]; ok {
             t_datastorefreespacerequired = handler.ToIntValue(val, true)
+        }
+        var t_collectfiledetailsfromsnapshotcopy *bool
+        if val, ok := tmp["collectfiledetailsfromsnapshotcopy"]; ok {
+            t_collectfiledetailsfromsnapshotcopy = handler.ToBooleanValue(val, true)
+        }
+        var t_crossaccount *handler.MsgAmazonCrossAccount
+        if val, ok := tmp["crossaccount"]; ok {
+            t_crossaccount = build_vmgroup_v2_msgamazoncrossaccount(d, val.([]interface{}))
+        }
+        var t_canchangeencryptionsetting *bool
+        if val, ok := tmp["canchangeencryptionsetting"]; ok {
+            t_canchangeencryptionsetting = handler.ToBooleanValue(val, true)
+        }
+        var t_autodetectvmowner *bool
+        if val, ok := tmp["autodetectvmowner"]; ok {
+            t_autodetectvmowner = handler.ToBooleanValue(val, true)
+        }
+        var t_noofreaders *int
+        if val, ok := tmp["noofreaders"]; ok {
+            t_noofreaders = handler.ToIntValue(val, true)
+        }
+        var t_usechangedblocktrackingonvm *bool
+        if val, ok := tmp["usechangedblocktrackingonvm"]; ok {
+            t_usechangedblocktrackingonvm = handler.ToBooleanValue(val, true)
+        }
+        var t_issnapshotv2 *bool
+        if val, ok := tmp["issnapshotv2"]; ok {
+            t_issnapshotv2 = handler.ToBooleanValue(val, true)
+        }
+        var t_usevmcheckpointsetting *bool
+        if val, ok := tmp["usevmcheckpointsetting"]; ok {
+            t_usevmcheckpointsetting = handler.ToBooleanValue(val, true)
+        }
+        var t_applicationcredentials *handler.MsgapplicationCredentialInfo
+        if val, ok := tmp["applicationcredentials"]; ok {
+            t_applicationcredentials = build_vmgroup_v2_msgapplicationcredentialinfo(d, val.([]interface{}))
+        }
+        var t_guestcredentials *handler.MsgguestCredentialInfo
+        if val, ok := tmp["guestcredentials"]; ok {
+            t_guestcredentials = build_vmgroup_v2_msgguestcredentialinfo(d, val.([]interface{}))
+        }
+        var t_softwarecompression *string
+        if val, ok := tmp["softwarecompression"]; ok {
+            t_softwarecompression = handler.ToStringValue(val, true)
+        }
+        var t_datastorefreespacecheck *bool
+        if val, ok := tmp["datastorefreespacecheck"]; ok {
+            t_datastorefreespacecheck = handler.ToBooleanValue(val, true)
         }
         var t_customsnapshottags []handler.MsgresourceTagSet
         if val, ok := tmp["customsnapshottags"]; ok {
@@ -2238,36 +2452,7 @@ func build_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, r []interface{}
         if val, ok := tmp["transportmode"]; ok {
             t_transportmode = handler.ToStringValue(val, true)
         }
-        var t_collectfiledetailsfromsnapshotcopy *bool
-        if val, ok := tmp["collectfiledetailsfromsnapshotcopy"]; ok {
-            t_collectfiledetailsfromsnapshotcopy = handler.ToBooleanValue(val, true)
-        }
-        var t_crossaccount *handler.MsgAmazonCrossAccount
-        if val, ok := tmp["crossaccount"]; ok {
-            t_crossaccount = build_vmgroup_v2_msgamazoncrossaccount(d, val.([]interface{}))
-        }
-        return &handler.MsgvmGroupSettings{AutoDetectVMOwner:t_autodetectvmowner, CollectFileDetailsforGranularRecovery:t_collectfiledetailsforgranularrecovery, NoOfReaders:t_noofreaders, UseChangedBlockTrackingOnVM:t_usechangedblocktrackingonvm, JobStartTime:t_jobstarttime, UseVMCheckpointSetting:t_usevmcheckpointsetting, CustomSnapshotResourceGroup:t_customsnapshotresourcegroup, RegionalSnapshot:t_regionalsnapshot, GuestCredentials:t_guestcredentials, VmBackupType:t_vmbackuptype, IsVMGroupDiskFiltersIncluded:t_isvmgroupdiskfiltersincluded, DatastoreFreespaceCheck:t_datastorefreespacecheck, AllowEmptySubclient:t_allowemptysubclient, DatastoreFreespaceRequired:t_datastorefreespacerequired, CustomSnapshotTags:t_customsnapshottags, IsApplicationAware:t_isapplicationaware, TransportMode:t_transportmode, CollectFileDetailsFromSnapshotCopy:t_collectfiledetailsfromsnapshotcopy, CrossAccount:t_crossaccount}
-    } else {
-        return nil
-    }
-}
-
-func build_vmgroup_v2_msgamazoncrossaccount(d *schema.ResourceData, r []interface{}) *handler.MsgAmazonCrossAccount {
-    if len(r) > 0 && r[0] != nil {
-        tmp := r[0].(map[string]interface{})
-        var t_shareonly *bool
-        if val, ok := tmp["shareonly"]; ok {
-            t_shareonly = handler.ToBooleanValue(val, true)
-        }
-        var t_fullcopy *bool
-        if val, ok := tmp["fullcopy"]; ok {
-            t_fullcopy = handler.ToBooleanValue(val, true)
-        }
-        var t_destinationaccount *handler.MsgIdName
-        if val, ok := tmp["destinationaccount"]; ok {
-            t_destinationaccount = build_vmgroup_v2_msgidname(d, val.([]interface{}))
-        }
-        return &handler.MsgAmazonCrossAccount{ShareOnly:t_shareonly, FullCopy:t_fullcopy, DestinationAccount:t_destinationaccount}
+        return &handler.MsgvmGroupSettings{EncryptionFlag:t_encryptionflag, UseBackupsetDiskFilters:t_usebackupsetdiskfilters, QuiesceGuestFileSystemAndApplications:t_quiesceguestfilesystemandapplications, CollectFileDetailsforGranularRecovery:t_collectfiledetailsforgranularrecovery, SnapshotStorageType:t_snapshotstoragetype, JobStartTime:t_jobstarttime, CustomSnapshotResourceGroup:t_customsnapshotresourcegroup, RegionalSnapshot:t_regionalsnapshot, VmBackupType:t_vmbackuptype, IsVMGroupDiskFiltersIncluded:t_isvmgroupdiskfiltersincluded, AllowEmptySubclient:t_allowemptysubclient, DatastoreFreespaceRequired:t_datastorefreespacerequired, CollectFileDetailsFromSnapshotCopy:t_collectfiledetailsfromsnapshotcopy, CrossAccount:t_crossaccount, CanChangeEncryptionSetting:t_canchangeencryptionsetting, AutoDetectVMOwner:t_autodetectvmowner, NoOfReaders:t_noofreaders, UseChangedBlockTrackingOnVM:t_usechangedblocktrackingonvm, IsSnapshotV2:t_issnapshotv2, UseVMCheckpointSetting:t_usevmcheckpointsetting, ApplicationCredentials:t_applicationcredentials, GuestCredentials:t_guestcredentials, SoftwareCompression:t_softwarecompression, DatastoreFreespaceCheck:t_datastorefreespacecheck, CustomSnapshotTags:t_customsnapshottags, IsApplicationAware:t_isapplicationaware, TransportMode:t_transportmode}
     } else {
         return nil
     }
@@ -2289,6 +2474,40 @@ func build_vmgroup_v2_msgresourcetagset_array(d *schema.ResourceData, r []interf
             tmp[a] = handler.MsgresourceTagSet{Name:t_name, Value:t_value}
         }
         return tmp
+    } else {
+        return nil
+    }
+}
+
+func build_vmgroup_v2_msgapplicationcredentialinfo(d *schema.ResourceData, r []interface{}) *handler.MsgapplicationCredentialInfo {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_savedcredentials *handler.MsgIdName
+        if val, ok := tmp["savedcredentials"]; ok {
+            t_savedcredentials = build_vmgroup_v2_msgidname(d, val.([]interface{}))
+        }
+        return &handler.MsgapplicationCredentialInfo{SavedCredentials:t_savedcredentials}
+    } else {
+        return nil
+    }
+}
+
+func build_vmgroup_v2_msgamazoncrossaccount(d *schema.ResourceData, r []interface{}) *handler.MsgAmazonCrossAccount {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_shareonly *bool
+        if val, ok := tmp["shareonly"]; ok {
+            t_shareonly = handler.ToBooleanValue(val, true)
+        }
+        var t_fullcopy *bool
+        if val, ok := tmp["fullcopy"]; ok {
+            t_fullcopy = handler.ToBooleanValue(val, true)
+        }
+        var t_destinationaccount *handler.MsgIdName
+        if val, ok := tmp["destinationaccount"]; ok {
+            t_destinationaccount = build_vmgroup_v2_msgidname(d, val.([]interface{}))
+        }
+        return &handler.MsgAmazonCrossAccount{ShareOnly:t_shareonly, FullCopy:t_fullcopy, DestinationAccount:t_destinationaccount}
     } else {
         return nil
     }
@@ -2362,30 +2581,6 @@ func build_vmgroup_v2_msgactivitycontroltiledelaytime(d *schema.ResourceData, r 
         return &handler.MsgActivityControlTileDelayTime{TimeZone:t_timezone, Time:t_time, Value:t_value}
     } else {
         return nil
-    }
-}
-
-func serialize_vmgroup_v2_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
-    //MsgIdName
-    //MsgIdName
-    if data == nil {
-        return nil, false
-    }
-    val := make([]map[string]interface{}, 1)
-    val[0] = make(map[string]interface{})
-    added := false
-    if data.Name != nil {
-        val[0]["name"] = data.Name
-        added = true
-    }
-    if data.Id != nil {
-        val[0]["id"] = data.Id
-        added = true
-    }
-    if added {
-        return val, true
-    } else {
-        return nil, false
     }
 }
 
@@ -2532,6 +2727,30 @@ func serialize_vmgroup_v2_msgappvalidationsourcecopy(d *schema.ResourceData, dat
     }
     if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.BackupDestination); ok {
         val[0]["backupdestination"] = rtn
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
+func serialize_vmgroup_v2_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
+    //MsgvmAppValidation -> MsgAppValidationSourceCopy -> MsgIdName
+    //MsgvmAppValidation -> MsgAppValidationSourceCopy -> MsgIdName
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if data.Name != nil {
+        val[0]["name"] = data.Name
+        added = true
+    }
+    if data.Id != nil {
+        val[0]["id"] = data.Id
         added = true
     }
     if added {
@@ -2748,12 +2967,28 @@ func serialize_vmgroup_v2_msgrulegroupcontentset_array(d *schema.ResourceData, d
     for i := range data {
         tmp := make(map[string]interface{})
         added := false
+        if data[i].GuestCredentialAssocId != nil {
+            tmp["guestcredentialassocid"] = data[i].GuestCredentialAssocId
+            added = true
+        }
+        if rtn, ok := serialize_vmgroup_v2_msgvmguestcredentials(d, data[i].GuestCredentials); ok {
+            tmp["guestcredentials"] = rtn
+            added = true
+        }
         if data[i].MatchRule != nil {
             tmp["matchrule"] = data[i].MatchRule
             added = true
         }
+        if data[i].Description != nil {
+            tmp["description"] = data[i].Description
+            added = true
+        }
         if rtn, ok := serialize_vmgroup_v2_msgrulecontentset_array(d, data[i].Rules); ok {
             tmp["rules"] = rtn
+            added = true
+        }
+        if rtn, ok := serialize_vmgroup_v2_msgvmexistingcredential(d, data[i].ExistingCredential); ok {
+            tmp["existingcredential"] = rtn
             added = true
         }
         if added {
@@ -2761,6 +2996,30 @@ func serialize_vmgroup_v2_msgrulegroupcontentset_array(d *schema.ResourceData, d
         }
     }
     return val, true
+}
+
+func serialize_vmgroup_v2_msgvmexistingcredential(d *schema.ResourceData, data *handler.MsgVMExistingCredential) ([]map[string]interface{}, bool) {
+    //MsgvmContent -> MsgRuleGroupContentSet -> MsgVMExistingCredential
+    //MsgvmContentSet -> MsgRuleGroupContentSet -> MsgVMExistingCredential
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if data.CredentialId != nil {
+        val[0]["credentialid"] = data.CredentialId
+        added = true
+    }
+    if data.CredentialName != nil {
+        val[0]["credentialname"] = data.CredentialName
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
 func serialize_vmgroup_v2_msgrulecontentset_array(d *schema.ResourceData, data []handler.MsgRuleContentSet) ([]map[string]interface{}, bool) {
@@ -2785,11 +3044,39 @@ func serialize_vmgroup_v2_msgrulecontentset_array(d *schema.ResourceData, data [
             tmp["type"] = data[i].Type
             added = true
         }
+        if data[i].Value != nil {
+            tmp["value"] = data[i].Value
+            added = true
+        }
         if added {
             val = append(val, tmp)
         }
     }
     return val, true
+}
+
+func serialize_vmgroup_v2_msgvmguestcredentials(d *schema.ResourceData, data *handler.MsgVMGuestCredentials) ([]map[string]interface{}, bool) {
+    //MsgvmContent -> MsgRuleGroupContentSet -> MsgVMGuestCredentials
+    //MsgvmContentSet -> MsgRuleGroupContentSet -> MsgVMGuestCredentials
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if data.Password != nil {
+        val[0]["password"] = data.Password
+        added = true
+    }
+    if data.UserName != nil {
+        val[0]["username"] = data.UserName
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
 }
 
 func serialize_vmgroup_v2_msgsecurityassocset_array(d *schema.ResourceData, data []handler.MsgSecurityAssocSet) ([]map[string]interface{}, bool) {
@@ -2949,8 +3236,65 @@ func serialize_vmgroup_v2_msgvmdiskfilterset_array(d *schema.ResourceData, data 
             tmp["vmname"] = data[i].VmName
             added = true
         }
+        if rtn, ok := serialize_vmgroup_v2_msg_vmdiskfilterset_array(d, data[i].Children); ok {
+            tmp["children"] = rtn
+            added = true
+        }
         if data[i].Name != nil {
             tmp["name"] = data[i].Name
+            added = true
+        }
+        if data[i].FilterSubResource != nil {
+            tmp["filtersubresource"] = strconv.FormatBool(*data[i].FilterSubResource)
+            added = true
+        }
+        if data[i].FilterType != nil {
+            tmp["filtertype"] = data[i].FilterType
+            added = true
+        }
+        if data[i].Overwrite != nil {
+            tmp["overwrite"] = strconv.FormatBool(*data[i].Overwrite)
+            added = true
+        }
+        if data[i].Value != nil {
+            tmp["value"] = data[i].Value
+            added = true
+        }
+        if data[i].VmGuid != nil {
+            tmp["vmguid"] = data[i].VmGuid
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
+        }
+    }
+    return val, true
+}
+
+func serialize_vmgroup_v2_msg_vmdiskfilterset_array(d *schema.ResourceData, data []handler.Msg_vmDiskFilterSet) ([]map[string]interface{}, bool) {
+    //MsgvmDiskFilterProp -> MsgvmDiskFilterSet -> Msg_vmDiskFilterSet
+    //MsgvmDiskFilterPropSet -> MsgvmDiskFilterSet -> Msg_vmDiskFilterSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
+    for i := range data {
+        tmp := make(map[string]interface{})
+        added := false
+        if data[i].Condition != nil {
+            tmp["condition"] = data[i].Condition
+            added = true
+        }
+        if data[i].VmName != nil {
+            tmp["vmname"] = data[i].VmName
+            added = true
+        }
+        if data[i].Name != nil {
+            tmp["name"] = data[i].Name
+            added = true
+        }
+        if data[i].FilterSubResource != nil {
+            tmp["filtersubresource"] = strconv.FormatBool(*data[i].FilterSubResource)
             added = true
         }
         if data[i].FilterType != nil {
@@ -2985,28 +3329,28 @@ func serialize_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, data *handl
     val := make([]map[string]interface{}, 1)
     val[0] = make(map[string]interface{})
     added := false
-    if data.AutoDetectVMOwner != nil {
-        val[0]["autodetectvmowner"] = strconv.FormatBool(*data.AutoDetectVMOwner)
+    if data.EncryptionFlag != nil {
+        val[0]["encryptionflag"] = data.EncryptionFlag
+        added = true
+    }
+    if data.UseBackupsetDiskFilters != nil {
+        val[0]["usebackupsetdiskfilters"] = strconv.FormatBool(*data.UseBackupsetDiskFilters)
+        added = true
+    }
+    if data.QuiesceGuestFileSystemAndApplications != nil {
+        val[0]["quiesceguestfilesystemandapplications"] = strconv.FormatBool(*data.QuiesceGuestFileSystemAndApplications)
         added = true
     }
     if data.CollectFileDetailsforGranularRecovery != nil {
         val[0]["collectfiledetailsforgranularrecovery"] = strconv.FormatBool(*data.CollectFileDetailsforGranularRecovery)
         added = true
     }
-    if data.NoOfReaders != nil {
-        val[0]["noofreaders"] = data.NoOfReaders
-        added = true
-    }
-    if data.UseChangedBlockTrackingOnVM != nil {
-        val[0]["usechangedblocktrackingonvm"] = strconv.FormatBool(*data.UseChangedBlockTrackingOnVM)
+    if data.SnapshotStorageType != nil {
+        val[0]["snapshotstoragetype"] = data.SnapshotStorageType
         added = true
     }
     if data.JobStartTime != nil {
         val[0]["jobstarttime"] = data.JobStartTime
-        added = true
-    }
-    if data.UseVMCheckpointSetting != nil {
-        val[0]["usevmcheckpointsetting"] = strconv.FormatBool(*data.UseVMCheckpointSetting)
         added = true
     }
     if data.CustomSnapshotResourceGroup != nil {
@@ -3017,10 +3361,6 @@ func serialize_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, data *handl
         val[0]["regionalsnapshot"] = strconv.FormatBool(*data.RegionalSnapshot)
         added = true
     }
-    if rtn, ok := serialize_vmgroup_v2_msgguestcredentialinfo(d, data.GuestCredentials); ok {
-        val[0]["guestcredentials"] = rtn
-        added = true
-    }
     if data.VmBackupType != nil {
         val[0]["vmbackuptype"] = data.VmBackupType
         added = true
@@ -3029,16 +3369,60 @@ func serialize_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, data *handl
         val[0]["isvmgroupdiskfiltersincluded"] = strconv.FormatBool(*data.IsVMGroupDiskFiltersIncluded)
         added = true
     }
-    if data.DatastoreFreespaceCheck != nil {
-        val[0]["datastorefreespacecheck"] = strconv.FormatBool(*data.DatastoreFreespaceCheck)
-        added = true
-    }
     if data.AllowEmptySubclient != nil {
         val[0]["allowemptysubclient"] = strconv.FormatBool(*data.AllowEmptySubclient)
         added = true
     }
     if data.DatastoreFreespaceRequired != nil {
         val[0]["datastorefreespacerequired"] = data.DatastoreFreespaceRequired
+        added = true
+    }
+    if data.CollectFileDetailsFromSnapshotCopy != nil {
+        val[0]["collectfiledetailsfromsnapshotcopy"] = strconv.FormatBool(*data.CollectFileDetailsFromSnapshotCopy)
+        added = true
+    }
+    if rtn, ok := serialize_vmgroup_v2_msgamazoncrossaccount(d, data.CrossAccount); ok {
+        val[0]["crossaccount"] = rtn
+        added = true
+    }
+    if data.CanChangeEncryptionSetting != nil {
+        val[0]["canchangeencryptionsetting"] = strconv.FormatBool(*data.CanChangeEncryptionSetting)
+        added = true
+    }
+    if data.AutoDetectVMOwner != nil {
+        val[0]["autodetectvmowner"] = strconv.FormatBool(*data.AutoDetectVMOwner)
+        added = true
+    }
+    if data.NoOfReaders != nil {
+        val[0]["noofreaders"] = data.NoOfReaders
+        added = true
+    }
+    if data.UseChangedBlockTrackingOnVM != nil {
+        val[0]["usechangedblocktrackingonvm"] = strconv.FormatBool(*data.UseChangedBlockTrackingOnVM)
+        added = true
+    }
+    if data.IsSnapshotV2 != nil {
+        val[0]["issnapshotv2"] = strconv.FormatBool(*data.IsSnapshotV2)
+        added = true
+    }
+    if data.UseVMCheckpointSetting != nil {
+        val[0]["usevmcheckpointsetting"] = strconv.FormatBool(*data.UseVMCheckpointSetting)
+        added = true
+    }
+    if rtn, ok := serialize_vmgroup_v2_msgapplicationcredentialinfo(d, data.ApplicationCredentials); ok {
+        val[0]["applicationcredentials"] = rtn
+        added = true
+    }
+    if rtn, ok := serialize_vmgroup_v2_msgguestcredentialinfo(d, data.GuestCredentials); ok {
+        val[0]["guestcredentials"] = rtn
+        added = true
+    }
+    if data.SoftwareCompression != nil {
+        val[0]["softwarecompression"] = data.SoftwareCompression
+        added = true
+    }
+    if data.DatastoreFreespaceCheck != nil {
+        val[0]["datastorefreespacecheck"] = strconv.FormatBool(*data.DatastoreFreespaceCheck)
         added = true
     }
     if rtn, ok := serialize_vmgroup_v2_msgresourcetagset_array(d, data.CustomSnapshotTags); ok {
@@ -3053,12 +3437,49 @@ func serialize_vmgroup_v2_msgvmgroupsettings(d *schema.ResourceData, data *handl
         val[0]["transportmode"] = data.TransportMode
         added = true
     }
-    if data.CollectFileDetailsFromSnapshotCopy != nil {
-        val[0]["collectfiledetailsfromsnapshotcopy"] = strconv.FormatBool(*data.CollectFileDetailsFromSnapshotCopy)
-        added = true
+    if added {
+        return val, true
+    } else {
+        return nil, false
     }
-    if rtn, ok := serialize_vmgroup_v2_msgamazoncrossaccount(d, data.CrossAccount); ok {
-        val[0]["crossaccount"] = rtn
+}
+
+func serialize_vmgroup_v2_msgresourcetagset_array(d *schema.ResourceData, data []handler.MsgresourceTagSet) ([]map[string]interface{}, bool) {
+    //MsgvmGroupSettings -> MsgresourceTagSet
+    //MsgvmGroupSettings -> MsgresourceTagSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
+    for i := range data {
+        tmp := make(map[string]interface{})
+        added := false
+        if data[i].Name != nil {
+            tmp["name"] = data[i].Name
+            added = true
+        }
+        if data[i].Value != nil {
+            tmp["value"] = data[i].Value
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
+        }
+    }
+    return val, true
+}
+
+func serialize_vmgroup_v2_msgapplicationcredentialinfo(d *schema.ResourceData, data *handler.MsgapplicationCredentialInfo) ([]map[string]interface{}, bool) {
+    //MsgvmGroupSettings -> MsgapplicationCredentialInfo
+    //MsgvmGroupSettings -> MsgapplicationCredentialInfo
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if rtn, ok := serialize_vmgroup_v2_msgidname(d, data.SavedCredentials); ok {
+        val[0]["savedcredentials"] = rtn
         added = true
     }
     if added {
@@ -3094,31 +3515,6 @@ func serialize_vmgroup_v2_msgamazoncrossaccount(d *schema.ResourceData, data *ha
     } else {
         return nil, false
     }
-}
-
-func serialize_vmgroup_v2_msgresourcetagset_array(d *schema.ResourceData, data []handler.MsgresourceTagSet) ([]map[string]interface{}, bool) {
-    //MsgvmGroupSettings -> MsgresourceTagSet
-    //MsgvmGroupSettings -> MsgresourceTagSet
-    if data == nil {
-        return nil, false
-    }
-    val := make([]map[string]interface{}, 0)
-    for i := range data {
-        tmp := make(map[string]interface{})
-        added := false
-        if data[i].Name != nil {
-            tmp["name"] = data[i].Name
-            added = true
-        }
-        if data[i].Value != nil {
-            tmp["value"] = data[i].Value
-            added = true
-        }
-        if added {
-            val = append(val, tmp)
-        }
-    }
-    return val, true
 }
 
 func serialize_vmgroup_v2_msgactivitycontroloptions(d *schema.ResourceData, data *handler.MsgActivityControlOptions) ([]map[string]interface{}, bool) {

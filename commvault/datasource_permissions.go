@@ -30,7 +30,7 @@ func datasourcePermissions() *schema.Resource {
 
 func datasourceReadPermissions(d *schema.ResourceData, m interface{}) error {
 	pid, cid := handler.CvPermissionIdByName(d.Get("name").(string))
-	print("pid %d cid %d", pid, cid)
+
 	if pid > 0 {
 		d.SetId(strconv.Itoa(pid))
 		d.Set("categoryid", cid)

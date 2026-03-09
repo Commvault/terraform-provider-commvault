@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -17,6 +18,18 @@ func resourceHypervisor_AWS() *schema.Resource {
         Delete: resourceDeleteHypervisor_AWS,
 
         Schema: map[string]*schema.Schema{
+            "forceaccessnoderegion": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "If workloadRegion is set, use only access nodes from that region when true (fail if none found). When false, prefer that region but use any node if needed.",
+            },
+            "enablecloudconfigprotection": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "Protect Cloud Config entities",
+            },
             "skipcredentialvalidation": {
                 Type:        schema.TypeString,
                 Optional:    true,
@@ -63,8 +76,7 @@ func resourceHypervisor_AWS() *schema.Resource {
             },
             "credentials": {
                 Type:        schema.TypeList,
-                Optional:    true,
-                Computed:    true,
+                Required:    true,
                 Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
@@ -107,15 +119,51 @@ func resourceHypervisor_AWS() *schema.Resource {
                     },
                 },
             },
+            "usehostedinfrastructure": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "Describes if the infra has to be managed by commvault",
+            },
+            "workloadregion": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "name": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                        },
+                        "id": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "",
+                        },
+                    },
+                },
+            },
+            "workloadtype": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "",
+            },
             "secretkey": {
                 Type:        schema.TypeString,
-                Required:    true,
-                Description: "secret Key of Amazon login",
+                Optional:    true,
+                Computed:    true,
+                Description: "secret Key of Amazon login (DEPRECATED; will be removed in future release)",
             },
             "accesskey": {
                 Type:        schema.TypeString,
-                Required:    true,
-                Description: "Access Key of Amazon login",
+                Optional:    true,
+                Computed:    true,
+                Description: "Access Key of Amazon login (DEPRECATED; will be removed in future release)",
             },
             "region": {
                 Type:        schema.TypeString,
@@ -131,20 +179,27 @@ func resourceHypervisor_AWS() *schema.Resource {
             },
             "useiamrole": {
                 Type:        schema.TypeString,
-                Required:    true,
+                Optional:    true,
+                Computed:    true,
                 Description: "if Iam Role is used",
             },
             "rolearn": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "Role ARN for STS assume role with IAM policy",
+                Description: "Role ARN for STS assume role with IAM policy (DEPRECATED; will be removed in future release)",
             },
             "enableawsadminaccount": {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
                 Description: "",
+            },
+            "isstsassumerole": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "if STS Assume Role is used",
             },
             "activitycontrol": {
                 Type:        schema.TypeList,
@@ -477,11 +532,17 @@ func resourceHypervisor_AWS() *schema.Resource {
                                 },
                             },
                         },
-                        "customattributes": {
-                            Type:        schema.TypeList,
+                        "enableregionbasedbackups": {
+                            Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
-                            Description: "",
+                            Description: "Flag for enabling region based Backups",
+                        },
+                        "customattributes": {
+                            Type:        schema.TypeSet,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Array of all the customAttributes associated with hypervisor.",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "type": {
@@ -575,6 +636,14 @@ func resourceHypervisor_AWS() *schema.Resource {
 func resourceCreateHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     //API: (POST) /V4/Hypervisor
     var response_id = strconv.Itoa(0)
+    var t_forceaccessnoderegion *bool
+    if val, ok := d.GetOk("forceaccessnoderegion"); ok {
+        t_forceaccessnoderegion = handler.ToBooleanValue(val, false)
+    }
+    var t_enablecloudconfigprotection *bool
+    if val, ok := d.GetOk("enablecloudconfigprotection"); ok {
+        t_enablecloudconfigprotection = handler.ToBooleanValue(val, false)
+    }
     var t_skipcredentialvalidation *bool
     if val, ok := d.GetOk("skipcredentialvalidation"); ok {
         t_skipcredentialvalidation = handler.ToBooleanValue(val, false)
@@ -594,6 +663,18 @@ func resourceCreateHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     var t_accessnodes []handler.MsgaccessNodeModelSet
     if val, ok := d.GetOk("accessnodes"); ok {
         t_accessnodes = build_hypervisor_aws_msgaccessnodemodelset_array(d, val.(*schema.Set).List())
+    }
+    var t_usehostedinfrastructure *bool
+    if val, ok := d.GetOk("usehostedinfrastructure"); ok {
+        t_usehostedinfrastructure = handler.ToBooleanValue(val, false)
+    }
+    var t_workloadregion *handler.MsgIdName
+    if val, ok := d.GetOk("workloadregion"); ok {
+        t_workloadregion = build_hypervisor_aws_msgidname(d, val.([]interface{}))
+    }
+    var t_workloadtype *string
+    if val, ok := d.GetOk("workloadtype"); ok {
+        t_workloadtype = handler.ToStringValue(val, false)
     }
     var t_secretkey *string
     if val, ok := d.GetOk("secretkey"); ok {
@@ -626,7 +707,11 @@ func resourceCreateHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     if val, ok := d.GetOk("enableawsadminaccount"); ok {
         t_enableawsadminaccount = handler.ToBooleanValue(val, false)
     }
-    var req = handler.MsgCreateHypervisorAWSRequest{SkipCredentialValidation:t_skipcredentialvalidation, EtcdProtection:t_etcdprotection, Credentials:t_credentials, Name:t_name, AccessNodes:t_accessnodes, SecretKey:t_secretkey, AccessKey:t_accesskey, Region:t_region, HypervisorType:t_hypervisortype, UseServiceAccount:t_useserviceaccount, UseIamRole:t_useiamrole, RoleARN:t_rolearn, EnableAWSAdminAccount:t_enableawsadminaccount}
+    var t_isstsassumerole *bool
+    if val, ok := d.GetOk("isstsassumerole"); ok {
+        t_isstsassumerole = handler.ToBooleanValue(val, false)
+    }
+    var req = handler.MsgCreateHypervisorAWSRequest{ForceAccessNodeRegion:t_forceaccessnoderegion, EnableCloudConfigProtection:t_enablecloudconfigprotection, SkipCredentialValidation:t_skipcredentialvalidation, EtcdProtection:t_etcdprotection, Credentials:t_credentials, Name:t_name, AccessNodes:t_accessnodes, UseHostedInfrastructure:t_usehostedinfrastructure, WorkloadRegion:t_workloadregion, WorkloadType:t_workloadtype, SecretKey:t_secretkey, AccessKey:t_accesskey, Region:t_region, HypervisorType:t_hypervisortype, UseServiceAccount:t_useserviceaccount, UseIamRole:t_useiamrole, RoleARN:t_rolearn, EnableAWSAdminAccount:t_enableawsadminaccount, IsSTSAssumeRole:t_isstsassumerole}
     resp, err := handler.CvCreateHypervisorAWS(req)
     if err != nil {
         return fmt.Errorf("operation [CreateHypervisorAWS] failed, Error %s", err)
@@ -648,6 +733,11 @@ func resourceReadHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     //API: (GET) /V4/Hypervisor/{hypervisorId}
     resp, err := handler.CvGetHypervisors(d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetHypervisors] failed, Error %s", err)
     }
     if rtn, ok := serialize_hypervisor_aws_msgactivitycontroloptions(d, resp.ActivityControl); ok {
@@ -665,8 +755,19 @@ func resourceReadHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
     } else {
         d.Set("accessnodes", make([]map[string]interface{}, 0))
     }
+    if rtn, ok := serialize_hypervisor_aws_msgvmexistingcredential(d, resp.Credentials); ok {
+        d.Set("credentials", rtn)
+    } else {
+        d.Set("credentials", make([]map[string]interface{}, 0))
+    }
     if resp.DisplayName != nil {
         d.Set("displayname", resp.DisplayName)
+    }
+    if resp.HypervisorType != nil {
+        d.Set("hypervisortype", resp.HypervisorType)
+    }
+    if resp.UseHostedInfrastructure != nil {
+        d.Set("usehostedinfrastructure", strconv.FormatBool(*resp.UseHostedInfrastructure))
     }
     if resp.Name != nil {
         d.Set("name", resp.Name)
@@ -726,15 +827,20 @@ func resourceUpdateHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
         val := d.Get("accesskey")
         t_accesskey = handler.ToStringValue(val, false)
     }
-    var t_region *string
-    if d.HasChange("region") {
-        val := d.Get("region")
-        t_region = handler.ToStringValue(val, false)
-    }
     var t_hypervisortype *string
     if d.HasChange("hypervisortype") {
         val := d.Get("hypervisortype")
         t_hypervisortype = handler.ToStringValue(val, false)
+    }
+    var t_usehostedinfrastructure *bool
+    if d.HasChange("usehostedinfrastructure") {
+        val := d.Get("usehostedinfrastructure")
+        t_usehostedinfrastructure = handler.ToBooleanValue(val, false)
+    }
+    var t_region *string
+    if d.HasChange("region") {
+        val := d.Get("region")
+        t_region = handler.ToStringValue(val, false)
     }
     var t_useserviceaccount *string
     if d.HasChange("useserviceaccount") {
@@ -751,7 +857,12 @@ func resourceUpdateHypervisor_AWS(d *schema.ResourceData, m interface{}) error {
         val := d.Get("rolearn")
         t_rolearn = handler.ToStringValue(val, false)
     }
-    var req = handler.MsgupdateHypervisorAWSRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, SkipCredentialValidation:t_skipcredentialvalidation, Credentials:t_credentials, AccessNodes:t_accessnodes, FbrUnixMediaAgent:t_fbrunixmediaagent, SecretKey:t_secretkey, AccessKey:t_accesskey, Region:t_region, HypervisorType:t_hypervisortype, UseServiceAccount:t_useserviceaccount, UseIamRole:t_useiamrole, RoleARN:t_rolearn}
+    var t_enableawsadminaccount *bool
+    if d.HasChange("enableawsadminaccount") {
+        val := d.Get("enableawsadminaccount")
+        t_enableawsadminaccount = handler.ToBooleanValue(val, false)
+    }
+    var req = handler.MsgupdateHypervisorAWSRequest{ActivityControl:t_activitycontrol, Settings:t_settings, Security:t_security, NewName:t_newname, SkipCredentialValidation:t_skipcredentialvalidation, Credentials:t_credentials, AccessNodes:t_accessnodes, FbrUnixMediaAgent:t_fbrunixmediaagent, SecretKey:t_secretkey, AccessKey:t_accesskey, HypervisorType:t_hypervisortype, UseHostedInfrastructure:t_usehostedinfrastructure, Region:t_region, UseServiceAccount:t_useserviceaccount, UseIamRole:t_useiamrole, RoleARN:t_rolearn, EnableAWSAdminAccount:t_enableawsadminaccount}
     _, err := handler.CvupdateHypervisorAWS(req, d.Id())
     if err != nil {
         return fmt.Errorf("operation [updateHypervisorAWS] failed, Error %s", err)
@@ -884,28 +995,36 @@ func build_hypervisor_aws_msghypervisorsettings(d *schema.ResourceData, r []inte
         if val, ok := tmp["timezone"]; ok {
             t_timezone = build_hypervisor_aws_msgidname(d, val.([]interface{}))
         }
-        var t_customattributes *handler.MsghypervisorCustomAttribute
-        if val, ok := tmp["customattributes"]; ok {
-            t_customattributes = build_hypervisor_aws_msghypervisorcustomattribute(d, val.([]interface{}))
+        var t_enableregionbasedbackups *bool
+        if val, ok := tmp["enableregionbasedbackups"]; ok {
+            t_enableregionbasedbackups = handler.ToBooleanValue(val, true)
         }
-        return &handler.MsghypervisorSettings{MetricsMonitoringPolicy:t_metricsmonitoringpolicy, ApplicationCredentials:t_applicationcredentials, GuestCredentials:t_guestcredentials, MountAccessNode:t_mountaccessnode, RegionInfo:t_regioninfo, TimeZone:t_timezone, CustomAttributes:t_customattributes}
+        var t_customattributes []handler.MsghypervisorCustomAttributeSet
+        if val, ok := tmp["customattributes"]; ok {
+            t_customattributes = build_hypervisor_aws_msghypervisorcustomattributeset_array(d, val.(*schema.Set).List())
+        }
+        return &handler.MsghypervisorSettings{MetricsMonitoringPolicy:t_metricsmonitoringpolicy, ApplicationCredentials:t_applicationcredentials, GuestCredentials:t_guestcredentials, MountAccessNode:t_mountaccessnode, RegionInfo:t_regioninfo, TimeZone:t_timezone, EnableRegionBasedBackups:t_enableregionbasedbackups, CustomAttributes:t_customattributes}
     } else {
         return nil
     }
 }
 
-func build_hypervisor_aws_msghypervisorcustomattribute(d *schema.ResourceData, r []interface{}) *handler.MsghypervisorCustomAttribute {
-    if len(r) > 0 && r[0] != nil {
-        tmp := r[0].(map[string]interface{})
-        var t_type *int
-        if val, ok := tmp["type"]; ok {
-            t_type = handler.ToIntValue(val, true)
+func build_hypervisor_aws_msghypervisorcustomattributeset_array(d *schema.ResourceData, r []interface{}) []handler.MsghypervisorCustomAttributeSet {
+    if r != nil {
+        tmp := make([]handler.MsghypervisorCustomAttributeSet, len(r))
+        for a, iter_a := range r {
+            raw_a := iter_a.(map[string]interface{})
+            var t_type *int
+            if val, ok := raw_a["type"]; ok {
+                t_type = handler.ToIntValue(val, true)
+            }
+            var t_value *string
+            if val, ok := raw_a["value"]; ok {
+                t_value = handler.ToStringValue(val, true)
+            }
+            tmp[a] = handler.MsghypervisorCustomAttributeSet{Type:t_type, Value:t_value}
         }
-        var t_value *string
-        if val, ok := tmp["value"]; ok {
-            t_value = handler.ToStringValue(val, true)
-        }
-        return &handler.MsghypervisorCustomAttribute{Type:t_type, Value:t_value}
+        return tmp
     } else {
         return nil
     }
@@ -1087,6 +1206,22 @@ func build_hypervisor_aws_msgetcdprotectionitem(d *schema.ResourceData, r []inte
     }
 }
 
+func serialize_hypervisor_aws_msgvmexistingcredential(d *schema.ResourceData, data *handler.MsgVMExistingCredential) ([]map[string]interface{}, bool) {
+    //MsgIdName
+    //MsgVMExistingCredential
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
 func serialize_hypervisor_aws_msghypervisorsettings(d *schema.ResourceData, data *handler.MsghypervisorSettings) ([]map[string]interface{}, bool) {
     //MsghypervisorSettings
     //MsghypervisorSettings
@@ -1120,7 +1255,11 @@ func serialize_hypervisor_aws_msghypervisorsettings(d *schema.ResourceData, data
         val[0]["timezone"] = rtn
         added = true
     }
-    if rtn, ok := serialize_hypervisor_aws_msghypervisorcustomattribute(d, data.CustomAttributes); ok {
+    if data.EnableRegionBasedBackups != nil {
+        val[0]["enableregionbasedbackups"] = strconv.FormatBool(*data.EnableRegionBasedBackups)
+        added = true
+    }
+    if rtn, ok := serialize_hypervisor_aws_msghypervisorcustomattributeset_array(d, data.CustomAttributes); ok {
         val[0]["customattributes"] = rtn
         added = true
     }
@@ -1131,28 +1270,29 @@ func serialize_hypervisor_aws_msghypervisorsettings(d *schema.ResourceData, data
     }
 }
 
-func serialize_hypervisor_aws_msghypervisorcustomattribute(d *schema.ResourceData, data *handler.MsghypervisorCustomAttribute) ([]map[string]interface{}, bool) {
-    //MsghypervisorSettings -> MsghypervisorCustomAttribute
-    //MsghypervisorSettings -> MsghypervisorCustomAttribute
+func serialize_hypervisor_aws_msghypervisorcustomattributeset_array(d *schema.ResourceData, data []handler.MsghypervisorCustomAttributeSet) ([]map[string]interface{}, bool) {
+    //MsghypervisorSettings -> MsghypervisorCustomAttributeSet
+    //MsghypervisorSettings -> MsghypervisorCustomAttributeSet
     if data == nil {
         return nil, false
     }
-    val := make([]map[string]interface{}, 1)
-    val[0] = make(map[string]interface{})
-    added := false
-    if data.Type != nil {
-        val[0]["type"] = data.Type
-        added = true
+    val := make([]map[string]interface{}, 0)
+    for i := range data {
+        tmp := make(map[string]interface{})
+        added := false
+        if data[i].Type != nil {
+            tmp["type"] = data[i].Type
+            added = true
+        }
+        if data[i].Value != nil {
+            tmp["value"] = data[i].Value
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
+        }
     }
-    if data.Value != nil {
-        val[0]["value"] = data.Value
-        added = true
-    }
-    if added {
-        return val, true
-    } else {
-        return nil, false
-    }
+    return val, true
 }
 
 func serialize_hypervisor_aws_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {

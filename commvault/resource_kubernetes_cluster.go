@@ -1,8 +1,9 @@
 package commvault
 
 import (
-    "strconv"
     "fmt"
+    "strconv"
+    "strings"
 
     "terraform-provider-commvault/commvault/handler"
 
@@ -17,6 +18,24 @@ func resourceKubernetes_Cluster() *schema.Resource {
         Delete: resourceDeleteKubernetes_Cluster,
 
         Schema: map[string]*schema.Schema{
+            "skipcredentialvalidation": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "if credential validation has to be skipped.",
+            },
+            "sslthumbprint": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "Thumbprint of the SSL certificate used to bypass SSL validation",
+            },
+            "skipsslvalidation": {
+                Type:        schema.TypeString,
+                Optional:    true,
+                Computed:    true,
+                Description: "if SSL certificate validation has to be skipped.",
+            },
             "apiserver": {
                 Type:        schema.TypeString,
                 Optional:    true,
@@ -33,7 +52,7 @@ func resourceKubernetes_Cluster() *schema.Resource {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "Secret token to authenticate with the cluster",
+                Description: "Secret token to authenticate with the cluster. The secret token must be Base64 encoded.",
             },
             "accessnodes": {
                 Type:        schema.TypeSet,
@@ -145,6 +164,46 @@ func resourceKubernetes_Cluster() *schema.Resource {
                 Description: "Request definition for cluster advanced options",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
+                        "confignamespace": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Specify the name of the Namespace where Commvault resources will be deployed",
+                        },
+                        "jobstepwaittime": {
+                            Type:        schema.TypeList,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Request definition changing job step wait time options for cluster",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "snapshotready": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "Specify wait time (in minutes) for snapshot to be Ready",
+                                    },
+                                    "workerpodstartup": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "Specify wait time (in minutes) for Worker Pod to start",
+                                    },
+                                    "snapshotcleanup": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "Specify wait time (in minutes) for snapshot to be deleted",
+                                    },
+                                    "resourcecleanup": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "Specify wait time (in minutes) for resources to be deleted",
+                                    },
+                                },
+                            },
+                        },
                         "imageregistry": {
                             Type:        schema.TypeList,
                             Optional:    true,
@@ -152,17 +211,17 @@ func resourceKubernetes_Cluster() *schema.Resource {
                             Description: "Request definition changing image registry options for cluster",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
-                                    "registryurl": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Specify image registry URL for internal image repository",
-                                    },
-                                    "imagepullsecret": {
+                                    "pullsecret": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Specify image pull secret to authenticate with the image repository",
+                                    },
+                                    "url": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Computed:    true,
+                                        Description: "Specify image registry URL for internal image repository",
                                     },
                                 },
                             },
@@ -218,6 +277,18 @@ func resourceKubernetes_Cluster() *schema.Resource {
 func resourceCreateKubernetes_Cluster(d *schema.ResourceData, m interface{}) error {
     //API: (POST) /V5/Kubernetes/Cluster
     var response_id = strconv.Itoa(0)
+    var t_skipcredentialvalidation *bool
+    if val, ok := d.GetOk("skipcredentialvalidation"); ok {
+        t_skipcredentialvalidation = handler.ToBooleanValue(val, false)
+    }
+    var t_sslthumbprint *string
+    if val, ok := d.GetOk("sslthumbprint"); ok {
+        t_sslthumbprint = handler.ToStringValue(val, false)
+    }
+    var t_skipsslvalidation *bool
+    if val, ok := d.GetOk("skipsslvalidation"); ok {
+        t_skipsslvalidation = handler.ToBooleanValue(val, false)
+    }
     var t_apiserver *string
     if val, ok := d.GetOk("apiserver"); ok {
         t_apiserver = handler.ToStringValue(val, false)
@@ -246,7 +317,7 @@ func resourceCreateKubernetes_Cluster(d *schema.ResourceData, m interface{}) err
     if val, ok := d.GetOk("name"); ok {
         t_name = handler.ToStringValue(val, false)
     }
-    var req = handler.MsgCreateKubernetesClusterOpRequest{ApiServer:t_apiserver, ServiceAccount:t_serviceaccount, ServiceToken:t_servicetoken, AccessNodes:t_accessnodes, ServiceType:t_servicetype, EtcdProtection:t_etcdprotection, Name:t_name}
+    var req = handler.MsgCreateKubernetesClusterOpRequest{SkipCredentialValidation:t_skipcredentialvalidation, SslThumbprint:t_sslthumbprint, SkipSSLValidation:t_skipsslvalidation, ApiServer:t_apiserver, ServiceAccount:t_serviceaccount, ServiceToken:t_servicetoken, AccessNodes:t_accessnodes, ServiceType:t_servicetype, EtcdProtection:t_etcdprotection, Name:t_name}
     resp, err := handler.CvCreateKubernetesClusterOp(req)
     if err != nil {
         return fmt.Errorf("operation [CreateKubernetesClusterOp] failed, Error %s", err)
@@ -266,6 +337,11 @@ func resourceReadKubernetes_Cluster(d *schema.ResourceData, m interface{}) error
     //API: (GET) /V5/Kubernetes/Cluster/{clusterId}
     resp, err := handler.CvGetKubernetesClusterDetails(d.Id())
     if err != nil {
+        if strings.Contains(err.Error(), "status: 404") {
+            handler.LogEntry("debug", "entity not present, removing from state")
+            d.SetId("")
+            return nil
+        }
         return fmt.Errorf("operation [GetKubernetesClusterDetails] failed, Error %s", err)
     }
     if rtn, ok := serialize_kubernetes_cluster_msgclusteractivitycontroloptions(d, resp.ActivityControl); ok {
@@ -277,6 +353,11 @@ func resourceReadKubernetes_Cluster(d *schema.ResourceData, m interface{}) error
         d.Set("etcdprotection", rtn)
     } else {
         d.Set("etcdprotection", make([]map[string]interface{}, 0))
+    }
+    if rtn, ok := serialize_kubernetes_cluster_msgidnamevalueset_array(d, resp.Tags); ok {
+        d.Set("tags", rtn)
+    } else {
+        d.Set("tags", make([]map[string]interface{}, 0))
     }
     if rtn, ok := serialize_kubernetes_cluster_msgeditclusteradvancedoptionsinfo(d, resp.Options); ok {
         d.Set("options", rtn)
@@ -291,11 +372,6 @@ func resourceReadKubernetes_Cluster(d *schema.ResourceData, m interface{}) error
     } else {
         d.Set("region", make([]map[string]interface{}, 0))
     }
-    if rtn, ok := serialize_kubernetes_cluster_msgidnamevalueset_array(d, resp.Tags); ok {
-        d.Set("tags", rtn)
-    } else {
-        d.Set("tags", make([]map[string]interface{}, 0))
-    }
     if resp.DisplayName != nil {
         d.Set("name", resp.DisplayName)
     }
@@ -304,6 +380,21 @@ func resourceReadKubernetes_Cluster(d *schema.ResourceData, m interface{}) error
 
 func resourceUpdateKubernetes_Cluster(d *schema.ResourceData, m interface{}) error {
     //API: (PUT) /V5/Kubernetes/Cluster/{clusterId}
+    var t_skipcredentialvalidation *bool
+    if d.HasChange("skipcredentialvalidation") {
+        val := d.Get("skipcredentialvalidation")
+        t_skipcredentialvalidation = handler.ToBooleanValue(val, false)
+    }
+    var t_sslthumbprint *string
+    if d.HasChange("sslthumbprint") {
+        val := d.Get("sslthumbprint")
+        t_sslthumbprint = handler.ToStringValue(val, false)
+    }
+    var t_skipsslvalidation *bool
+    if d.HasChange("skipsslvalidation") {
+        val := d.Get("skipsslvalidation")
+        t_skipsslvalidation = handler.ToBooleanValue(val, false)
+    }
     var t_apiserver *string
     if d.HasChange("apiserver") {
         val := d.Get("apiserver")
@@ -359,7 +450,7 @@ func resourceUpdateKubernetes_Cluster(d *schema.ResourceData, m interface{}) err
         val := d.Get("tags")
         t_tags = build_kubernetes_cluster_msgnamevalueset_array(d, val.(*schema.Set).List())
     }
-    var req = handler.MsgUpdateKubernetesPropertiesRequest{ApiServer:t_apiserver, ServiceAccount:t_serviceaccount, ServiceToken:t_servicetoken, AccessNodes:t_accessnodes, ServiceType:t_servicetype, ActivityControl:t_activitycontrol, EtcdProtection:t_etcdprotection, Name:t_name, Options:t_options, Region:t_region, Tags:t_tags}
+    var req = handler.MsgUpdateKubernetesPropertiesRequest{SkipCredentialValidation:t_skipcredentialvalidation, SslThumbprint:t_sslthumbprint, SkipSSLValidation:t_skipsslvalidation, ApiServer:t_apiserver, ServiceAccount:t_serviceaccount, ServiceToken:t_servicetoken, AccessNodes:t_accessnodes, ServiceType:t_servicetype, ActivityControl:t_activitycontrol, EtcdProtection:t_etcdprotection, Name:t_name, Options:t_options, Region:t_region, Tags:t_tags}
     _, err := handler.CvUpdateKubernetesProperties(req, d.Id())
     if err != nil {
         return fmt.Errorf("operation [UpdateKubernetesProperties] failed, Error %s", err)
@@ -450,11 +541,19 @@ func build_kubernetes_cluster_msgidname(d *schema.ResourceData, r []interface{})
 func build_kubernetes_cluster_msgeditclusteradvancedoptionsinfo(d *schema.ResourceData, r []interface{}) *handler.MsgEditClusterAdvancedOptionsInfo {
     if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
+        var t_confignamespace *string
+        if val, ok := tmp["confignamespace"]; ok {
+            t_confignamespace = handler.ToStringValue(val, true)
+        }
+        var t_jobstepwaittime *handler.MsgJobStepWaitTimeOptions
+        if val, ok := tmp["jobstepwaittime"]; ok {
+            t_jobstepwaittime = build_kubernetes_cluster_msgjobstepwaittimeoptions(d, val.([]interface{}))
+        }
         var t_imageregistry *handler.MsgClusterImageRegistryOptions
         if val, ok := tmp["imageregistry"]; ok {
             t_imageregistry = build_kubernetes_cluster_msgclusterimageregistryoptions(d, val.([]interface{}))
         }
-        return &handler.MsgEditClusterAdvancedOptionsInfo{ImageRegistry:t_imageregistry}
+        return &handler.MsgEditClusterAdvancedOptionsInfo{ConfigNamespace:t_confignamespace, JobStepWaitTime:t_jobstepwaittime, ImageRegistry:t_imageregistry}
     } else {
         return nil
     }
@@ -463,15 +562,40 @@ func build_kubernetes_cluster_msgeditclusteradvancedoptionsinfo(d *schema.Resour
 func build_kubernetes_cluster_msgclusterimageregistryoptions(d *schema.ResourceData, r []interface{}) *handler.MsgClusterImageRegistryOptions {
     if len(r) > 0 && r[0] != nil {
         tmp := r[0].(map[string]interface{})
-        var t_registryurl *string
-        if val, ok := tmp["registryurl"]; ok {
-            t_registryurl = handler.ToStringValue(val, true)
+        var t_pullsecret *string
+        if val, ok := tmp["pullsecret"]; ok {
+            t_pullsecret = handler.ToStringValue(val, true)
         }
-        var t_imagepullsecret *string
-        if val, ok := tmp["imagepullsecret"]; ok {
-            t_imagepullsecret = handler.ToStringValue(val, true)
+        var t_url *string
+        if val, ok := tmp["url"]; ok {
+            t_url = handler.ToStringValue(val, true)
         }
-        return &handler.MsgClusterImageRegistryOptions{RegistryUrl:t_registryurl, ImagePullSecret:t_imagepullsecret}
+        return &handler.MsgClusterImageRegistryOptions{PullSecret:t_pullsecret, Url:t_url}
+    } else {
+        return nil
+    }
+}
+
+func build_kubernetes_cluster_msgjobstepwaittimeoptions(d *schema.ResourceData, r []interface{}) *handler.MsgJobStepWaitTimeOptions {
+    if len(r) > 0 && r[0] != nil {
+        tmp := r[0].(map[string]interface{})
+        var t_snapshotready *int
+        if val, ok := tmp["snapshotready"]; ok {
+            t_snapshotready = handler.ToIntValue(val, true)
+        }
+        var t_workerpodstartup *int
+        if val, ok := tmp["workerpodstartup"]; ok {
+            t_workerpodstartup = handler.ToIntValue(val, true)
+        }
+        var t_snapshotcleanup *int
+        if val, ok := tmp["snapshotcleanup"]; ok {
+            t_snapshotcleanup = handler.ToIntValue(val, true)
+        }
+        var t_resourcecleanup *int
+        if val, ok := tmp["resourcecleanup"]; ok {
+            t_resourcecleanup = handler.ToIntValue(val, true)
+        }
+        return &handler.MsgJobStepWaitTimeOptions{SnapshotReady:t_snapshotready, WorkerPodStartup:t_workerpodstartup, SnapshotCleanup:t_snapshotcleanup, ResourceCleanup:t_resourcecleanup}
     } else {
         return nil
     }
@@ -565,31 +689,6 @@ func build_kubernetes_cluster_msgetcdprotectionitem(d *schema.ResourceData, r []
     }
 }
 
-func serialize_kubernetes_cluster_msgidnamevalueset_array(d *schema.ResourceData, data []handler.MsgIdNameValueSet) ([]map[string]interface{}, bool) {
-    //MsgNameValueSet
-    //MsgIdNameValueSet
-    if data == nil {
-        return nil, false
-    }
-    val := make([]map[string]interface{}, 0)
-    for i := range data {
-        tmp := make(map[string]interface{})
-        added := false
-        if data[i].Name != nil {
-            tmp["name"] = data[i].Name
-            added = true
-        }
-        if data[i].Value != nil {
-            tmp["value"] = data[i].Value
-            added = true
-        }
-        if added {
-            val = append(val, tmp)
-        }
-    }
-    return val, true
-}
-
 func serialize_kubernetes_cluster_msgidname(d *schema.ResourceData, data *handler.MsgIdName) ([]map[string]interface{}, bool) {
     //MsgIdName
     //MsgIdName
@@ -623,6 +722,14 @@ func serialize_kubernetes_cluster_msgeditclusteradvancedoptionsinfo(d *schema.Re
     val := make([]map[string]interface{}, 1)
     val[0] = make(map[string]interface{})
     added := false
+    if data.ConfigNamespace != nil {
+        val[0]["confignamespace"] = data.ConfigNamespace
+        added = true
+    }
+    if rtn, ok := serialize_kubernetes_cluster_msgjobstepwaittimeoptions(d, data.JobStepWaitTime); ok {
+        val[0]["jobstepwaittime"] = rtn
+        added = true
+    }
     if rtn, ok := serialize_kubernetes_cluster_msgclusterimageregistryoptions(d, data.ImageRegistry); ok {
         val[0]["imageregistry"] = rtn
         added = true
@@ -643,12 +750,12 @@ func serialize_kubernetes_cluster_msgclusterimageregistryoptions(d *schema.Resou
     val := make([]map[string]interface{}, 1)
     val[0] = make(map[string]interface{})
     added := false
-    if data.RegistryUrl != nil {
-        val[0]["registryurl"] = data.RegistryUrl
+    if data.PullSecret != nil {
+        val[0]["pullsecret"] = data.PullSecret
         added = true
     }
-    if data.ImagePullSecret != nil {
-        val[0]["imagepullsecret"] = data.ImagePullSecret
+    if data.Url != nil {
+        val[0]["url"] = data.Url
         added = true
     }
     if added {
@@ -656,6 +763,63 @@ func serialize_kubernetes_cluster_msgclusterimageregistryoptions(d *schema.Resou
     } else {
         return nil, false
     }
+}
+
+func serialize_kubernetes_cluster_msgjobstepwaittimeoptions(d *schema.ResourceData, data *handler.MsgJobStepWaitTimeOptions) ([]map[string]interface{}, bool) {
+    //MsgEditClusterAdvancedOptionsInfo -> MsgJobStepWaitTimeOptions
+    //MsgEditClusterAdvancedOptionsInfo -> MsgJobStepWaitTimeOptions
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 1)
+    val[0] = make(map[string]interface{})
+    added := false
+    if data.SnapshotReady != nil {
+        val[0]["snapshotready"] = data.SnapshotReady
+        added = true
+    }
+    if data.WorkerPodStartup != nil {
+        val[0]["workerpodstartup"] = data.WorkerPodStartup
+        added = true
+    }
+    if data.SnapshotCleanup != nil {
+        val[0]["snapshotcleanup"] = data.SnapshotCleanup
+        added = true
+    }
+    if data.ResourceCleanup != nil {
+        val[0]["resourcecleanup"] = data.ResourceCleanup
+        added = true
+    }
+    if added {
+        return val, true
+    } else {
+        return nil, false
+    }
+}
+
+func serialize_kubernetes_cluster_msgidnamevalueset_array(d *schema.ResourceData, data []handler.MsgIdNameValueSet) ([]map[string]interface{}, bool) {
+    //MsgNameValueSet
+    //MsgIdNameValueSet
+    if data == nil {
+        return nil, false
+    }
+    val := make([]map[string]interface{}, 0)
+    for i := range data {
+        tmp := make(map[string]interface{})
+        added := false
+        if data[i].Name != nil {
+            tmp["name"] = data[i].Name
+            added = true
+        }
+        if data[i].Value != nil {
+            tmp["value"] = data[i].Value
+            added = true
+        }
+        if added {
+            val = append(val, tmp)
+        }
+    }
+    return val, true
 }
 
 func serialize_kubernetes_cluster_msggetetcdprotectionitem(d *schema.ResourceData, data *handler.MsgGetEtcdProtectionItem) ([]map[string]interface{}, bool) {
