@@ -49,6 +49,9 @@ build/
 terraform.log
 *.local
 
+# Local planning notes
+internal_notes/
+
 # OS
 Thumbs.db
 .DS_Store
