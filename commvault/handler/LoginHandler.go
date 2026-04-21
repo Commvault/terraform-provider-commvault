@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -27,14 +28,17 @@ func GenerateAuthToken(username string, password string) string {
 
 func LoginWithProviderCredentials(username string, password string) {
 	url := os.Getenv("CV_CSIP") + "/login"
+	encodedPassword := base64.StdEncoding.EncodeToString([]byte(password))
 	loginReq := DM2ContentIndexingCheckCredentialReq{
 		Username: username,
-		Password: password,
+		Password: encodedPassword,
 		TimeOut:  "10000",
 	}
 	loginXML, _ := xml.Marshal(&loginReq)
 	respBody, err := makeHttpRequestErr(url, http.MethodPost, XML, loginXML, XML, "", 0)
-	if err == nil {
+	if err != nil {
+		LogEntry("LoginWithProviderCredentials", "Error: "+err.Error())
+	} else {
 		var loginResponse DM2ContentIndexingCheckCredentialResp
 		xml.Unmarshal(respBody, &loginResponse)
 		os.Setenv("AuthToken", loginResponse.Token)

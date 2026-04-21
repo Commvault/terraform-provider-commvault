@@ -69,6 +69,32 @@ func makeHttpRequestErr(url string, method string, accept string, requestBody []
 	return executeHttpReq(req)
 }
 
+// makeHttpRequestBody always returns the response body, even on non-200 status codes.
+// Use this for APIs (like /GetId) that embed useful data inside 404/409 responses.
+func makeHttpRequestBody(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) ([]byte, int, error) {
+	req, err := buildHttpReq(url, method, accept, requestBody, contentType, authToken, companyID)
+	if err != nil {
+		return nil, 0, err
+	}
+	client := &http.Client{Timeout: time.Second * 1000}
+	if os.Getenv("IGNORE_CERT") == "true" {
+		config := &tls.Config{InsecureSkipVerify: true}
+		transport := &http.Transport{TLSClientConfig: config}
+		client.Transport = transport
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, resp.StatusCode, err
+	}
+	LogEntry("RESPONSE: ", string(data))
+	return data, resp.StatusCode, nil
+}
+
 func makeHttpRequest(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) []byte {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", contentType)
@@ -216,13 +242,24 @@ func ToDoubleValue(val interface{}, omitempty bool) *float64 {
 // }
 
 func ToBooleanValue(val interface{}, omitempty bool) *bool {
-	tmp := val.(string)
-	t := true
-	f := false
-	if strings.EqualFold(tmp, "true") {
-		return &t
-	} else if strings.EqualFold(tmp, "false") {
-		return &f
+	switch v := val.(type) {
+	case bool:
+		if omitempty && !v {
+			return nil
+		}
+		return &v
+	case string:
+		t := true
+		f := false
+		if strings.EqualFold(v, "true") {
+			return &t
+		}
+		if strings.EqualFold(v, "false") {
+			if omitempty {
+				return nil
+			}
+			return &f
+		}
 	}
 	return nil
 }

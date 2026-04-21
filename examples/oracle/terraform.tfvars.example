@@ -1,0 +1,25 @@
+# terraform.tfvars
+# Fill in your actual values before running terraform apply
+# !! DO NOT commit this file to source control !!
+
+web_service_url = "https://your-commserve.example.com/webconsole/api"
+user_name       = "admin"
+password        = "your-password"
+
+# The client name MUST exactly match what appears in the Commvault console (case-sensitive)
+client_name     = "hugo"
+
+# The Oracle SID on the client machine
+instance_name   = "ORCL"
+
+# Full path to Oracle home on the CLIENT machine (not this machine)
+oracle_home     = "/u01/app/oracle/product/19c/dbhome_1"
+
+# OS user that owns the Oracle installation on the client
+oracle_user     = "oracle"
+
+# Optional: Commvault Plan ID (find it in Manage > Plans in the console)
+# plan_id = 2
+
+# Name for the subclient that will be created
+subclient_name  = "terraform_subclient"
