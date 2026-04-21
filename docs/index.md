@@ -50,18 +50,3 @@ provider "commvault" {
 | 11.30.28      | <ul><li>commvault_hypervisor_aws</li><li>commvault_hypervisor_azure</li><li>commvault_vmgroup_v2</li></ul> |
 | 11.32      | <ul><li>commvault_credential_aws</li><li>commvault_credential_awswithrolearn</li><li>commvault_credential_azure</li><li>commvault_credential_azurewithtenantid</li><li>commvault_kubernetes_appgroup</li><li>commvault_kubernetes_cluster</li><li>commvault_plan_backupdestination</li><li>commvault_plan_server</li><li>commvault_storage_cloud_accesspath</li><li>commvault_storage_cloud_azure</li><li>commvault_storage_cloud_bucket_s3</li><li>commvault_storage_cloud_s3</li><li>commvault_storage_container_azure</li><li>commvault_storage_disk</li><li>commvault_storage_disk_backup_location</li><li>commvault_disk_accesspath</li></ul> |
 | 11.36      | <ul><li>commvault_oracle_install_agent</li><li>commvault_oracle_instance</li><li>commvault_oracle_subclient</li></ul> |
-
-## Oracle Resources
-
-The Commvault Terraform provider supports Oracle database backup and recovery operations:
-
-### Resources
-- **commvault_oracle_install_agent** - Install Oracle iDataAgent on database servers
-- **commvault_oracle_instance** - Manage Oracle database instances
-- **commvault_oracle_subclient** - Manage Oracle subclients for backup configuration
-
-### Data Sources
-- **commvault_oracle_instance** - Retrieve Oracle instance information
-- **commvault_oracle_subclient** - Retrieve Oracle subclient information
-- **commvault_oracle_backup_pieces** - Retrieve RMAN backup pieces
-- **commvault_oracle_rman_logs** - Retrieve RMAN logs for jobs
