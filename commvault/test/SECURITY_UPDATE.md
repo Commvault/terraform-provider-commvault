@@ -77,7 +77,7 @@ See README.md or .env.example for configuration details.
 ```powershell
 $env:TF_ACC = "1"
 $env:CV_TEST_WEB_SERVICE_URL = "https://your-cs.com/webconsole/api"
-$env:CV_TEST_USER_NAME = "admin"
+$env:CV_TEST_USER_NAME = "your-admin-username"
 $env:CV_TEST_PASSWORD = "your-password"
 $env:CV_TEST_CLIENT_NAME = "your-client"
 $env:CV_TEST_INSTANCE_NAME = "YOUR_DB"
@@ -140,7 +140,7 @@ cd commvault/test
 # Set your environment
 $env:TF_ACC = "1"
 $env:CV_TEST_WEB_SERVICE_URL = "https://your-commserve.example.com/webconsole/api"
-$env:CV_TEST_USER_NAME = "admin"
+$env:CV_TEST_USER_NAME = "your-admin-username"
 $env:CV_TEST_PASSWORD = "your-password"
 $env:CV_TEST_CLIENT_NAME = "hugo"
 $env:CV_TEST_INSTANCE_NAME = "TESTDB"

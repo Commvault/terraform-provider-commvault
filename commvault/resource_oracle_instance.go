@@ -57,9 +57,9 @@ func resourceOracleInstance() *schema.Resource {
 				Description: "Set to true if Oracle wallet is configured for authentication",
 			},
 			"sql_connect_user": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "/",
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "/",
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					// Commvault may return empty SQL user when credential-based DB auth is used.
 					// Treat empty and "/" as equivalent to avoid perpetual diffs.

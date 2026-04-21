@@ -52,7 +52,7 @@ $env:CV_TEST_ORACLE_USER = "oracle-os-user"
 # Set environment variables
 $env:TF_ACC = "1"
 $env:CV_TEST_WEB_SERVICE_URL = "https://your-commserve.com/webconsole/api"
-$env:CV_TEST_USER_NAME = "admin"
+$env:CV_TEST_USER_NAME = "your-admin-username"
 $env:CV_TEST_PASSWORD = "your-password"
 $env:CV_TEST_CLIENT_NAME = "your-oracle-client"
 $env:CV_TEST_INSTANCE_NAME = "YOUR_INSTANCE"
@@ -162,7 +162,7 @@ go test -v ./commvault/test/... -timeout 60m
 # Set environment
 $env:TF_ACC = "1"
 $env:CV_TEST_WEB_SERVICE_URL = "https://your-commserve.example.com/webconsole/api"
-$env:CV_TEST_USER_NAME = "admin"
+$env:CV_TEST_USER_NAME = "your-admin-username"
 $env:CV_TEST_PASSWORD = "your-password"
 $env:CV_TEST_CLIENT_NAME = "hugo"
 $env:CV_TEST_INSTANCE_NAME = "TESTDB_TF_$(Get-Date -Format 'yyyyMMddHHmmss')"

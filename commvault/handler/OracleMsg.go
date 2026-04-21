@@ -72,9 +72,9 @@ type MsgAttribute struct {
 
 // MsgGenericResponse represents a generic response
 type MsgGenericResponse struct {
-	ErrorCode    *int    `json:"errorCode,omitempty"`
-	ErrorString  *string `json:"errorString,omitempty"`
-	Entity       *MsgIdName `json:"entity,omitempty"`
+	ErrorCode   *int       `json:"errorCode,omitempty"`
+	ErrorString *string    `json:"errorString,omitempty"`
+	Entity      *MsgIdName `json:"entity,omitempty"`
 }
 
 // MsgFetchOracleInstancesResponse represents the response from fetching Oracle instances
@@ -111,22 +111,22 @@ type MsgOracleInstanceFullProperties struct {
 
 // MsgOracleInstanceDetails represents Oracle-specific instance details
 type MsgOracleInstanceDetails struct {
-	OracleHome                  *string                 `json:"oracleHome,omitempty"`
-	OracleUser                  *MsgOracleUser          `json:"oracleUser,omitempty"`
-	OracleWalletAuthentication  *bool                   `json:"oracleWalletAuthentication,omitempty"`
-	SqlConnect                  *MsgOracleConnect       `json:"sqlConnect,omitempty"`
-	UseCatalogConnect           *bool                   `json:"useCatalogConnect,omitempty"`
-	CatalogConnect              *MsgOracleConnect       `json:"catalogConnect,omitempty"`
-	BlockSize                   *int                    `json:"blockSize,omitempty"`
-	CrossCheckTimeout           *int                    `json:"crossCheckTimeout,omitempty"`
-	TNSAdminPath                *string                 `json:"TNSAdminPath,omitempty"`
-	ArchiveLogDest              *string                 `json:"archiveLogDest,omitempty"`
+	OracleHome                 *string           `json:"oracleHome,omitempty"`
+	OracleUser                 *MsgOracleUser    `json:"oracleUser,omitempty"`
+	OracleWalletAuthentication *bool             `json:"oracleWalletAuthentication,omitempty"`
+	SqlConnect                 *MsgOracleConnect `json:"sqlConnect,omitempty"`
+	UseCatalogConnect          *bool             `json:"useCatalogConnect,omitempty"`
+	CatalogConnect             *MsgOracleConnect `json:"catalogConnect,omitempty"`
+	BlockSize                  *int              `json:"blockSize,omitempty"`
+	CrossCheckTimeout          *int              `json:"crossCheckTimeout,omitempty"`
+	TNSAdminPath               *string           `json:"TNSAdminPath,omitempty"`
+	ArchiveLogDest             *string           `json:"archiveLogDest,omitempty"`
 	// Credential-based authentication (preferred over inline credentials)
-	OsUserCredInfo              *MsgCredentialInfo      `json:"osUserCredInfo,omitempty"`
-	DbConnectCredInfo           *MsgCredentialInfo      `json:"dbConnectCredInfo,omitempty"`
-	CatalogConnectCredInfo      *MsgCredentialInfo      `json:"catalogConnectCredInfo,omitempty"`
+	OsUserCredInfo         *MsgCredentialInfo `json:"osUserCredInfo,omitempty"`
+	DbConnectCredInfo      *MsgCredentialInfo `json:"dbConnectCredInfo,omitempty"`
+	CatalogConnectCredInfo *MsgCredentialInfo `json:"catalogConnectCredInfo,omitempty"`
 	// Storage configuration
-	OracleStorageDevice         *MsgOracleStorageDevice `json:"oracleStorageDevice,omitempty"`
+	OracleStorageDevice *MsgOracleStorageDevice `json:"oracleStorageDevice,omitempty"`
 }
 
 // MsgOracleUser represents Oracle OS user
@@ -151,11 +151,11 @@ type MsgCredentialInfo struct {
 
 // MsgOracleStorageDevice represents Oracle storage device configuration
 type MsgOracleStorageDevice struct {
-	LogBackupStoragePolicy     *MsgIdName `json:"logBackupStoragePolicy,omitempty"`
-	CommandLineStoragePolicy   *MsgIdName `json:"commandLineStoragePolicy,omitempty"`
-	NetworkAgents              *int       `json:"networkAgents,omitempty"`
-	SoftwareCompression        *int       `json:"softwareCompression,omitempty"`
-	ThrottleNetworkBandwidth   *int       `json:"throttleNetworkBandwidth,omitempty"`
+	LogBackupStoragePolicy   *MsgIdName `json:"logBackupStoragePolicy,omitempty"`
+	CommandLineStoragePolicy *MsgIdName `json:"commandLineStoragePolicy,omitempty"`
+	NetworkAgents            *int       `json:"networkAgents,omitempty"`
+	SoftwareCompression      *int       `json:"softwareCompression,omitempty"`
+	ThrottleNetworkBandwidth *int       `json:"throttleNetworkBandwidth,omitempty"`
 }
 
 // MsgModifyOracleInstanceRequest represents the request to modify an Oracle instance
@@ -203,9 +203,9 @@ type MsgOracleBackupPiece struct {
 
 // MsgBrowseOracleDBRequest represents the request to browse Oracle database
 type MsgBrowseOracleDBRequest struct {
-	Path        *string         `json:"path,omitempty"`
-	PointInTime *int            `json:"pointInTime,omitempty"`
-	Entity      *MsgIdName      `json:"entity,omitempty"`
+	Path        *string    `json:"path,omitempty"`
+	PointInTime *int       `json:"pointInTime,omitempty"`
+	Entity      *MsgIdName `json:"entity,omitempty"`
 }
 
 // MsgBrowseOracleDBResponse represents the response from browsing Oracle database
@@ -229,25 +229,25 @@ type MsgCreateOracleSubclientRequest struct {
 
 // MsgOracleSubclientProperties represents Oracle subclient properties
 type MsgOracleSubclientProperties struct {
-	SubClientEntity      *MsgOracleSubclientEntity    `json:"subClientEntity,omitempty"`
+	SubClientEntity      *MsgOracleSubclientEntity     `json:"subClientEntity,omitempty"`
 	ContentOperationType *string                       `json:"contentOperationType,omitempty"`
 	CommonProperties     *MsgSubclientCommonProperties `json:"commonProperties,omitempty"`
-	OracleSubclientProp  *MsgOracleSubclientDetails   `json:"oracleSubclientProp,omitempty"`
+	OracleSubclientProp  *MsgOracleSubclientDetails    `json:"oracleSubclientProp,omitempty"`
 	Content              []json.RawMessage             `json:"content,omitempty"`
 	PlanEntity           *MsgOraclePlanEntity          `json:"planEntity,omitempty"`
 }
 
 // MsgOracleSubclientEntity represents Oracle subclient entity
 type MsgOracleSubclientEntity struct {
-	SubclientId   *int    `json:"subclientId,omitempty"`
-	SubclientName *string `json:"subclientName,omitempty"`
-	ClientName    *string `json:"clientName,omitempty"`
-	InstanceName  *string `json:"instanceName,omitempty"`
-	AppName       *string `json:"appName,omitempty"`
-	ApplicationId *int    `json:"applicationId,omitempty"`
-	BackupsetId   *int    `json:"backupsetId,omitempty"`
-	InstanceId    *int    `json:"instanceId,omitempty"`
-	ClientId      *int    `json:"clientId,omitempty"`
+	SubclientId   *int                 `json:"subclientId,omitempty"`
+	SubclientName *string              `json:"subclientName,omitempty"`
+	ClientName    *string              `json:"clientName,omitempty"`
+	InstanceName  *string              `json:"instanceName,omitempty"`
+	AppName       *string              `json:"appName,omitempty"`
+	ApplicationId *int                 `json:"applicationId,omitempty"`
+	BackupsetId   *int                 `json:"backupsetId,omitempty"`
+	InstanceId    *int                 `json:"instanceId,omitempty"`
+	ClientId      *int                 `json:"clientId,omitempty"`
 	EntityInfo    *MsgOracleEntityInfo `json:"entityInfo,omitempty"`
 }
 
@@ -258,9 +258,9 @@ type MsgOracleEntityInfo struct {
 
 // MsgSubclientCommonProperties represents common subclient properties
 type MsgSubclientCommonProperties struct {
-	StorageDevice        *MsgStorageDevice `json:"storageDevice,omitempty"`
-	EnableBackup         *bool             `json:"enableBackup,omitempty"`
-	Description          *string           `json:"description,omitempty"`
+	StorageDevice *MsgStorageDevice `json:"storageDevice,omitempty"`
+	EnableBackup  *bool             `json:"enableBackup,omitempty"`
+	Description   *string           `json:"description,omitempty"`
 }
 
 // MsgStorageDevice represents storage device configuration
@@ -277,7 +277,7 @@ type MsgCreateOracleSubclientResponse struct {
 
 // MsgFetchOracleSubclientsResponse represents the response from fetching Oracle subclients
 type MsgFetchOracleSubclientsResponse struct {
-	FilterQueryCount   *int                           `json:"filterQueryCount,omitempty"`
+	FilterQueryCount    *int                           `json:"filterQueryCount,omitempty"`
 	SubClientProperties []MsgOracleSubclientProperties `json:"subClientProperties,omitempty"`
 }
 
@@ -357,10 +357,10 @@ type MsgOracleAssociation struct {
 
 // MsgOracleTask represents Oracle task
 type MsgOracleTask struct {
-	TaskType         *int `json:"taskType,omitempty"`
-	InitiatedFrom    *int `json:"initiatedFrom,omitempty"`
-	PurityType       *int `json:"purityType,omitempty"`
-	TaskFlags        *MsgOracleTaskFlags `json:"taskFlags,omitempty"`
+	TaskType      *int                `json:"taskType,omitempty"`
+	InitiatedFrom *int                `json:"initiatedFrom,omitempty"`
+	PurityType    *int                `json:"purityType,omitempty"`
+	TaskFlags     *MsgOracleTaskFlags `json:"taskFlags,omitempty"`
 }
 
 // MsgOracleTaskFlags represents Oracle task flags
@@ -370,9 +370,9 @@ type MsgOracleTaskFlags struct {
 
 // MsgOracleSubTask represents Oracle subtask
 type MsgOracleSubTask struct {
-	SubTaskType    *int                  `json:"subTaskType,omitempty"`
-	OperationType  *int                  `json:"operationType,omitempty"`
-	Options        *MsgOracleSubTaskOptions `json:"options,omitempty"`
+	SubTaskType   *int                     `json:"subTaskType,omitempty"`
+	OperationType *int                     `json:"operationType,omitempty"`
+	Options       *MsgOracleSubTaskOptions `json:"options,omitempty"`
 }
 
 // MsgOracleSubTaskOptions represents Oracle subtask options
@@ -399,14 +399,14 @@ type MsgOracleRestoreOptions struct {
 
 // MsgOracleBackupResponse represents the response from Oracle backup
 type MsgOracleBackupResponse struct {
-	TaskId *int   `json:"taskId,omitempty"`
-	JobIds []int  `json:"jobIds,omitempty"`
+	TaskId *int  `json:"taskId,omitempty"`
+	JobIds []int `json:"jobIds,omitempty"`
 }
 
 // MsgOracleRestoreResponse represents the response from Oracle restore
 type MsgOracleRestoreResponse struct {
-	TaskId *int   `json:"taskId,omitempty"`
-	JobIds []int  `json:"jobIds,omitempty"`
+	TaskId *int  `json:"taskId,omitempty"`
+	JobIds []int `json:"jobIds,omitempty"`
 }
 
 // MsgFetchRMANLogsResponse represents the response from fetching RMAN logs
@@ -465,19 +465,19 @@ type MsgInstallOracleAgentAdminOpts struct {
 
 // MsgClientInstallOption represents client install option
 type MsgClientInstallOption struct {
-	InstallerOption  *MsgInstallerOption   `json:"installerOption,omitempty"`
-	ClientDetails    []MsgClientDetails    `json:"clientDetails,omitempty"`
-	InstallOSType    *int                  `json:"installOSType,omitempty"`
-	DiscoveryType    *int                  `json:"discoveryType,omitempty"`
-	ClientAuthForJob *MsgClientAuthForJob  `json:"clientAuthForJob,omitempty"`
+	InstallerOption  *MsgInstallerOption  `json:"installerOption,omitempty"`
+	ClientDetails    []MsgClientDetails   `json:"clientDetails,omitempty"`
+	InstallOSType    *int                 `json:"installOSType,omitempty"`
+	DiscoveryType    *int                 `json:"discoveryType,omitempty"`
+	ClientAuthForJob *MsgClientAuthForJob `json:"clientAuthForJob,omitempty"`
 }
 
 // MsgInstallerOption represents installer options
 type MsgInstallerOption struct {
-	User              *MsgInstallerUser           `json:"User,omitempty"`
-	CommServeHostName *string                     `json:"CommServeHostName,omitempty"`
-	InstallFlags      *MsgInstallFlags            `json:"installFlags,omitempty"`
-	ClientComposition []MsgClientCompositionItem  `json:"clientComposition,omitempty"`
+	User              *MsgInstallerUser          `json:"User,omitempty"`
+	CommServeHostName *string                    `json:"CommServeHostName,omitempty"`
+	InstallFlags      *MsgInstallFlags           `json:"installFlags,omitempty"`
+	ClientComposition []MsgClientCompositionItem `json:"clientComposition,omitempty"`
 }
 
 // MsgInstallerUser represents installer user
@@ -488,21 +488,21 @@ type MsgInstallerUser struct {
 
 // MsgInstallFlags represents install flags
 type MsgInstallFlags struct {
-	AllowMultipleInstances          *bool             `json:"allowMultipleInstances,omitempty"`
-	Install32Base                   *bool             `json:"install32Base,omitempty"`
-	DisableOSFirewall               *bool             `json:"disableOSFirewall,omitempty"`
-	AddToFirewallExclusion          *bool             `json:"addToFirewallExclusion,omitempty"`
-	ForceReboot                     *bool             `json:"forceReboot,omitempty"`
-	KillBrowserProcesses            *bool             `json:"killBrowserProcesses,omitempty"`
-	IgnoreJobsRunning               *bool             `json:"ignoreJobsRunning,omitempty"`
-	StopOracleServices              *bool             `json:"stopOracleServices,omitempty"`
-	SkipClientsOfCS                 *bool             `json:"skipClientsOfCS,omitempty"`
-	RestoreOnlyAgents               *bool             `json:"restoreOnlyAgents,omitempty"`
-	OverrideClientInfo              *bool             `json:"overrideClientInfo,omitempty"`
-	OverrideUnixGroupAndPermissions *bool             `json:"overrideUnixGroupAndPermissions,omitempty"`
-	UnixGroup                       *string           `json:"unixGroup,omitempty"`
-	UnixGroupAccess                 *int              `json:"unixGroupAccess,omitempty"`
-	UnixOtherAccess                 *int              `json:"unixOtherAccess,omitempty"`
+	AllowMultipleInstances          *bool               `json:"allowMultipleInstances,omitempty"`
+	Install32Base                   *bool               `json:"install32Base,omitempty"`
+	DisableOSFirewall               *bool               `json:"disableOSFirewall,omitempty"`
+	AddToFirewallExclusion          *bool               `json:"addToFirewallExclusion,omitempty"`
+	ForceReboot                     *bool               `json:"forceReboot,omitempty"`
+	KillBrowserProcesses            *bool               `json:"killBrowserProcesses,omitempty"`
+	IgnoreJobsRunning               *bool               `json:"ignoreJobsRunning,omitempty"`
+	StopOracleServices              *bool               `json:"stopOracleServices,omitempty"`
+	SkipClientsOfCS                 *bool               `json:"skipClientsOfCS,omitempty"`
+	RestoreOnlyAgents               *bool               `json:"restoreOnlyAgents,omitempty"`
+	OverrideClientInfo              *bool               `json:"overrideClientInfo,omitempty"`
+	OverrideUnixGroupAndPermissions *bool               `json:"overrideUnixGroupAndPermissions,omitempty"`
+	UnixGroup                       *string             `json:"unixGroup,omitempty"`
+	UnixGroupAccess                 *int                `json:"unixGroupAccess,omitempty"`
+	UnixOtherAccess                 *int                `json:"unixOtherAccess,omitempty"`
 	FirewallInstall                 *MsgFirewallInstall `json:"firewallInstall,omitempty"`
 }
 

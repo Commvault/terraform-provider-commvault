@@ -3,7 +3,7 @@
 # !! DO NOT commit this file to source control !!
 
 web_service_url = "https://your-commserve.example.com/webconsole/api"
-user_name       = "admin"
+user_name       = "your-admin-username"
 password        = "your-password"
 
 # The client name MUST exactly match what appears in the Commvault console (case-sensitive)

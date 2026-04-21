@@ -51,6 +51,7 @@ terraform.log
 
 # Local planning notes
 internal_notes/
+.github/skills/
 
 # OS
 Thumbs.db

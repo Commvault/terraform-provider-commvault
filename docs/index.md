@@ -27,7 +27,7 @@ provider "commvault" {
 ```
 provider "commvault" {
 	web_service_url = "https://webconsole.domain.com/webconsole/api"
-	user_name = "admin" 
+	user_name       = "your-admin-username" 
 	password = "QnVebFRgciEoMg=="
 ```
 
