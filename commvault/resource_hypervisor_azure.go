@@ -17,16 +17,6 @@ func resourceHypervisor_Azure() *schema.Resource {
         Update: resourceUpdateHypervisor_Azure,
         Delete: resourceDeleteHypervisor_Azure,
 
-        CustomizeDiff: func(d *schema.ResourceDiff, _ interface{}) error {
-                useMI, _ := d.GetOk("usemanagedidentity")
-                if useMI != "true" {
-                    if _, ok := d.GetOk("credentials"); !ok {
-                        return fmt.Errorf(`"credentials" is required when "usemanagedidentity" is not set to true`)
-                    }
-                }
-                return nil
-            },
-
         Schema: map[string]*schema.Schema{
             "forceaccessnoderegion": {
                 Type:        schema.TypeString,
@@ -87,8 +77,7 @@ func resourceHypervisor_Azure() *schema.Resource {
             "credentials": {
                 Type:        schema.TypeList,
                 Optional:    true,
-                Computed:    true,
-                Description: "Credentials to authenticate with Azure. Required when usemanagedidentity is not set to true.",
+                Description: "",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "name": {
@@ -652,6 +641,15 @@ func resourceHypervisor_Azure() *schema.Resource {
 func resourceCreateHypervisor_Azure(d *schema.ResourceData, m interface{}) error {
     //API: (POST) /V4/Hypervisor
     var response_id = strconv.Itoa(0)
+    useManagedIdentity := false
+    if val, ok := d.GetOk("usemanagedidentity"); ok {
+        if parsed := handler.ToBooleanValue(val, false); parsed != nil {
+            useManagedIdentity = *parsed
+        }
+    }
+    if _, ok := d.GetOk("credentials"); !ok && !useManagedIdentity {
+        return fmt.Errorf("credentials must be provided when usemanagedidentity is not true")
+    }
     var t_forceaccessnoderegion *bool
     if val, ok := d.GetOk("forceaccessnoderegion"); ok {
         t_forceaccessnoderegion = handler.ToBooleanValue(val, false)
