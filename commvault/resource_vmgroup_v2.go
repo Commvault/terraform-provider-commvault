@@ -1456,6 +1456,28 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
+            "hypervisor": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "The hypervisor (client) to associate with this VM group.",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "name": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Name of the hypervisor client.",
+                        },
+                        "id": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "ID of the hypervisor client.",
+                        },
+                    },
+                },
+            },
             "plan": {
                 Type:        schema.TypeList,
                 Optional:    true,
@@ -1546,7 +1568,39 @@ func resourceVMGroup_V2() *schema.Resource {
 }
 
 func resourceCreateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
-    return nil
+    vmGroupName := d.Get("name").(string)
+    if vmGroupName == "" {
+        return fmt.Errorf("name cannot be empty")
+    }
+    var hypervisorId int
+    if v, ok := d.GetOk("hypervisor"); ok {
+        hypervisorList := v.([]interface{})
+        if len(hypervisorList) > 0 && hypervisorList[0] != nil {
+            hypervisorMap := hypervisorList[0].(map[string]interface{})
+            if id, ok := hypervisorMap["id"]; ok {
+                hypervisorId = id.(int)
+            }
+        }
+    }
+    if hypervisorId == 0 {
+        return fmt.Errorf("hypervisor id is required for creating a VM group")
+    }
+    var planId int
+    if v, ok := d.GetOk("plan"); ok {
+        planList := v.([]interface{})
+        if len(planList) > 0 && planList[0] != nil {
+            planMap := planList[0].(map[string]interface{})
+            if id, ok := planMap["id"]; ok {
+                planId = id.(int)
+            }
+        }
+    }
+    apiResp := handler.VMGroupCreate(vmGroupName, planId, hypervisorId, []string{}, []string{}, 0)
+    if apiResp.Response.ErrorCode != "0" {
+        return fmt.Errorf("error creating vmgroup, error code: %s", apiResp.Response.ErrorCode)
+    }
+    d.SetId(apiResp.Response.Entity.SubclientId)
+    return resourceReadVMGroup_V2(d, m)
 }
 
 func resourceReadVMGroup_V2(d *schema.ResourceData, m interface{}) error {
@@ -1607,6 +1661,13 @@ func resourceReadVMGroup_V2(d *schema.ResourceData, m interface{}) error {
         d.Set("meditechsystems", rtn)
     } else {
         d.Set("meditechsystems", make([]map[string]interface{}, 0))
+    }
+    if resp.CommonProperties != nil {
+        if rtn, ok := serialize_vmgroup_v2_msgidname(d, resp.CommonProperties.Hypervisor); ok {
+            d.Set("hypervisor", rtn)
+        } else {
+            d.Set("hypervisor", make([]map[string]interface{}, 0))
+        }
     }
     return nil
 }
