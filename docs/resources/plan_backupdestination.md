@@ -10,6 +10,54 @@ description: |-
 
 Use the commvault_plan_backupdestination resource type to create or delete backup destinations for plan in the CommCell environment.
 
+## ⚠️ Important: Destination Association Behavior
+
+When you create a backup destination using this resource, Commvault **automatically creates and associates it with a temporary plan** named `PlanBkpDst_<UUID>_Region_0_Plan`. This has important implications:
+
+1. **Once created, a destination is permanently associated** with this temporary plan
+2. **That destination cannot be reassociated** with a different plan using `commvault_plan_server` resource
+3. Attempting to use the destination in another plan will fail with: `Primary backup destination Id [xxxx] is already associated with a plan`
+
+### When to Use This Resource
+
+Use `commvault_plan_backupdestination` **only if you need to:**
+- Reuse the same destination across multiple plans
+- Manage destination lifecycle independently from plan creation
+- Create destinations in a separate Terraform apply/module
+
+### When NOT to Use This Resource
+
+**Do not use** `commvault_plan_backupdestination` if you:
+- Are creating a new plan and its destinations together
+- Want to avoid the temporary plan auto-creation behavior
+- Need simple, straightforward backup plan configuration
+
+### Recommended Approach
+
+**Instead, use inline `backupdestinations` in `commvault_plan_server`:**
+
+```hcl
+resource "commvault_plan_server" "my_plan" {
+  planname = "MyBackupPlan"
+  
+  backupdestinations {
+    backupdestinationname = "Primary-Destination"
+    retentionperioddays   = 30
+    storagepool {
+      id = data.commvault_storagepool.my_pool.id
+    }
+  }
+}
+```
+
+This approach:
+- Avoids temporary plan creation
+- Creates plan and destinations atomically
+- Prevents association deadlocks
+- Is cleaner and more maintainable
+
+See `commvault_plan_server` documentation for complete examples.
+
 ## Example Usage
 
 **Configure commvault plan backup destination with required fields**
