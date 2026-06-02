@@ -720,6 +720,24 @@ func resourcePlan_Server() *schema.Resource {
                                 },
                             },
                         },
+                        "isdefault": {
+                            Type:        schema.TypeBool,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Set to true to designate this backup destination as the primary/default copy. Only one destination per plan should be marked as default.",
+                        },
+                        "copytype": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Type of copy for this backup destination [PRIMARY, AUXILIARY, etc.]",
+                        },
+                        "copyprecedence": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Precedence/priority of this backup destination copy. Lower numbers indicate higher precedence (e.g., 0 for primary, 1 for first auxiliary, etc.).",
+                        },
                     },
                 },
             },
@@ -3176,7 +3194,19 @@ func build_plan_server_msgcreateplanbackupdestinationset_array(d *schema.Resourc
             if val, ok := raw_a["storagetemplatetags"]; ok {
                 t_storagetemplatetags = build_plan_server_msgidnamevalueset_array(d, val.(*schema.Set).List())
             }
-            tmp[a] = handler.MsgCreatePlanBackupDestinationSet{IsMirrorCopy:t_ismirrorcopy, RetentionPeriodDays:t_retentionperioddays, IsConfiguredForReplication:t_isconfiguredforreplication, BackupsToCopy:t_backupstocopy, BackupDestinationName:t_backupdestinationname, ExtendedRetentionRules:t_extendedretentionrules, RetentionRuleType:t_retentionruletype, SnapRecoveryPoints:t_snaprecoverypoints, SourceCopy:t_sourcecopy, StoragePolicy:t_storagepolicy, FullBackupTypesToCopy:t_fullbackuptypestocopy, UseExtendedRetentionRules:t_useextendedretentionrules, BackupStartTime:t_backupstarttime, OverrideRetentionSettings:t_overrideretentionsettings, OptimizeForInstantClone:t_optimizeforinstantclone, NetAppCloudTarget:t_netappcloudtarget, Mappings:t_mappings, IsSnapCopy:t_issnapcopy, StorageType:t_storagetype, Region:t_region, StoragePool:t_storagepool, StorageTemplateTags:t_storagetemplatetags}
+            var t_isdefault *bool
+            if val, ok := raw_a["isdefault"]; ok {
+                t_isdefault = handler.ToBooleanValue(val, true)
+            }
+            var t_copytype *string
+            if val, ok := raw_a["copytype"]; ok {
+                t_copytype = handler.ToStringValue(val, true)
+            }
+            var t_copyprecedence *int
+            if val, ok := raw_a["copyprecedence"]; ok {
+                t_copyprecedence = handler.ToIntValue(val, true)
+            }
+            tmp[a] = handler.MsgCreatePlanBackupDestinationSet{IsMirrorCopy:t_ismirrorcopy, RetentionPeriodDays:t_retentionperioddays, IsConfiguredForReplication:t_isconfiguredforreplication, BackupsToCopy:t_backupstocopy, BackupDestinationName:t_backupdestinationname, ExtendedRetentionRules:t_extendedretentionrules, RetentionRuleType:t_retentionruletype, SnapRecoveryPoints:t_snaprecoverypoints, SourceCopy:t_sourcecopy, StoragePolicy:t_storagepolicy, FullBackupTypesToCopy:t_fullbackuptypestocopy, UseExtendedRetentionRules:t_useextendedretentionrules, BackupStartTime:t_backupstarttime, OverrideRetentionSettings:t_overrideretentionsettings, OptimizeForInstantClone:t_optimizeforinstantclone, NetAppCloudTarget:t_netappcloudtarget, Mappings:t_mappings, IsSnapCopy:t_issnapcopy, StorageType:t_storagetype, Region:t_region, StoragePool:t_storagepool, StorageTemplateTags:t_storagetemplatetags, IsDefault:t_isdefault, CopyType:t_copytype, CopyPrecedence:t_copyprecedence}
         }
         return tmp
     } else {

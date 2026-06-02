@@ -2183,6 +2183,9 @@ type MsgCreatePlanBackupDestinationSet struct {
     Region                         *MsgIdNameGUID `json:"region,omitempty"`
     StoragePool                    *MsgIdName `json:"storagePool,omitempty"`
     StorageTemplateTags[]          MsgIdNameValueSet `json:"storageTemplateTags,omitempty"`
+    IsDefault                      *bool `json:"isDefault,omitempty"`
+    CopyType                       *string `json:"copyType,omitempty"`
+    CopyPrecedence                 *int `json:"copyPrecedence,omitempty"`
 }
 
 type MsgCreatePlanSnapshotOptions struct {
