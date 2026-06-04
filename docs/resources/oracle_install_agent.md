@@ -29,7 +29,7 @@ resource "commvault_oracle_install_agent" "with_plan" {
   user_name           = "root"
   password            = var.ssh_password
   install_os_type     = 2
-  plan_id             = data.commvault_plan.oracle_plan.id
+  planid              = data.commvault_plan.oracle_plan.id
   
   unix_group        = "oinstall"
   unix_group_access = 7
@@ -75,7 +75,7 @@ The following arguments are supported:
 * `install_os_type` - (Optional, ForceNew) OS type of the target server. Valid values:
   - `1` - Windows (default)
   - `2` - Unix/Linux
-* `plan_id` - (Optional, ForceNew) Plan ID to associate with the installed agent for automatic protection.
+* `planid` - (Optional, ForceNew) Plan ID to associate with the installed agent for automatic protection.
 * `unix_group` - (Optional, ForceNew) Unix group for Oracle installation. Only applicable for Unix/Linux. Default: `"oinstall"`.
 * `unix_group_access` - (Optional, ForceNew) Unix group access permissions. Only applicable for Unix/Linux. Default: `7`.
 * `unix_other_access` - (Optional, ForceNew) Unix other access permissions. Only applicable for Unix/Linux. Default: `5`.
@@ -94,8 +94,8 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The task ID of the installation job.
-* `task_id` - The task ID of the installation job.
-* `job_id` - The job ID of the installation job (if available).
+* `taskid` - The task ID of the installation job.
+* `jobid` - The job ID of the installation job (if available).
 
 ## Import
 

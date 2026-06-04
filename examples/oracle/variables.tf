@@ -34,7 +34,7 @@ variable "oracle_user" {
   type        = string
 }
 
-variable "plan_id" {
+variable "planid" {
   description = "Commvault Plan ID to associate with the instance (0 = no plan)"
   type        = number
   default     = 0

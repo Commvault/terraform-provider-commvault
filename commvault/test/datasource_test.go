@@ -18,7 +18,7 @@ func TestAccDatasourceOracleInstance(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.commvault_oracle_instance.test", "client_name", os.Getenv(envClientName)),
 					resource.TestCheckResourceAttr("data.commvault_oracle_instance.test", "instance_name", os.Getenv(envInstanceName)),
-					resource.TestCheckResourceAttrSet("data.commvault_oracle_instance.test", "instance_id"),
+					resource.TestCheckResourceAttrSet("data.commvault_oracle_instance.test", "instanceid"),
 				),
 			},
 		},
@@ -35,7 +35,7 @@ func TestAccDatasourceOracleSubclient(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.commvault_oracle_subclient.test", "client_name", os.Getenv(envClientName)),
 					resource.TestCheckResourceAttr("data.commvault_oracle_subclient.test", "instance_name", os.Getenv(envInstanceName)),
-					resource.TestCheckResourceAttrSet("data.commvault_oracle_subclient.test", "subclient_id"),
+					resource.TestCheckResourceAttrSet("data.commvault_oracle_subclient.test", "subclientid"),
 				),
 			},
 		},

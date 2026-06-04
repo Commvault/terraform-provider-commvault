@@ -28,7 +28,7 @@ func resourceOracleInstance() *schema.Resource {
 				ForceNew:    true,
 				Description: "Name of the client where the Oracle instance is configured",
 			},
-			"client_id": {
+			"clientid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Computed:    true,
@@ -100,7 +100,7 @@ func resourceOracleInstance() *schema.Resource {
 				Default:     false,
 				Description: "Whether to use RMAN recovery catalog",
 			},
-			"catalog_connect_credential_id": {
+			"catalogconnectcredentialid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "Credential ID of type 'Oracle Recovery Catalog' (preferred over inline credentials)",
@@ -108,12 +108,12 @@ func resourceOracleInstance() *schema.Resource {
 			"catalog_connect_user": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Recovery catalog username (deprecated - use catalog_connect_credential_id instead)",
+				Description: "Recovery catalog username (deprecated - use catalogconnectcredentialid instead)",
 			},
 			"catalog_connect_domain": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Recovery catalog DB TNS entry (deprecated - use catalog_connect_credential_id instead)",
+				Description: "Recovery catalog DB TNS entry (deprecated - use catalogconnectcredentialid instead)",
 			},
 			"os_user_credential_id": {
 				Type:        schema.TypeInt,
@@ -126,7 +126,7 @@ func resourceOracleInstance() *schema.Resource {
 				Computed:    true,
 				Description: "Archive log destination path",
 			},
-			"plan_id": {
+			"planid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "Plan ID to associate with the instance",
@@ -197,7 +197,7 @@ func resourceCreateOracleInstance(d *schema.ResourceData, m interface{}) error {
 	}
 
 	var planEntity *handler.MsgOraclePlanEntity
-	if v, ok := d.GetOk("plan_id"); ok {
+	if v, ok := d.GetOk("planid"); ok {
 		planId := v.(int)
 		planEntity = &handler.MsgOraclePlanEntity{PlanID: &planId}
 	}
@@ -315,7 +315,7 @@ func resourceUpdateOracleInstanceProperties(d *schema.ResourceData, m interface{
 
 	// Build CatalogConnect object if catalog is used
 	if useCatalogConnect != nil && *useCatalogConnect {
-		if v, ok := d.GetOk("catalog_connect_credential_id"); ok {
+		if v, ok := d.GetOk("catalogconnectcredentialid"); ok {
 			oracleDetails.CatalogConnectCredInfo = &handler.MsgCredentialInfo{
 				CredentialId: handler.ToIntValue(v, true),
 			}
@@ -337,7 +337,7 @@ func resourceUpdateOracleInstanceProperties(d *schema.ResourceData, m interface{
 	// Bug fix 2: the Modify API requires instance identity fields (instanceId, clientId,
 	// applicationId) in the instance block, otherwise oracleHome and other fields are ignored.
 	instanceId, _ := strconv.Atoi(d.Id())
-	clientId := d.Get("client_id").(int)
+	clientId := d.Get("clientid").(int)
 	clientName := d.Get("client_name").(string)
 	appName := "Oracle"
 	applicationId := 22
@@ -350,10 +350,10 @@ func resourceUpdateOracleInstanceProperties(d *schema.ResourceData, m interface{
 		ApplicationId: &applicationId,
 	}
 
-	// Bug fix 3: plan_id must be included in the modify request inside planEntity,
+	// Bug fix 3: planid must be included in the modify request inside planEntity,
 	// but MsgOracleInstanceFullProperties was missing PlanEntity — now fixed in OracleMsg.go.
 	var planEntity *handler.MsgOraclePlanEntity
-	if v, ok := d.GetOk("plan_id"); ok {
+	if v, ok := d.GetOk("planid"); ok {
 		planId := v.(int)
 		planEntity = &handler.MsgOraclePlanEntity{PlanID: &planId}
 	}
@@ -401,7 +401,7 @@ func resourceReadOracleInstance(d *schema.ResourceData, m interface{}) error {
 				d.Set("client_name", v)
 			}
 			if v, ok := instance["clientId"].(float64); ok {
-				d.Set("client_id", int(v))
+				d.Set("clientid", int(v))
 			}
 			if v, ok := instance["instanceName"].(string); ok {
 				d.Set("instance_name", v)
@@ -455,7 +455,7 @@ func resourceReadOracleInstance(d *schema.ResourceData, m interface{}) error {
 			}
 			if cred, ok := oracle["catalogConnectCredInfo"].(map[string]interface{}); ok {
 				if v, ok := cred["credentialId"].(float64); ok {
-					d.Set("catalog_connect_credential_id", int(v))
+					d.Set("catalogconnectcredentialid", int(v))
 				}
 			}
 			if cred, ok := oracle["osUserCredInfo"].(map[string]interface{}); ok {
@@ -474,9 +474,9 @@ func resourceReadOracleInstance(d *schema.ResourceData, m interface{}) error {
 
 		if plan, ok := props["planEntity"].(map[string]interface{}); ok {
 			if v, ok := plan["planId"].(float64); ok {
-				d.Set("plan_id", int(v))
+				d.Set("planid", int(v))
 			} else if v, ok := plan["id"].(float64); ok {
-				d.Set("plan_id", int(v))
+				d.Set("planid", int(v))
 			}
 		}
 	}
@@ -487,8 +487,8 @@ func resourceReadOracleInstance(d *schema.ResourceData, m interface{}) error {
 func resourceUpdateOracleInstance(d *schema.ResourceData, m interface{}) error {
 	if d.HasChanges("oracle_home", "oracle_user", "sql_connect_user", "sql_connect_domain", "db_connect_credential_id",
 		"tns_admin_path", "block_size", "cross_check_timeout", "use_catalog_connect",
-		"catalog_connect_user", "catalog_connect_domain", "catalog_connect_credential_id",
-		"os_user_credential_id", "archive_log_dest", "oracle_wallet_authentication", "plan_id") {
+		"catalog_connect_user", "catalog_connect_domain", "catalogconnectcredentialid",
+		"os_user_credential_id", "archive_log_dest", "oracle_wallet_authentication", "planid") {
 
 		oracleHome := d.Get("oracle_home").(string)
 		return resourceUpdateOracleInstanceProperties(d, m, oracleHome)

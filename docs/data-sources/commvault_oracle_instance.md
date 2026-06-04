@@ -19,7 +19,7 @@ data "commvault_oracle_instance" "prod" {
   instance_name = "PRODDB"
 }
 
-output "instance_id" {
+output "instanceid" {
   value = data.commvault_oracle_instance.prod.id
 }
 ```

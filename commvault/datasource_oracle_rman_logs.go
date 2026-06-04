@@ -13,7 +13,7 @@ func datasourceOracleRMANLogs() *schema.Resource {
 		Read: datasourceReadOracleRMANLogs,
 
 		Schema: map[string]*schema.Schema{
-			"job_id": {
+			"jobid": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Job ID for which to fetch RMAN logs",
@@ -33,7 +33,7 @@ func datasourceOracleRMANLogs() *schema.Resource {
 }
 
 func datasourceReadOracleRMANLogs(d *schema.ResourceData, m interface{}) error {
-	jobId := d.Get("job_id").(string)
+	jobId := d.Get("jobid").(string)
 
 	resp, err := handler.CvFetchRMANLogs(jobId)
 	if err != nil {
