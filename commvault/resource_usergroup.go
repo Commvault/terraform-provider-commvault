@@ -156,13 +156,13 @@ func resourceUserGroup() *schema.Resource {
                 Description: "if enforceFSQuota is set to true, the quota limit can be set in GBs",
             },
             "enablelocalauthentication": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "Allows two-factor authentication to be enabled for the specific types of usergroups. it can be turned on or off based on user preferences. There will be usergroups that will not have this option. [ON, OFF, DISABLED_AT_COMPANY]",
             },
             "enabletwofactorauthentication": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "Allows two-factor authentication to be enabled for the specific types of usergroups. it can be turned on or off based on user preferences. There will be usergroups that will not have this option. [ON, OFF, DISABLED_AT_COMPANY]",

@@ -146,11 +146,11 @@ resource "commvault_kubernetes_cluster" "kubernetes_cluster2" {
     plan {
       id = data.commvault_plan.plan1.id
     }
-    enabled = "true"
+    enabled = true
   }
   activitycontrol {
-    enablebackup             = "true"
-    enablerestore            = "true"
+    enablebackup             = true
+    enablerestore            = true
   }
   region {
     id   = data.commvault_region.region1.id
@@ -218,7 +218,7 @@ resource "commvault_kubernetes_appgroup" "kubernetes_appgroup2" {
     }
   }
   filters {
-    skipstatelessapps = "false"
+    skipstatelessapps = false
     labelselectors {
       selectorlevel = "Namespace"
       selectorvalue = "Test3=Value3"
@@ -235,7 +235,7 @@ resource "commvault_kubernetes_appgroup" "kubernetes_appgroup2" {
     }
   }
   activitycontrol {
-    enablebackup = "false"
+    enablebackup = false
   }
   timezone {
     id = data.commvault_timezone.timezone2.id
@@ -280,7 +280,7 @@ resource "commvault_kubernetes_appgroup" "kubernetes_appgroup2" {
 
 Optional:
 
-- `enablebackup` (String)
+- `enablebackup` (Boolean)
 
 
 <a id="nestedblock--cluster"></a>
@@ -333,7 +333,7 @@ Optional:
 
 - `applications` (Block Set) List of applications to be added as content (see [below for nested schema](#nestedblock--filters--applications))
 - `labelselectors` (Block Set) List of label selectors to be added as content (see [below for nested schema](#nestedblock--filters--labelselectors))
-- `skipstatelessapps` (String) Specify whether to skip backup of stateless applications
+- `skipstatelessapps` (Boolean) Specify whether to skip backup of stateless applications
 
 <a id="nestedblock--filters--applications"></a>
 ### Nested Schema for `filters.applications`
