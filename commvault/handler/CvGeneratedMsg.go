@@ -207,10 +207,13 @@ type MsgVMGuestCredentials struct {
 }
 
 type MsgRuleContentSet struct {
-    Condition     *string `json:"condition,omitempty"`
-    Name          *string `json:"name,omitempty"`
-    Type          *string `json:"type,omitempty"`
-    Value         *string `json:"value,omitempty"`
+    Condition   *string `json:"condition,omitempty"`
+    DisplayName *string `json:"displayName,omitempty"`
+    Name        *string `json:"name,omitempty"`
+    GUID        *string `json:"GUID,omitempty"`
+    Description *string `json:"description,omitempty"`
+    Type        *string `json:"type,omitempty"`
+    Value       *string `json:"value,omitempty"`
 }
 
 type MsgVMExistingCredential struct {
@@ -3404,4 +3407,40 @@ type MsgUpdateVMGroupResponse struct {
     ErrorMessage       *string `json:"errorMessage,omitempty"`
     ErrorCode          *int `json:"errorCode,omitempty"`
     WarningMessage     *string `json:"warningMessage,omitempty"`
+}
+
+// v5/VmGroup – Create structs (matches CreateV5VmGroup YAML spec)
+
+type MsgVirtualMachineContentV5Set struct {
+    GuestCredentialAssocId     *int                     `json:"guestCredentialAssocId,omitempty"`
+    GuestCredentials           *MsgVMGuestCredentials   `json:"guestCredentials,omitempty"`
+    Name                       *string                  `json:"name,omitempty"`
+    GUID                       *string                  `json:"GUID,omitempty"`
+    Description                *string                  `json:"description,omitempty"`
+    Type                       *string                  `json:"type,omitempty"`
+    ExistingCredential         *MsgVMExistingCredential `json:"existingCredential,omitempty"`
+}
+
+type MsgVmContentV5 struct {
+    RuleGroups[]      MsgRuleGroupContentSet         `json:"ruleGroups,omitempty"`
+    VirtualMachines[] MsgVirtualMachineContentV5Set  `json:"virtualMachines,omitempty"`
+    Overwrite         *bool                          `json:"overwrite,omitempty"`
+}
+
+type MsgCreateVMGroupV5Request struct {
+    Meditech          *MsgmeditechPropResp `json:"Meditech,omitempty"`
+    Hypervisor        *MsgIdName           `json:"Hypervisor,omitempty"`
+    Name              *string              `json:"name,omitempty"`
+    Storage           *MsgIdName           `json:"storage,omitempty"`
+    EnableIntellisnap *bool                `json:"enableIntellisnap,omitempty"`
+    Plan              *MsgIdName           `json:"plan,omitempty"`
+    Content           *MsgVmContentV5      `json:"content,omitempty"`
+}
+
+type MsgCreateVMGroupV5Response struct {
+    SubclientId    *int    `json:"subclientId,omitempty"`
+    WarningCode    *int    `json:"warningCode,omitempty"`
+    ErrorMessage   *string `json:"errorMessage,omitempty"`
+    ErrorCode      *int    `json:"errorCode,omitempty"`
+    WarningMessage *string `json:"warningMessage,omitempty"`
 }

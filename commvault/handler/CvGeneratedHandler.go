@@ -1117,3 +1117,14 @@ func CvUpdateVMGroup(updateVMGroupRequest MsgUpdateVMGroupRequest, VmGroupId str
     json.Unmarshal(respBody, &respObj)
     return &respObj, err
 }
+
+func CvCreateVMGroupV5(createVMGroupRequest MsgCreateVMGroupV5Request) (*MsgCreateVMGroupV5Response, error) {
+    //API: (POST) /v5/VmGroup
+    reqBody, _ := json.Marshal(createVMGroupRequest)
+    url := os.Getenv("CV_CSIP") + "/v5/VmGroup"
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    var respObj MsgCreateVMGroupV5Response
+    json.Unmarshal(respBody, &respObj)
+    return &respObj, err
+}
