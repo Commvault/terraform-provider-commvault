@@ -10,36 +10,20 @@ description: |-
 
 Use the commvault_plan_backupdestination resource type to create or delete backup destinations for plan in the CommCell environment.
 
-## ⚠️ Important: Destination Association Behavior
+## ⚠️ Standalone Destination Behavior
 
-When you create a backup destination using this resource, Commvault **automatically creates and associates it with a temporary plan** named `PlanBkpDst_<UUID>_Region_0_Plan`. This has important implications:
+This resource creates a **standalone backup destination** that exists independently of any plan. When created, Commvault internally associates it with a temporary placeholder plan named `PlanBkpDst_<UUID>_Region_0_Plan`.
 
-1. **Once created, a destination is permanently associated** with this temporary plan
-2. **That destination cannot be reassociated** with a different plan using `commvault_plan_server` resource
-3. Attempting to use the destination in another plan will fail with: `Primary backup destination Id [xxxx] is already associated with a plan`
-
-### When to Use This Resource
-
-Use `commvault_plan_backupdestination` **only if you need to:**
-- Reuse the same destination across multiple plans
-- Manage destination lifecycle independently from plan creation
-- Create destinations in a separate Terraform apply/module
-
-### When NOT to Use This Resource
-
-**Do not use** `commvault_plan_backupdestination` if you:
-- Are creating a new plan and its destinations together
-- Want to avoid the temporary plan auto-creation behavior
-- Need simple, straightforward backup plan configuration
+> **This resource cannot be referenced by `commvault_plan_server` via `backupdestinationids`.** That attribute is not supported by the API. Use this resource only to manage the destination object itself (e.g. inspect or delete it).
 
 ### Recommended Approach
 
-**Instead, use inline `backupdestinations` in `commvault_plan_server`:**
+If you want to create a plan with backup destinations, use **inline `backupdestinations` blocks** in `commvault_plan_server` instead:
 
 ```hcl
 resource "commvault_plan_server" "my_plan" {
   planname = "MyBackupPlan"
-  
+
   backupdestinations {
     backupdestinationname = "Primary-Destination"
     retentionperioddays   = 30
@@ -49,12 +33,6 @@ resource "commvault_plan_server" "my_plan" {
   }
 }
 ```
-
-This approach:
-- Avoids temporary plan creation
-- Creates plan and destinations atomically
-- Prevents association deadlocks
-- Is cleaner and more maintainable
 
 See `commvault_plan_server` documentation for complete examples.
 
