@@ -804,10 +804,25 @@ func resourceVMGroup_V2() *schema.Resource {
                                                     Optional:    true,
                                                     Description: "Operation type for VM rules/filters [CONTAINS, DOES_NOT_CONTAIN, DOES_NOT_EQUAL, ENDS_WITH, EQUALS, STARTS_WITH]",
                                                 },
+                                                "displayname": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "Display name for the rule",
+                                                },
                                                 "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Description: "name of the VM to be added as content",
+                                                },
+                                                "guid": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "GUID of the entity (e.g. VM GUID)",
+                                                },
+                                                "description": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "Description for the rule",
                                                 },
                                                 "type": {
                                                     Type:        schema.TypeString,
@@ -930,10 +945,25 @@ func resourceVMGroup_V2() *schema.Resource {
                                                     Optional:    true,
                                                     Description: "Operation type for VM rules/filters [CONTAINS, DOES_NOT_CONTAIN, DOES_NOT_EQUAL, ENDS_WITH, EQUALS, STARTS_WITH]",
                                                 },
+                                                "displayname": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "Display name for the rule",
+                                                },
                                                 "name": {
                                                     Type:        schema.TypeString,
                                                     Optional:    true,
                                                     Description: "name of the VM to be added as content",
+                                                },
+                                                "guid": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "GUID of the entity (e.g. VM GUID)",
+                                                },
+                                                "description": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "Description for the rule",
                                                 },
                                                 "type": {
                                                     Type:        schema.TypeString,
@@ -947,6 +977,79 @@ func resourceVMGroup_V2() *schema.Resource {
                                                 },
                                             },
                                         },
+                                    },
+                                    "existingcredential": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "credentialid": {
+                                                    Type:        schema.TypeInt,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                                "credentialname": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "virtualmachines": {
+                            Type:        schema.TypeSet,
+                            Optional:    true,
+                            Description: "Explicit virtual machines to include as content",
+                            Elem: &schema.Resource{
+                                Schema: map[string]*schema.Schema{
+                                    "guestcredentialassocid": {
+                                        Type:        schema.TypeInt,
+                                        Optional:    true,
+                                        Description: "Credential association ID for the VM",
+                                    },
+                                    "guestcredentials": {
+                                        Type:        schema.TypeList,
+                                        Optional:    true,
+                                        Description: "",
+                                        Elem: &schema.Resource{
+                                            Schema: map[string]*schema.Schema{
+                                                "password": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Sensitive:   true,
+                                                    Description: "",
+                                                },
+                                                "username": {
+                                                    Type:        schema.TypeString,
+                                                    Optional:    true,
+                                                    Description: "",
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "name": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "Display name of the virtual machine",
+                                    },
+                                    "guid": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "GUID of the virtual machine",
+                                    },
+                                    "description": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "Description for the virtual machine entry",
+                                    },
+                                    "type": {
+                                        Type:        schema.TypeString,
+                                        Optional:    true,
+                                        Description: "Content type, typically VM [NONE, SERVER, VM, VM_NAME, ...]",
                                     },
                                     "existingcredential": {
                                         Type:        schema.TypeList,
@@ -1080,6 +1183,12 @@ func resourceVMGroup_V2() *schema.Resource {
                 Optional:    true,
                 Computed:    true,
                 Description: "True if file indexing needs to be enabled",
+            },
+            "enableintellisnap": {
+                Type:        schema.TypeBool,
+                Optional:    true,
+                Computed:    true,
+                Description: "True if IntelliSnap is enabled for this VM Group",
             },
             "name": {
                 Type:        schema.TypeString,
@@ -1456,6 +1565,28 @@ func resourceVMGroup_V2() *schema.Resource {
                     },
                 },
             },
+            "hypervisor": {
+                Type:        schema.TypeList,
+                Optional:    true,
+                Computed:    true,
+                Description: "The hypervisor (client) to associate with this VM group.",
+                Elem: &schema.Resource{
+                    Schema: map[string]*schema.Schema{
+                        "name": {
+                            Type:        schema.TypeString,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "Name of the hypervisor client.",
+                        },
+                        "id": {
+                            Type:        schema.TypeInt,
+                            Optional:    true,
+                            Computed:    true,
+                            Description: "ID of the hypervisor client.",
+                        },
+                    },
+                },
+            },
             "plan": {
                 Type:        schema.TypeList,
                 Optional:    true,
@@ -1546,7 +1677,161 @@ func resourceVMGroup_V2() *schema.Resource {
 }
 
 func resourceCreateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
-    return nil
+    // API: (POST) /v5/VmGroup
+    vmGroupName := d.Get("name").(string)
+    if vmGroupName == "" {
+        return fmt.Errorf("name cannot be empty")
+    }
+
+    req := handler.MsgCreateVMGroupV5Request{
+        Name: handler.ToStringValue(vmGroupName, true),
+    }
+
+    // Hypervisor (required)
+    if v, ok := d.GetOk("hypervisor"); ok {
+        req.Hypervisor = build_vmgroup_v2_msgidname(d, v.([]interface{}))
+    }
+    if req.Hypervisor == nil || (req.Hypervisor.Id == nil && req.Hypervisor.Name == nil) {
+        return fmt.Errorf("hypervisor id is required for creating a VM group")
+    }
+
+    // Plan
+    if v, ok := d.GetOk("plan"); ok {
+        req.Plan = build_vmgroup_v2_msgidname(d, v.([]interface{}))
+    }
+
+    // Storage
+    if v, ok := d.GetOk("storage"); ok {
+        req.Storage = build_vmgroup_v2_msgidname(d, v.([]interface{}))
+    }
+
+    // EnableIntellisnap
+    if v, ok := d.GetOkExists("enableintellisnap"); ok {
+        b := v.(bool)
+        req.EnableIntellisnap = &b
+    }
+
+    // Content
+    if v, ok := d.GetOk("content"); ok {
+        contentList := v.([]interface{})
+        if len(contentList) > 0 && contentList[0] != nil {
+            contentMap := contentList[0].(map[string]interface{})
+            vmContent := &handler.MsgVmContentV5{}
+
+            if overwrite, ok := contentMap["overwrite"]; ok && overwrite.(string) != "" {
+                b := overwrite.(string) == "true"
+                vmContent.Overwrite = &b
+            }
+
+            if rgs, ok := contentMap["rulegroups"]; ok {
+                rgList := rgs.(*schema.Set).List()
+                for _, rgRaw := range rgList {
+                    rgMap := rgRaw.(map[string]interface{})
+                    rg := handler.MsgRuleGroupContentSet{}
+                    if v, ok := rgMap["matchrule"]; ok {
+                        rg.MatchRule = handler.ToStringValue(v, true)
+                    }
+                    if v, ok := rgMap["description"]; ok {
+                        rg.Description = handler.ToStringValue(v, true)
+                    }
+                    if v, ok := rgMap["guestcredentialassocid"]; ok {
+                        id := v.(int)
+                        rg.GuestCredentialAssocId = &id
+                    }
+                    if gcs, ok := rgMap["guestcredentials"]; ok {
+                        gcList := gcs.([]interface{})
+                        if len(gcList) > 0 && gcList[0] != nil {
+                            gcMap := gcList[0].(map[string]interface{})
+                            rg.GuestCredentials = &handler.MsgVMGuestCredentials{
+                                Password: handler.ToStringValue(gcMap["password"], true),
+                                UserName: handler.ToStringValue(gcMap["username"], true),
+                            }
+                        }
+                    }
+                    if ec, ok := rgMap["existingcredential"]; ok {
+                        ecList := ec.([]interface{})
+                        if len(ecList) > 0 && ecList[0] != nil {
+                            ecMap := ecList[0].(map[string]interface{})
+                            id := ecMap["credentialid"].(int)
+                            rg.ExistingCredential = &handler.MsgVMExistingCredential{
+                                CredentialId:   &id,
+                                CredentialName: handler.ToStringValue(ecMap["credentialname"], true),
+                            }
+                        }
+                    }
+                    if rules, ok := rgMap["rules"]; ok {
+                        for _, ruleRaw := range rules.(*schema.Set).List() {
+                            ruleMap := ruleRaw.(map[string]interface{})
+                            rule := handler.MsgRuleContentSet{
+                                Condition:   handler.ToStringValue(ruleMap["condition"], true),
+                                DisplayName: handler.ToStringValue(ruleMap["displayname"], true),
+                                Name:        handler.ToStringValue(ruleMap["name"], true),
+                                GUID:        handler.ToStringValue(ruleMap["guid"], true),
+                                Description: handler.ToStringValue(ruleMap["description"], true),
+                                Type:        handler.ToStringValue(ruleMap["type"], true),
+                                Value:       handler.ToStringValue(ruleMap["value"], true),
+                            }
+                            rg.Rules = append(rg.Rules, rule)
+                        }
+                    }
+                    vmContent.RuleGroups = append(vmContent.RuleGroups, rg)
+                }
+            }
+
+            if vms, ok := contentMap["virtualmachines"]; ok {
+                for _, vmRaw := range vms.(*schema.Set).List() {
+                    vmMap := vmRaw.(map[string]interface{})
+                    vm := handler.MsgVirtualMachineContentV5Set{
+                        Name:        handler.ToStringValue(vmMap["name"], true),
+                        GUID:        handler.ToStringValue(vmMap["guid"], true),
+                        Description: handler.ToStringValue(vmMap["description"], true),
+                        Type:        handler.ToStringValue(vmMap["type"], true),
+                    }
+                    if gcs, ok := vmMap["guestcredentials"]; ok {
+                        gcList := gcs.([]interface{})
+                        if len(gcList) > 0 && gcList[0] != nil {
+                            gcMap := gcList[0].(map[string]interface{})
+                            vm.GuestCredentials = &handler.MsgVMGuestCredentials{
+                                Password: handler.ToStringValue(gcMap["password"], true),
+                                UserName: handler.ToStringValue(gcMap["username"], true),
+                            }
+                        }
+                    }
+                    if ec, ok := vmMap["existingcredential"]; ok {
+                        ecList := ec.([]interface{})
+                        if len(ecList) > 0 && ecList[0] != nil {
+                            ecMap := ecList[0].(map[string]interface{})
+                            id := ecMap["credentialid"].(int)
+                            vm.ExistingCredential = &handler.MsgVMExistingCredential{
+                                CredentialId:   &id,
+                                CredentialName: handler.ToStringValue(ecMap["credentialname"], true),
+                            }
+                        }
+                    }
+                    vmContent.VirtualMachines = append(vmContent.VirtualMachines, vm)
+                }
+            }
+
+            req.Content = vmContent
+        }
+    }
+
+    resp, err := handler.CvCreateVMGroupV5(req)
+    if err != nil {
+        return fmt.Errorf("operation [CreateVMGroupV5] failed, Error %s", err)
+    }
+    if resp.ErrorCode != nil && *resp.ErrorCode != 0 {
+        msg := ""
+        if resp.ErrorMessage != nil {
+            msg = *resp.ErrorMessage
+        }
+        return fmt.Errorf("error creating vmgroup: code=%d, message=%s", *resp.ErrorCode, msg)
+    }
+    if resp.SubclientId == nil {
+        return fmt.Errorf("create vmgroup succeeded but no subclientId returned")
+    }
+    d.SetId(strconv.Itoa(*resp.SubclientId))
+    return resourceReadVMGroup_V2(d, m)
 }
 
 func resourceReadVMGroup_V2(d *schema.ResourceData, m interface{}) error {
@@ -1607,6 +1892,13 @@ func resourceReadVMGroup_V2(d *schema.ResourceData, m interface{}) error {
         d.Set("meditechsystems", rtn)
     } else {
         d.Set("meditechsystems", make([]map[string]interface{}, 0))
+    }
+    if resp.CommonProperties != nil {
+        if rtn, ok := serialize_vmgroup_v2_msgidname(d, resp.CommonProperties.Hypervisor); ok {
+            d.Set("hypervisor", rtn)
+        } else {
+            d.Set("hypervisor", make([]map[string]interface{}, 0))
+        }
     }
     return nil
 }
