@@ -10,6 +10,32 @@ description: |-
 
 Use the commvault_plan_backupdestination resource type to create or delete backup destinations for plan in the CommCell environment.
 
+## ⚠️ Standalone Destination Behavior
+
+This resource creates a **standalone backup destination** that exists independently of any plan. When created, Commvault internally associates it with a temporary placeholder plan named `PlanBkpDst_<UUID>_Region_0_Plan`.
+
+> **This resource cannot be referenced by `commvault_plan_server` via `backupdestinationids`.** That attribute is not supported by the API. Use this resource only to manage the destination object itself (e.g. inspect or delete it).
+
+### Recommended Approach
+
+If you want to create a plan with backup destinations, use **inline `backupdestinations` blocks** in `commvault_plan_server` instead:
+
+```hcl
+resource "commvault_plan_server" "my_plan" {
+  planname = "MyBackupPlan"
+
+  backupdestinations {
+    backupdestinationname = "Primary-Destination"
+    retentionperioddays   = 30
+    storagepool {
+      id = data.commvault_storagepool.my_pool.id
+    }
+  }
+}
+```
+
+See `commvault_plan_server` documentation for complete examples.
+
 ## Example Usage
 
 **Configure commvault plan backup destination with required fields**
