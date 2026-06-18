@@ -17,8 +17,8 @@ description: |-
 resource "commvault_vm_group" "<local name>" 
 {
 	vm_group_name = "<vm group name>"
-	plan_id = <plan ID>
-	client_id = <client ID>
+	planid = <plan ID>
+	clientid = <client ID>
 	vms = <List VMs> //Add VMs enclosed in quotes and separated by a comma
 }
 ```
@@ -29,8 +29,8 @@ resource "commvault_vm_group" "<local name>"
 resource "commvault_vm_group" "g1" 
 {
 	vm_group_name = "vg1"
-	plan_id = "101"
-	client_id = "266"
+	planid = "101"
+	clientid = "266"
 	vms = ["vm1","vm2"]
 }
 ```
@@ -38,8 +38,8 @@ resource "commvault_vm_group" "g1"
 ### Required
 
 - **vm_group_name** (String) Specifies The name of the VM group.
-- **client_id** (Number) Specifies The ID of the hypervisor client.
-- **plan_id** (Number) Specifies The ID of the plan that you want to associate with the VM group.
+- **clientid** (Number) Specifies The ID of the hypervisor client.
+- **planid** (Number) Specifies The ID of the plan that you want to associate with the VM group.
 
 
 ### Optional

@@ -36,13 +36,13 @@ func resourceOracleSubclient() *schema.Resource {
 				ForceNew:    true,
 				Description: "Name of the Oracle instance",
 			},
-			"instance_id": {
+			"instanceid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Computed:    true,
 				Description: "ID of the Oracle instance",
 			},
-			"client_id": {
+			"clientid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Computed:    true,
@@ -153,7 +153,7 @@ func resourceOracleSubclient() *schema.Resource {
 				Default:     false,
 				Description: "Delete archive logs after backup",
 			},
-			"plan_id": {
+			"planid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Computed:    true,
@@ -227,16 +227,16 @@ func resourceCreateOracleSubclient(d *schema.ResourceData, m interface{}) error 
 	var instanceId *int
 	var clientId *int
 
-	if val, ok := d.GetOk("instance_id"); ok {
+	if val, ok := d.GetOk("instanceid"); ok {
 		id := val.(int)
 		instanceId = &id
 	}
-	if val, ok := d.GetOk("client_id"); ok {
+	if val, ok := d.GetOk("clientid"); ok {
 		id := val.(int)
 		clientId = &id
 	}
 
-	// If instance_id or client_id is not provided, fetch them
+	// If instanceid or clientid is not provided, fetch them
 	if instanceId == nil || clientId == nil {
 		entityResp, err := handler.CvFetchOracleEntityId(clientName, instanceName, "")
 		if err != nil {
@@ -287,7 +287,7 @@ func resourceCreateOracleSubclient(d *schema.ResourceData, m interface{}) error 
 	dataThresholdStreams := intPtrFromResource(d, "data_threshold_streams")
 	archiveDeleteAll := boolPtrFromResource(d, "archive_delete_all")
 	var planEntity *handler.MsgOraclePlanEntity
-	if v, ok := d.GetOkExists("plan_id"); ok {
+	if v, ok := d.GetOkExists("planid"); ok {
 		planID := v.(int)
 		planEntity = &handler.MsgOraclePlanEntity{PlanID: &planID}
 		if planName := stringPtrFromResource(d, "plan_name"); planName != nil {
@@ -357,10 +357,10 @@ func resourceCreateOracleSubclient(d *schema.ResourceData, m interface{}) error 
 
 	// Set the computed values
 	if instanceId != nil {
-		d.Set("instance_id", *instanceId)
+		d.Set("instanceid", *instanceId)
 	}
 	if clientId != nil {
-		d.Set("client_id", *clientId)
+		d.Set("clientid", *clientId)
 	}
 
 	return resourceReadOracleSubclient(d, m)
@@ -398,10 +398,10 @@ func resourceReadOracleSubclient(d *schema.ResourceData, m interface{}) error {
 				d.Set("instance_name", v)
 			}
 			if v, ok := entity["instanceId"].(float64); ok {
-				d.Set("instance_id", int(v))
+				d.Set("instanceid", int(v))
 			}
 			if v, ok := entity["clientId"].(float64); ok {
-				d.Set("client_id", int(v))
+				d.Set("clientid", int(v))
 			}
 		}
 
@@ -416,9 +416,9 @@ func resourceReadOracleSubclient(d *schema.ResourceData, m interface{}) error {
 
 		if plan, ok := props["planEntity"].(map[string]interface{}); ok {
 			if v, ok := plan["planId"].(float64); ok {
-				d.Set("plan_id", int(v))
+				d.Set("planid", int(v))
 			} else if v, ok := plan["id"].(float64); ok {
-				d.Set("plan_id", int(v))
+				d.Set("planid", int(v))
 			}
 			if v, ok := plan["planName"].(string); ok {
 				d.Set("plan_name", v)
@@ -482,12 +482,12 @@ func resourceReadOracleSubclient(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUpdateOracleSubclient(d *schema.ResourceData, m interface{}) error {
-	if d.HasChanges("storage_policy", "log_storage_policy", "enable_backup", "description", "plan_id", "plan_name", "content_operation_type", "content", "backup_mode", "backup_archive_log", "backup_sp_file", "backup_control_file", "delete_archive_log_after_backup", "selective_online_full", "data", "lights_out_script", "enable_table_browse", "archive_delete", "data_threshold_streams", "archive_delete_all") {
+	if d.HasChanges("storage_policy", "log_storage_policy", "enable_backup", "description", "planid", "plan_name", "content_operation_type", "content", "backup_mode", "backup_archive_log", "backup_sp_file", "backup_control_file", "delete_archive_log_after_backup", "selective_online_full", "data", "lights_out_script", "enable_table_browse", "archive_delete", "data_threshold_streams", "archive_delete_all") {
 		// Commvault expects a minimal payload for backup-toggle updates.
 		if d.HasChange("enable_backup") && !d.HasChanges("storage_policy", "log_storage_policy", "description", "content_operation_type", "content", "backup_mode", "backup_archive_log", "backup_sp_file", "backup_control_file", "delete_archive_log_after_backup", "selective_online_full", "data", "lights_out_script", "enable_table_browse", "archive_delete", "data_threshold_streams", "archive_delete_all") {
 			enableBackup := boolPtrFromResource(d, "enable_backup")
 			var planEntity *handler.MsgOraclePlanEntity
-			if v, ok := d.GetOkExists("plan_id"); ok {
+			if v, ok := d.GetOkExists("planid"); ok {
 				planID := v.(int)
 				planEntity = &handler.MsgOraclePlanEntity{PlanID: &planID}
 			}
@@ -549,7 +549,7 @@ func resourceUpdateOracleSubclient(d *schema.ResourceData, m interface{}) error 
 		dataThresholdStreams := intPtrFromResource(d, "data_threshold_streams")
 		archiveDeleteAll := boolPtrFromResource(d, "archive_delete_all")
 		var planEntity *handler.MsgOraclePlanEntity
-		if v, ok := d.GetOkExists("plan_id"); ok {
+		if v, ok := d.GetOkExists("planid"); ok {
 			planID := v.(int)
 			planEntity = &handler.MsgOraclePlanEntity{PlanID: &planID}
 			if planName := stringPtrFromResource(d, "plan_name"); planName != nil {

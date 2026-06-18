@@ -81,5 +81,5 @@ In addition to all arguments above, the following attributes are exported:
 Oracle instances can be imported using the instance ID:
 
 ```shell
-terraform import commvault_oracle_instance.prod_db <instance_id>
+terraform import commvault_oracle_instance.prod_db <instanceid>
 ```

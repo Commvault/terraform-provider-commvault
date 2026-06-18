@@ -104,5 +104,5 @@ In addition to all arguments above, the following attributes are exported:
 Oracle subclients can be imported using the subclient ID:
 
 ```shell
-terraform import commvault_oracle_subclient.full_backup <subclient_id>
+terraform import commvault_oracle_subclient.full_backup <subclientid>
 ```

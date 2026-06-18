@@ -21,12 +21,12 @@ func resourceVMGroup() *schema.Resource {
 				Required:    true,
 				Description: "Specifies The name of the VM group.",
 			},
-			"client_id": &schema.Schema{
+			"clientid": &schema.Schema{
 				Type:        schema.TypeInt,
 				Required:    true,
 				Description: "Specifies The ID of the hypervisor client.",
 			},
-			"plan_id": &schema.Schema{
+			"planid": &schema.Schema{
 				Type:        schema.TypeInt,
 				Required:    true,
 				Description: "Specifies The ID of the plan that you want to associate with the VM group.",
@@ -58,8 +58,8 @@ func resourceVMGroupCreate(d *schema.ResourceData, m interface{}) error {
 	if vmGroupName == "" {
 		return fmt.Errorf("vmgroup Name cannot be empty")
 	}
-	clientid := d.Get("client_id").(int)
-	planid := d.Get("plan_id").(int)
+	clientid := d.Get("clientid").(int)
+	planid := d.Get("planid").(int)
 	vms := d.Get("vms").(*schema.Set).List()
 	tags := d.Get("tags").(*schema.Set).List()
 	companyid := d.Get("company_id").(int)

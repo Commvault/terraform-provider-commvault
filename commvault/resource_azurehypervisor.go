@@ -31,7 +31,7 @@ func resourceAzureHypervisor() *schema.Resource {
 				Required:    true,
 				Description: "Specifies The tenant ID for your Azure account.",
 			},
-			"application_id": &schema.Schema{
+			"applicationid": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Specifies The application ID of the tenant.",
@@ -60,7 +60,7 @@ func resourceAzureHypervisorCreate(d *schema.ResourceData, m interface{}) error 
 	displayname := d.Get("hypervisor_name").(string)
 	subscriptionID := d.Get("subscription_id").(string)
 	tenantID := d.Get("tenant_id").(string)
-	applicationID := d.Get("application_id").(string)
+	applicationID := d.Get("applicationid").(string)
 	applicationPWD := d.Get("application_password").(string)
 	accessnodes := d.Get("access_nodes").(string)
 	companyid := d.Get("company_id").(int)

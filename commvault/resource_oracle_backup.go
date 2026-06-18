@@ -22,7 +22,7 @@ func resourceOracleBackup() *schema.Resource {
 				ForceNew:    true,
 				Description: "Name of the client where the Oracle instance is configured",
 			},
-			"client_id": {
+			"clientid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Computed:    true,
@@ -35,7 +35,7 @@ func resourceOracleBackup() *schema.Resource {
 				ForceNew:    true,
 				Description: "Name of the Oracle instance",
 			},
-			"instance_id": {
+			"instanceid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Computed:    true,
@@ -48,7 +48,7 @@ func resourceOracleBackup() *schema.Resource {
 				ForceNew:    true,
 				Description: "Name of the Oracle subclient",
 			},
-			"subclient_id": {
+			"subclientid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Computed:    true,
@@ -62,12 +62,12 @@ func resourceOracleBackup() *schema.Resource {
 				Default:     1,
 				Description: "Backup level: 1 for Full, 2 for Incremental",
 			},
-			"task_id": {
+			"taskid": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "ID of the backup task",
 			},
-			"job_ids": {
+			"jobids": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "List of job IDs created by the backup",
@@ -91,15 +91,15 @@ func resourceCreateOracleBackup(d *schema.ResourceData, m interface{}) error {
 	var subclientId *int
 	var subclientName *string
 
-	if val, ok := d.GetOk("client_id"); ok {
+	if val, ok := d.GetOk("clientid"); ok {
 		id := val.(int)
 		clientId = &id
 	}
-	if val, ok := d.GetOk("instance_id"); ok {
+	if val, ok := d.GetOk("instanceid"); ok {
 		id := val.(int)
 		instanceId = &id
 	}
-	if val, ok := d.GetOk("subclient_id"); ok {
+	if val, ok := d.GetOk("subclientid"); ok {
 		id := val.(int)
 		subclientId = &id
 	}
@@ -179,24 +179,24 @@ func resourceCreateOracleBackup(d *schema.ResourceData, m interface{}) error {
 
 	if resp.TaskId != nil && *resp.TaskId > 0 {
 		d.SetId(strconv.Itoa(*resp.TaskId))
-		d.Set("task_id", *resp.TaskId)
+		d.Set("taskid", *resp.TaskId)
 	} else {
 		return fmt.Errorf("operation [OracleBackup] failed, no task ID returned")
 	}
 
 	if len(resp.JobIds) > 0 {
-		d.Set("job_ids", resp.JobIds)
+		d.Set("jobids", resp.JobIds)
 	}
 
 	// Set computed values
 	if clientId != nil {
-		d.Set("client_id", *clientId)
+		d.Set("clientid", *clientId)
 	}
 	if instanceId != nil {
-		d.Set("instance_id", *instanceId)
+		d.Set("instanceid", *instanceId)
 	}
 	if subclientId != nil {
-		d.Set("subclient_id", *subclientId)
+		d.Set("subclientid", *subclientId)
 	}
 
 	return nil

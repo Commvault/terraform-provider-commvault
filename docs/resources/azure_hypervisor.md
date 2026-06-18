@@ -19,7 +19,7 @@ resource "commvault_azure_hypervisor" "<local name>"
 	hypervisor_name = "<hypervisor name>"
 	subscription_id = "<subscription Id>"
 	tenant_id = "<tenant Id>"
-	application_id= "<application Id>"
+	applicationid= "<application Id>"
 	application_password = "<application password>"
 	access_nodes = "<access nodes>"
 }
@@ -33,7 +33,7 @@ resource "commvault_azure_hypervisor" "AzureHyp11"
 	hypervisor_name = "AzureHypTest"
 	subscription_id = "##########################"
 	tenant_id = "#############################"
-	application_id= "##############################"
+	applicationid= "##############################"
 	application_password = "################################"
 	access_nodes = "AWSproxy"
 }
@@ -44,7 +44,7 @@ resource "commvault_azure_hypervisor" "AzureHyp11"
 - **hypervisor_name** (String) Specifies The name of the hypervisor.
 - **subscription_id** (String) Specifies The subscription ID for your Azure account.
 - **tenant_id** (String) Specifies The tenant ID for your Azure account.
-- **application_id** (String) Specifies The application ID of the tenant.
+- **applicationid** (String) Specifies The application ID of the tenant.
 - **application_password** (String) Specifies The password for the application ID of the tenant.
 - **access_nodes** (String) Specifies The clients that have the VSA package installed and that act as proxy clients for Azure hypervisors.
 

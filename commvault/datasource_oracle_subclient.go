@@ -30,17 +30,17 @@ func datasourceOracleSubclient() *schema.Resource {
 				Required:    true,
 				Description: "Name of the Oracle subclient",
 			},
-			"subclient_id": {
+			"subclientid": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "ID of the Oracle subclient",
 			},
-			"instance_id": {
+			"instanceid": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "ID of the Oracle instance",
 			},
-			"client_id": {
+			"clientid": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "ID of the client",
@@ -143,7 +143,7 @@ func datasourceOracleSubclient() *schema.Resource {
 				Computed:    true,
 				Description: "Archive delete all option",
 			},
-			"plan_id": {
+			"planid": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "Plan ID associated with this Oracle subclient",
@@ -174,13 +174,13 @@ func datasourceReadOracleSubclient(d *schema.ResourceData, m interface{}) error 
 
 	subclientId := entityResp.SubclientId
 	d.SetId(strconv.Itoa(subclientId))
-	d.Set("subclient_id", subclientId)
+	d.Set("subclientid", subclientId)
 
 	if entityResp.InstanceId > 0 {
-		d.Set("instance_id", entityResp.InstanceId)
+		d.Set("instanceid", entityResp.InstanceId)
 	}
 	if entityResp.ClientId > 0 {
-		d.Set("client_id", entityResp.ClientId)
+		d.Set("clientid", entityResp.ClientId)
 	}
 
 	// Get subclient properties
@@ -215,9 +215,9 @@ func datasourceReadOracleSubclient(d *schema.ResourceData, m interface{}) error 
 
 		if plan, ok := props["planEntity"].(map[string]interface{}); ok {
 			if v, ok := plan["planId"].(float64); ok {
-				d.Set("plan_id", int(v))
+				d.Set("planid", int(v))
 			} else if v, ok := plan["id"].(float64); ok {
-				d.Set("plan_id", int(v))
+				d.Set("planid", int(v))
 			}
 			if v, ok := plan["planName"].(string); ok {
 				d.Set("plan_name", v)

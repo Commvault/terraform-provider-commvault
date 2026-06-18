@@ -109,7 +109,7 @@ func TestAccResourceOracleInstance_withPlan(t *testing.T) {
 				Config: testAccResourceOracleInstanceConfig_withPlan(),
 				Check: resource.ComposeTestCheckFunc(
 					testCheckResourceExists("Oracle Instance", "commvault_oracle_instance.test"),
-					resource.TestCheckResourceAttr("commvault_oracle_instance.test", "plan_id", testPlanID()),
+					resource.TestCheckResourceAttr("commvault_oracle_instance.test", "planid", testPlanID()),
 				),
 			},
 		},
@@ -219,7 +219,7 @@ resource "commvault_oracle_instance" "test" {
   oracle_home   = "%s"
   oracle_user   = "%s"
 	%s
-  plan_id       = %s
+  planid        = %s
   block_size    = 65536
 }
 `, ProviderConfig(), os.Getenv(envClientName), os.Getenv(envInstanceName), os.Getenv(envOracleHome), os.Getenv(envOracleUser), dbConnectCredentialBlock(), testPlanID())
