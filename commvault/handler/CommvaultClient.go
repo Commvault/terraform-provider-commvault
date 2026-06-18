@@ -17,6 +17,25 @@ import (
 var XML = "application/xml"
 var JSON = "application/json"
 
+func normalizeAuthToken(authToken string) string {
+	token := strings.TrimSpace(authToken)
+	if strings.HasPrefix(strings.ToLower(token), "bearer ") {
+		token = strings.TrimSpace(token[len("Bearer "):])
+	}
+	return token
+}
+
+func setAuthHeaders(req *http.Request, authToken string) {
+	token := normalizeAuthToken(authToken)
+	if token == "" {
+		return
+	}
+
+	// Keep legacy Commvault header while also supporting Metallic bearer auth.
+	req.Header.Set("AuthToken", token)
+	req.Header.Set("Authorization", "Bearer "+token)
+}
+
 func buildHttpReq(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) (*http.Request, error) {
 	if !strings.HasSuffix(url, "login") {
 		LogEntry("REQUEST: ", "("+method+") "+url+"\nBODY: "+string(requestBody))
@@ -27,7 +46,7 @@ func buildHttpReq(url string, method string, accept string, requestBody []byte, 
 	}
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept", accept)
-	req.Header.Set("AuthToken", authToken)
+	setAuthHeaders(req, authToken)
 	if method == "POST" {
 		req.Header.Set("operatorCompanyId", strconv.Itoa(companyID))
 	}
@@ -99,7 +118,7 @@ func makeHttpRequest(url string, method string, accept string, requestBody []byt
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept", accept)
-	req.Header.Set("AuthToken", authToken)
+	setAuthHeaders(req, authToken)
 	if method == "POST" {
 		req.Header.Set("operatorCompanyId", strconv.Itoa(companyID))
 	}
