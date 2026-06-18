@@ -247,8 +247,8 @@ Optional:
 Optional:
 
 - `credential` (Block List) (see [below for nested schema](#nestedblock--filterworkloads--workloadoptions--credential))
-- `islongtermretention` (String)
-- `israpidrecovery` (String)
+- `islongtermretention` (Boolean)
+- `israpidrecovery` (Boolean)
 
 <a id="nestedblock--filterworkloads--workloadoptions--credential"></a>
 ### Nested Schema for `filterworkloads.workloadoptions.credential`
@@ -312,8 +312,8 @@ Optional:
 Optional:
 
 - `credential` (Block List) (see [below for nested schema](#nestedblock--workloads--workloadoptions--credential))
-- `islongtermretention` (String)
-- `israpidrecovery` (String)
+- `islongtermretention` (Boolean)
+- `israpidrecovery` (Boolean)
 
 <a id="nestedblock--workloads--workloadoptions--credential"></a>
 ### Nested Schema for `workloads.workloadoptions.credential`

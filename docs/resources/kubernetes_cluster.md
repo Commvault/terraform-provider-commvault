@@ -62,11 +62,11 @@ resource "commvault_kubernetes_cluster" "kubernetes_cluster2" {
     plan {
       id = data.commvault_plan.plan1.id
     }
-    enabled = "true"
+    enabled = true
   }
   activitycontrol {
-    enablebackup             = "true"
-    enablerestore            = "true"
+    enablebackup             = true
+    enablerestore            = true
   }
   region {
     id   = data.commvault_region.region1.id
@@ -122,9 +122,9 @@ Read-Only:
 
 Optional:
 
-- `enablebackup` (String) Enable or disable backup for cluster
+- `enablebackup` (Boolean) Enable or disable backup for cluster
 - `enablebackupafteradelay` (Number) Enabling backup after a delay. Provide UTC Time in Unix format
-- `enablerestore` (String) Enable or disable restore for cluster
+- `enablerestore` (Boolean) Enable or disable restore for cluster
 - `enablerestoreafteradelay` (Number) Enabling restore after a delay. Provide UTC Time in Unix format
 
 
@@ -133,7 +133,7 @@ Optional:
 
 Optional:
 
-- `enabled` (String) Denote if etcd protection is enabled
+- `enabled` (Boolean) Denote if etcd protection is enabled
 - `plan` (Block List) (see [below for nested schema](#nestedblock--etcdprotection--plan))
 
 <a id="nestedblock--etcdprotection--plan"></a>

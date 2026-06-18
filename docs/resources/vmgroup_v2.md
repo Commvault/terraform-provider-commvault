@@ -69,7 +69,7 @@ resource "commvault_vmgroup_v2" "test-vmgroup" {
     }
   }
   activitycontrol {
-    enablebackup = "false"
+    enablebackup = false
   }
   settings {
     autodetectvmowner           = "false"
@@ -80,7 +80,7 @@ resource "commvault_vmgroup_v2" "test-vmgroup" {
   }
   enablefileindexing = false
   snapshotmanagement {
-    enablehardwaresnapshot = "false"
+    enablehardwaresnapshot = false
   }
 }
 ```
@@ -176,7 +176,7 @@ Read-Only:
 Optional:
 
 
-- `enablebackup` (String) true if Backup is enabled
+- `enablebackup` (Boolean) true if Backup is enabled
 
 
 
@@ -249,7 +249,7 @@ Optional:
 
 Optional:
 
-- `enablehardwaresnapshot` (String) True if hardware snapshot is enabled
+- `enablehardwaresnapshot` (Boolean) True if hardware snapshot is enabled
 
 
 

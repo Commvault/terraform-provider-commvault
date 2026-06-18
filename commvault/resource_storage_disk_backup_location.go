@@ -181,7 +181,7 @@ func resourceStorage_Disk_Backup_Location() *schema.Resource {
                 },
             },
             "enabled": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "",

@@ -150,7 +150,7 @@ resource "commvault_storage_disk_backup_location" "storage_disk_backup_location2
     disablebackuplocationforfuturebackups = "true"
     prepareforretirement = "true"
   }
-  enabled = "true"
+  enabled = true
 }
 
 resource "commvault_disk_accesspath" "disk_accesspath2" {
@@ -160,7 +160,7 @@ resource "commvault_disk_accesspath" "disk_accesspath2" {
       id = data.commvault_client.media_agent3.id
     }
     access = "READ_AND_WRITE"
-    enabled = "true"
+    enabled = true
 }
 ```
 
@@ -177,7 +177,7 @@ resource "commvault_disk_accesspath" "disk_accesspath2" {
 ### Optional
 
 - `access` (String) The access type for the access path can be either read (writing to path not allowed) or read and write (writing to path allowed). [READ_AND_WRITE, READ]
-- `enabled` (String)
+- `enabled` (Boolean)
 
 ### Read-Only
 

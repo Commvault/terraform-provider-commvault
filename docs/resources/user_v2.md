@@ -44,7 +44,7 @@ resource "commvault_user_v2" "test-terraform-user" {
 
 - `authenticationmethod` (String) Change the current authentication method of user. SAML user association can be removed using this.
 - `company` (Block List) (see [below for nested schema](#nestedblock--company))
-- `enabled` (String) enable or disable the user.
+- `enabled` (Boolean) enable or disable the user.
 - `fullname` (String) Used to provide a name to the new user.
 - `inviteuser` (String) User will receive an email to install backup software package on their device if this is set to true.
 - `name` (String) Used to provide the new user with a username. This username can be used for logging in the user instead of email-id when duplicate email-ids are present. For external user, it is necessary to provide the domain name along with the username (domainName\username). To create a company user, the company id or name needs to be provided in the company entity.

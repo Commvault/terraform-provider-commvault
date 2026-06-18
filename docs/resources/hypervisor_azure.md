@@ -28,7 +28,7 @@ resource "commvault_hypervisor_azure" "hypervisorazure1" {
     id   = data.commvault_client.accessnode2.id
     type = 3
   }
-  usemanagedidentity = "true"
+  usemanagedidentity = true
 }
 ```
 **configure Microsoft Azure Hypervisor using saved credentials**
@@ -72,8 +72,8 @@ resource "commvault_hypervisor_azure" "hypervisorazure1" {
 - `fbrunixmediaagent` (Block List) (see [below for nested schema](#nestedblock--fbrunixmediaagent))
 - `hypervisortype` (String) [Azure_V2]
 - `settings` (Block List) (see [below for nested schema](#nestedblock--settings))
-- `skipcredentialvalidation` (String) if credential validation has to be skipped.
-- `usemanagedidentity` (String)
+- `skipcredentialvalidation` (Boolean) if credential validation has to be skipped.
+- `usemanagedidentity` (Boolean)
 
 ### Read-Only
 
@@ -97,8 +97,8 @@ Read-Only:
 Optional:
 
 - `backupactivitycontroloptions` (Block List) (see [below for nested schema](#nestedblock--activitycontrol--backupactivitycontroloptions))
-- `enablebackup` (String) true if Backup is enabled
-- `enablerestore` (String) true if Restore is enabled
+- `enablebackup` (Boolean) true if Backup is enabled
+- `enablerestore` (Boolean) true if Restore is enabled
 - `restoreactivitycontroloptions` (Block List) (see [below for nested schema](#nestedblock--activitycontrol--restoreactivitycontroloptions))
 
 <a id="nestedblock--activitycontrol--backupactivitycontroloptions"></a>
@@ -108,8 +108,8 @@ Optional:
 
 - `activitytype` (String) denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]
 - `delaytime` (Block List) (see [below for nested schema](#nestedblock--activitycontrol--backupactivitycontroloptions--delaytime))
-- `enableactivitytype` (String) True if the activity type is enabled
-- `enableafteradelay` (String) True if the activity will be enabled after a delay time interval
+- `enableactivitytype` (Boolean) True if the activity type is enabled
+- `enableafteradelay` (Boolean) True if the activity will be enabled after a delay time interval
 
 <a id="nestedblock--activitycontrol--backupactivitycontroloptions--delaytime"></a>
 ### Nested Schema for `activitycontrol.backupactivitycontroloptions.delaytime`
@@ -141,8 +141,8 @@ Optional:
 
 - `activitytype` (String) denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]
 - `delaytime` (Block List) (see [below for nested schema](#nestedblock--activitycontrol--restoreactivitycontroloptions--delaytime))
-- `enableactivitytype` (String) True if the activity type is enabled
-- `enableafteradelay` (String) True if the activity will be enabled after a delay time interval
+- `enableactivitytype` (Boolean) True if the activity type is enabled
+- `enableafteradelay` (Boolean) True if the activity will be enabled after a delay time interval
 
 <a id="nestedblock--activitycontrol--restoreactivitycontroloptions--delaytime"></a>
 ### Nested Schema for `activitycontrol.restoreactivitycontroloptions.delaytime`

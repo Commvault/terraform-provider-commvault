@@ -19,19 +19,19 @@ func resourceHypervisor_Azure() *schema.Resource {
 
         Schema: map[string]*schema.Schema{
             "forceaccessnoderegion": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "If workloadRegion is set, use only access nodes from that region when true (fail if none found). When false, prefer that region but use any node if needed.",
             },
             "enablecloudconfigprotection": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "Protect Cloud Config entities",
             },
             "skipcredentialvalidation": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "if credential validation has to be skipped.",
@@ -66,7 +66,7 @@ func resourceHypervisor_Azure() *schema.Resource {
                             },
                         },
                         "enabled": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "Denote if etcd protection is enabled",
@@ -120,7 +120,7 @@ func resourceHypervisor_Azure() *schema.Resource {
                 },
             },
             "usehostedinfrastructure": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "Describes if the infra has to be managed by commvault",
@@ -160,7 +160,7 @@ func resourceHypervisor_Azure() *schema.Resource {
                 Description: "Type of Managed Identity to be used for Authentication",
             },
             "isauthorizedusingmta": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "Indicates whether the hypervisor was created by authorizing the multitenant app in this tenant.",
@@ -171,7 +171,7 @@ func resourceHypervisor_Azure() *schema.Resource {
                 Description: "Subscription ID of Azure",
             },
             "usemanagedidentity": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "set to true, if you want to use System Managed identitiy of Access node for Authentication",

@@ -60,7 +60,7 @@ resource "commvault_role" "role2" {
     }
   }
   visibletoall = "false"
-  enabled = "false"
+  enabled = false
   security {
     role {
       id = data.commvault_role.role2.id
@@ -84,7 +84,7 @@ resource "commvault_role" "role2" {
 
 ### Optional
 
-- `enabled` (String) Used to determine if the role is enabled or disabled. If not provided, role will be enabled by default.
+- `enabled` (Boolean) Used to determine if the role is enabled or disabled. If not provided, role will be enabled by default.
 - `security` (Block Set) Used to update the security association for the role (see [below for nested schema](#nestedblock--security))
 - `visibletoall` (String) Determines if the role is visible to everyone. if not provided, it will be set to false by default.
 
