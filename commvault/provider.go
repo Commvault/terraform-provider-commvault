@@ -3,6 +3,7 @@ package commvault
 import (
 	"os"
 	"strconv"
+	"strings"
 
 	"terraform-provider-commvault/commvault/handler"
 
@@ -39,7 +40,14 @@ func Provider() *schema.Provider {
 			"api_token": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies the encrypted token for the user to authentication to Web Server.",
+				Sensitive:   true,
+				Description: "Bootstrap token for initial /V4/AccessToken call. Can be expired if refresh_token is provided.",
+			},
+			"refresh_token": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				Description: "Optional recovery refresh token used only when api_token bootstrap fails with 401 and no valid cached token is available.",
 			},
 			"logging": {
 				Type:        schema.TypeBool,
@@ -141,6 +149,7 @@ func providerConfigure(data *schema.ResourceData) (i interface{}, err error) {
 	username := data.Get("user_name").(string)
 	password := data.Get("password").(string)
 	api_token := data.Get("api_token").(string)
+	refresh_token := data.Get("refresh_token").(string)
 	logging := data.Get("logging").(bool)
 	ignore_cert := data.Get("ignore_cert").(bool)
 
@@ -151,13 +160,38 @@ func providerConfigure(data *schema.ResourceData) (i interface{}, err error) {
 	os.Setenv("IGNORE_CERT", strconv.FormatBool(ignore_cert))
 
 	if api_token != "" {
-		os.Setenv("AuthToken", api_token)
+		os.Setenv("CV_BOOTSTRAP_TOKEN", api_token)
+		// Token-based auth: try cache first, then bootstrap
+
+		// Step 1: Try to load cached tokens if available
+		if cached, _ := handler.TryUseCachedTokens(); cached {
+			// Cache hit - proceed with cached tokens.
+			// Do not overwrite cached refresh token with user input.
+		} else {
+			// Step 2: Cache miss - bootstrap new token pair from api_token
+			if tokenErr := handler.CreateAccessTokenWithBootstrapToken(api_token); tokenErr != nil {
+				// Bootstrap failed - try refresh token recovery if available
+				if refresh_token != "" && strings.Contains(tokenErr.Error(), "401") {
+					if renewErr := handler.TryRenewWithExpiredTokenAndRefresh(api_token, refresh_token); renewErr != nil {
+						return nil, renewErr
+					}
+				} else {
+					return nil, tokenErr
+				}
+			}
+		}
 	} else if os.Getenv("CV_TER_TOKEN") != "" {
 		os.Setenv("AuthToken", os.Getenv("CV_TER_TOKEN"))
+		os.Setenv("CV_REFRESH_TOKEN", "")
+		os.Setenv("CV_BOOTSTRAP_TOKEN", "")
 	} else if os.Getenv("CV_TER_PASSWORD") != "" {
 		handler.LoginWithProviderCredentials(username, os.Getenv("CV_TER_PASSWORD"))
+		os.Setenv("CV_REFRESH_TOKEN", "")
+		os.Setenv("CV_BOOTSTRAP_TOKEN", "")
 	} else {
 		handler.LoginWithProviderCredentials(username, password)
+		os.Setenv("CV_REFRESH_TOKEN", "")
+		os.Setenv("CV_BOOTSTRAP_TOKEN", "")
 	}
 
 	if data.Get("company") != nil {
