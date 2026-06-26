@@ -1,9 +1,15 @@
 package handler
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -19,6 +25,12 @@ type TokenCacheEntry struct {
 	RefreshToken string `json:"refreshToken"`
 	CreatedAt    int64  `json:"createdAt"`
 	ExpiresAt    int64  `json:"expiresAt"`
+}
+
+type EncryptedTokenCache struct {
+	Version    int    `json:"version"`
+	Nonce      string `json:"nonce"`
+	Ciphertext string `json:"ciphertext"`
 }
 
 type AccessTokenCreateReq struct {
@@ -90,19 +102,20 @@ func getCachedTokens() *TokenCacheEntry {
 		return nil
 	}
 
-	var cache TokenCacheEntry
-	if err := json.Unmarshal(data, &cache); err != nil {
-		// Corrupted cache - ignore and return nil
-		return nil
+	cache, decrypted := decryptCachedTokens(data)
+	if !decrypted {
+		// Backward compatibility: accept legacy plaintext cache and migrate it to encrypted format.
+		if err := json.Unmarshal(data, &cache); err != nil {
+			return nil
+		}
+		_ = saveCachedTokenEntry(&cache)
+		if !isCacheValid(&cache) {
+			return nil
+		}
+		return &cache
 	}
 
-	// Check if tokens are still valid (not expiring in next 5 minutes)
-	now := time.Now().Unix()
-	if cache.ExpiresAt > 0 && now > cache.ExpiresAt-300 { // 5 min buffer
-		return nil
-	}
-
-	if cache.AccessToken == "" || cache.RefreshToken == "" {
+	if !isCacheValid(&cache) {
 		return nil
 	}
 
@@ -117,11 +130,6 @@ func saveCachedTokens(accessToken, refreshToken string) error {
 		return nil
 	}
 
-	cacheFile, err := getCacheFilePath()
-	if err != nil {
-		return nil
-	}
-
 	cache := TokenCacheEntry{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -129,8 +137,18 @@ func saveCachedTokens(accessToken, refreshToken string) error {
 		ExpiresAt:    time.Now().Add(2 * time.Hour).Unix(), // Access tokens valid ~2 hours
 	}
 
-	data, err := json.MarshalIndent(&cache, "", "  ")
+	return saveCachedTokenEntry(&cache)
+}
+
+func saveCachedTokenEntry(cache *TokenCacheEntry) error {
+	cacheFile, err := getCacheFilePath()
 	if err != nil {
+		return nil
+	}
+
+	data, err := encryptCachedTokens(cache)
+	if err != nil {
+		// Non-blocking: if encryption fails, continue without cache.
 		return nil
 	}
 
@@ -141,6 +159,118 @@ func saveCachedTokens(accessToken, refreshToken string) error {
 	}
 
 	return nil
+}
+
+func isCacheValid(cache *TokenCacheEntry) bool {
+	if cache == nil {
+		return false
+	}
+
+	now := time.Now().Unix()
+	if cache.ExpiresAt > 0 && now > cache.ExpiresAt-300 {
+		return false
+	}
+
+	if cache.AccessToken == "" || cache.RefreshToken == "" {
+		return false
+	}
+
+	return true
+}
+
+func cacheEncryptionKey() ([]byte, error) {
+	bootstrapToken := normalizeAuthToken(os.Getenv("CV_BOOTSTRAP_TOKEN"))
+	if bootstrapToken == "" {
+		bootstrapToken = normalizeAuthToken(os.Getenv("CV_API_TOKEN"))
+	}
+	if bootstrapToken == "" {
+		return nil, fmt.Errorf("cache encryption key unavailable")
+	}
+
+	baseURL := strings.TrimSpace(strings.TrimRight(strings.ToLower(os.Getenv("CV_CSIP")), "/"))
+	raw := "commvault-cache-v1|" + baseURL + "|" + bootstrapToken
+	sum := sha256.Sum256([]byte(raw))
+	return sum[:], nil
+}
+
+func encryptCachedTokens(cache *TokenCacheEntry) ([]byte, error) {
+	key, err := cacheEncryptionKey()
+	if err != nil {
+		return nil, err
+	}
+
+	plain, err := json.Marshal(cache)
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return nil, err
+	}
+
+	ciphertext := gcm.Seal(nil, nonce, plain, nil)
+	enc := EncryptedTokenCache{
+		Version:    1,
+		Nonce:      base64.StdEncoding.EncodeToString(nonce),
+		Ciphertext: base64.StdEncoding.EncodeToString(ciphertext),
+	}
+
+	return json.Marshal(enc)
+}
+
+func decryptCachedTokens(data []byte) (TokenCacheEntry, bool) {
+	var enc EncryptedTokenCache
+	if err := json.Unmarshal(data, &enc); err != nil {
+		return TokenCacheEntry{}, false
+	}
+	if enc.Version != 1 || enc.Nonce == "" || enc.Ciphertext == "" {
+		return TokenCacheEntry{}, false
+	}
+
+	key, err := cacheEncryptionKey()
+	if err != nil {
+		return TokenCacheEntry{}, false
+	}
+
+	nonce, err := base64.StdEncoding.DecodeString(enc.Nonce)
+	if err != nil {
+		return TokenCacheEntry{}, false
+	}
+	ciphertext, err := base64.StdEncoding.DecodeString(enc.Ciphertext)
+	if err != nil {
+		return TokenCacheEntry{}, false
+	}
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return TokenCacheEntry{}, false
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return TokenCacheEntry{}, false
+	}
+
+	plain, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return TokenCacheEntry{}, false
+	}
+
+	var cache TokenCacheEntry
+	if err := json.Unmarshal(plain, &cache); err != nil {
+		return TokenCacheEntry{}, false
+	}
+
+	return cache, true
 }
 
 // TryUseCachedTokens attempts to use cached tokens if they're still valid.
