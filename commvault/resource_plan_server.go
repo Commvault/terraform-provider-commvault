@@ -26,7 +26,7 @@ func resourcePlan_Server() *schema.Resource {
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "enableadvancedview": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "Setting to suggest plan has some advanced settings present. Setting is OEM specific and not applicable for all cases.",
@@ -38,7 +38,7 @@ func resourcePlan_Server() *schema.Resource {
                             Description: "For each region, the data to backup is divided into these many streams while writing to backup destination.",
                         },
                         "useforcloudnative": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "",
@@ -51,7 +51,7 @@ func resourcePlan_Server() *schema.Resource {
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "enabled": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Flag for enabling indexing",
@@ -72,7 +72,7 @@ func resourcePlan_Server() *schema.Resource {
                             },
                         },
                         "upgradedfromstoragepolicy": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "Setting to suggest plan was created from PolicyToPlan workflow. If true, editing RPO is not allowed.",

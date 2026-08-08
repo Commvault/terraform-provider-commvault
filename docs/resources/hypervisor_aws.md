@@ -66,8 +66,8 @@ resource "commvault_hypervisor_aws" "aws-test-accessandsecret" {
     id = data.commvault_client.frel.id
   }
   activitycontrol {
-    enablebackup  = "false"
-    enablerestore = "false"
+    enablebackup  = false
+    enablerestore = false
   }
   displayname           = "Terraform-Test-AWS-Access&Secret-Modified"
   region                = "us-east-1"
@@ -105,7 +105,7 @@ resource "commvault_hypervisor_aws" "aws-test-accessandsecret" {
 - `region` (String) AWS region if Iam role is used
 - `rolearn` (String) Role ARN for STS assume role with IAM policy
 - `settings` (Block List) (see [below for nested schema](#nestedblock--settings))
-- `skipcredentialvalidation` (String) if credential validation has to be skipped.
+- `skipcredentialvalidation` (Boolean) if credential validation has to be skipped.
 - `useserviceaccount` (String) Clientname to be used as Admin Account
 
 ### Read-Only
@@ -130,8 +130,8 @@ Read-Only:
 Optional:
 
 - `backupactivitycontroloptions` (Block List) (see [below for nested schema](#nestedblock--activitycontrol--backupactivitycontroloptions))
-- `enablebackup` (String) true if Backup is enabled
-- `enablerestore` (String) true if Restore is enabled
+- `enablebackup` (Boolean) true if Backup is enabled
+- `enablerestore` (Boolean) true if Restore is enabled
 - `restoreactivitycontroloptions` (Block List) (see [below for nested schema](#nestedblock--activitycontrol--restoreactivitycontroloptions))
 
 <a id="nestedblock--activitycontrol--backupactivitycontroloptions"></a>
@@ -141,8 +141,8 @@ Optional:
 
 - `activitytype` (String) denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]
 - `delaytime` (Block List) (see [below for nested schema](#nestedblock--activitycontrol--backupactivitycontroloptions--delaytime))
-- `enableactivitytype` (String) True if the activity type is enabled
-- `enableafteradelay` (String) True if the activity will be enabled after a delay time interval
+- `enableactivitytype` (Boolean) True if the activity type is enabled
+- `enableafteradelay` (Boolean) True if the activity will be enabled after a delay time interval
 
 <a id="nestedblock--activitycontrol--backupactivitycontroloptions--delaytime"></a>
 ### Nested Schema for `activitycontrol.backupactivitycontroloptions.delaytime`
@@ -174,8 +174,8 @@ Optional:
 
 - `activitytype` (String) denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]
 - `delaytime` (Block List) (see [below for nested schema](#nestedblock--activitycontrol--restoreactivitycontroloptions--delaytime))
-- `enableactivitytype` (String) True if the activity type is enabled
-- `enableafteradelay` (String) True if the activity will be enabled after a delay time interval
+- `enableactivitytype` (Boolean) True if the activity type is enabled
+- `enableafteradelay` (Boolean) True if the activity will be enabled after a delay time interval
 
 <a id="nestedblock--activitycontrol--restoreactivitycontroloptions--delaytime"></a>
 ### Nested Schema for `activitycontrol.restoreactivitycontroloptions.delaytime`

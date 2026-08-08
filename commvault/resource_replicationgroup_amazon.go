@@ -57,7 +57,7 @@ func resourceReplicationGroup_Amazon() *schema.Resource {
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "isdedupe": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Required:    true,
                             Description: "Denotes if this is a deduplication copy",
                         },
@@ -305,13 +305,13 @@ func resourceReplicationGroup_Amazon() *schema.Resource {
                 Description: "[Amazon]",
             },
             "enable": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "Used to enable a replication group",
             },
             "disable": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "Used to disable a replication group",

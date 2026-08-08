@@ -181,7 +181,7 @@ func resourceRole() *schema.Resource {
                 Description: "Determines if the role is visible to everyone. if not provided, it will be set to false by default.",
             },
             "enabled": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "Used to determine if the role is enabled or disabled. If not provided, role will be enabled by default.",

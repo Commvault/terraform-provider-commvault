@@ -138,7 +138,7 @@ resource "commvault_storage_disk_backup_location" "storage_disk_backup_location2
     disablebackuplocationforfuturebackups = "true"
     prepareforretirement = "true"
   }
-  enabled = "true"
+  enabled = true
 }
 ```
 
@@ -158,7 +158,7 @@ resource "commvault_storage_disk_backup_location" "storage_disk_backup_location2
 - `access` (String) The access type for the access path can be either read (writing to path not allowed) or read and write (writing to path allowed). [READ_AND_WRITE, READ]
 - `configuration` (Block List) While adding network access path, please add credentials or saved credentials. If both are provided, credentials will be selected. (see [below for nested schema](#nestedblock--configuration))
 - `credentials` (Block List) (see [below for nested schema](#nestedblock--credentials))
-- `enabled` (String)
+- `enabled` (Boolean)
 - `savedcredentials` (Block List) (see [below for nested schema](#nestedblock--savedcredentials))
 
 ### Read-Only

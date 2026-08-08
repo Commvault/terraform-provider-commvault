@@ -19,19 +19,19 @@ func resourceHypervisor_AWS() *schema.Resource {
 
         Schema: map[string]*schema.Schema{
             "forceaccessnoderegion": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "If workloadRegion is set, use only access nodes from that region when true (fail if none found). When false, prefer that region but use any node if needed.",
             },
             "enablecloudconfigprotection": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "Protect Cloud Config entities",
             },
             "skipcredentialvalidation": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "if credential validation has to be skipped.",

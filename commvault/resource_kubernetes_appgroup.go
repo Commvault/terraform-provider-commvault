@@ -32,7 +32,7 @@ func resourceKubernetes_Appgroup() *schema.Resource {
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "skipstatelessapps": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "Specify whether to skip backup of stateless applications",

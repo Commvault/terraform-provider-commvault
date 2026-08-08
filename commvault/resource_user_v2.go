@@ -102,7 +102,7 @@ func resourceUser_V2() *schema.Resource {
                 Description: "Change the current authentication method of user. SAML user association can be removed using this.",
             },
             "enabled": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "enable or disable the user.",

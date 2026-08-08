@@ -53,7 +53,7 @@ func resourceAWSProtectionGroup() *schema.Resource {
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "islongtermretention": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Description: "",
                                     },
@@ -77,7 +77,7 @@ func resourceAWSProtectionGroup() *schema.Resource {
                                         },
                                     },
                                     "israpidrecovery": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Description: "",
                                     },
@@ -445,7 +445,7 @@ func resourceAWSProtectionGroup() *schema.Resource {
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "islongtermretention": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Description: "",
                                     },
@@ -469,7 +469,7 @@ func resourceAWSProtectionGroup() *schema.Resource {
                                         },
                                     },
                                     "israpidrecovery": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Description: "",
                                     },

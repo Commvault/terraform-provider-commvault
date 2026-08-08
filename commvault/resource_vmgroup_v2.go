@@ -83,13 +83,13 @@ func resourceVMGroup_V2() *schema.Resource {
                                         Description: "denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]",
                                     },
                                     "enableafteradelay": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if the activity will be enabled after a delay time interval",
                                     },
                                     "enableactivitytype": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if the activity type is enabled",
@@ -155,13 +155,13 @@ func resourceVMGroup_V2() *schema.Resource {
                                         Description: "denotes the activity type being considered [BACKUP, RESTORE, ONLINECI, ARCHIVEPRUNE]",
                                     },
                                     "enableafteradelay": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if the activity will be enabled after a delay time interval",
                                     },
                                     "enableactivitytype": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if the activity type is enabled",
@@ -170,13 +170,13 @@ func resourceVMGroup_V2() *schema.Resource {
                             },
                         },
                         "enablebackup": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "true if Backup is enabled",
                         },
                         "enablerestore": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "true if Restore is enabled",
@@ -191,12 +191,12 @@ func resourceVMGroup_V2() *schema.Resource {
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "encryptionflag": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Description: "The encryption value in the VM Group.",
                         },
                         "usebackupsetdiskfilters": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Description: "True if use of backupset disk filters is allowed",
                         },
@@ -1090,7 +1090,7 @@ func resourceVMGroup_V2() *schema.Resource {
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "useseparateproxyforsnaptotape": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if separate proxy client is used for snap to tape",
@@ -1118,7 +1118,7 @@ func resourceVMGroup_V2() *schema.Resource {
                             },
                         },
                         "isindependentdisksenabled": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if independent disk option is enabled",
@@ -1130,7 +1130,7 @@ func resourceVMGroup_V2() *schema.Resource {
                             Description: "[FILE_SYSTEM, RMAN, VOLUME_COPY]",
                         },
                         "enablehardwaresnapshot": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if hardware snapshot is enabled",
@@ -1170,7 +1170,7 @@ func resourceVMGroup_V2() *schema.Resource {
                             Description: "Name of ESX Host",
                         },
                         "israwdevicemapsenabled": {
-                            Type:        schema.TypeString,
+                            Type:        schema.TypeBool,
                             Optional:    true,
                             Computed:    true,
                             Description: "True if raw device maps option is enabled",
@@ -1233,7 +1233,7 @@ func resourceVMGroup_V2() *schema.Resource {
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "isscheduleenabled": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "True if application validation schedule is enabled",
@@ -1404,13 +1404,13 @@ func resourceVMGroup_V2() *schema.Resource {
                                                     Description: "Arguments for the script",
                                                 },
                                                 "isdisabled": {
-                                                    Type:        schema.TypeString,
+                                                    Type:        schema.TypeBool,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "Is the script disabled",
                                                 },
                                                 "islocal": {
-                                                    Type:        schema.TypeString,
+                                                    Type:        schema.TypeBool,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "True if the script is local",
@@ -1483,13 +1483,13 @@ func resourceVMGroup_V2() *schema.Resource {
                                                     Description: "Arguments for the script",
                                                 },
                                                 "isdisabled": {
-                                                    Type:        schema.TypeString,
+                                                    Type:        schema.TypeBool,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "Is the script disabled",
                                                 },
                                                 "islocal": {
-                                                    Type:        schema.TypeString,
+                                                    Type:        schema.TypeBool,
                                                     Optional:    true,
                                                     Computed:    true,
                                                     Description: "True if the script is local",
@@ -1532,7 +1532,7 @@ func resourceVMGroup_V2() *schema.Resource {
                                         Description: "Id of the source copy",
                                     },
                                     "isactive": {
-                                        Type:        schema.TypeString,
+                                        Type:        schema.TypeBool,
                                         Optional:    true,
                                         Computed:    true,
                                         Description: "Is this an active backup destination?",

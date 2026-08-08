@@ -545,7 +545,7 @@ Optional:
 
 Optional:
 
-- `enableadvancedview` (String) Setting to suggest plan has some advanced settings present. Setting is OEM specific and not applicable for all cases.
+- `enableadvancedview` (Boolean) Setting to suggest plan has some advanced settings present. Setting is OEM specific and not applicable for all cases.
 - `filesearch` (Block List) This feature applies to file servers and virtualization. Enabling this feature allows you to search for backed-up files using the global search bar, and creates resource pools with required infrastructure entities. (see [below for nested schema](#nestedblock--settings--filesearch))
 
 <a id="nestedblock--settings--filesearch"></a>
@@ -553,7 +553,7 @@ Optional:
 
 Optional:
 
-- `enabled` (String) Flag for enabling indexing
+- `enabled` (Boolean) Flag for enabling indexing
 - `status` (String) Type of indexing status. [NOT_APPLICABLE, ENABLED, SETUP_IN_PROGRESS]
 - `statusmessage` (String) Tells what is happening behind the scene, so that user can knows why indexing is not enabled or if its in progress
 

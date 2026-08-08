@@ -19,7 +19,7 @@ func resourceKubernetes_Cluster() *schema.Resource {
 
         Schema: map[string]*schema.Schema{
             "skipcredentialvalidation": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
                 Description: "if credential validation has to be skipped.",
@@ -31,10 +31,10 @@ func resourceKubernetes_Cluster() *schema.Resource {
                 Description: "Thumbprint of the SSL certificate used to bypass SSL validation",
             },
             "skipsslvalidation": {
-                Type:        schema.TypeString,
+                Type:        schema.TypeBool,
                 Optional:    true,
                 Computed:    true,
-                Description: "if SSL certificate validation has to be skipped.",
+                Description: "if certificate validation has to be skipped.",
             },
             "apiserver": {
                 Type:        schema.TypeString,
