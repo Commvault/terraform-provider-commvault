@@ -641,7 +641,7 @@ func resourceVMGroup_V2() *schema.Resource {
                                     "type": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
-                                        Description: "Returns the type of association. [ALL_CATEGORIES, CATEGORY_ENTITY, PERMISSION_ENTITY]",
+                                        Description: "Type of permission association. Use ALL_CATEGORIES to associate all permission categories, CATEGORY_ENTITY to associate a specific category, or PERMISSION_ENTITY to associate a specific permission. [ALL_CATEGORIES, CATEGORY_ENTITY, PERMISSION_ENTITY]",
                                     },
                                     "categoryname": {
                                         Type:        schema.TypeString,

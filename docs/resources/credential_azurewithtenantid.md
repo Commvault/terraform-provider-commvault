@@ -111,8 +111,8 @@ Optional:
 
 Optional:
 
-- `iscreatorassociation` (String) To check if the user/user group associated is the owner.
-- `permissions` (Block List) List of permissions associated with the entity. Either categoryId and categoryName or permissionId and permissionName will be returned. If categoryId or categoryName is returned, all the corresponding permissions in the category are associated with the entity. (see [below for nested schema](#nestedblock--security--associations--permissions))
+- `iscreatorassociation` (String) When true, marks this as a creator association. Distinct from ownership, which is set via the owner block.
+- `permissions` (Block List) Permissions to associate with the entity. Specify either categoryId/categoryName to grant all permissions in a category, or permissionId/permissionName to grant a specific permission. Use the commvault_permission data source to look up permission IDs by name. (see [below for nested schema](#nestedblock--security--associations--permissions))
 - `user` (Block List) (see [below for nested schema](#nestedblock--security--associations--user))
 - `usergroup` (Block List) (see [below for nested schema](#nestedblock--security--associations--usergroup))
 
@@ -126,7 +126,7 @@ Optional:
 - `exclude` (String) Flag to specify if this is included permission or excluded permission.
 - `permissionid` (Number)
 - `permissionname` (String)
-- `type` (String) Returns the type of association. [ALL_CATEGORIES, CATEGORY_ENTITY, PERMISSION_ENTITY]
+- `type` (String) Type of permission association. Use ALL_CATEGORIES to associate all permission categories, CATEGORY_ENTITY to associate a specific category, or PERMISSION_ENTITY to associate a specific permission. [ALL_CATEGORIES, CATEGORY_ENTITY, PERMISSION_ENTITY]
 
 
 <a id="nestedblock--security--associations--user"></a>
