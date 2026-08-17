@@ -134,7 +134,7 @@ func resourceKubernetes_Cluster() *schema.Resource {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
-                            Description: "Enabling backup after a delay. Provide UTC Time in Unix format",
+                            Description: "UTC Unix timestamp after which backup will be automatically re-enabled. Only takes effect when enablebackup = \"false\"; ignored when enablebackup = \"true\".",
                         },
                         "enablebackup": {
                             Type:        schema.TypeString,
@@ -146,7 +146,7 @@ func resourceKubernetes_Cluster() *schema.Resource {
                             Type:        schema.TypeInt,
                             Optional:    true,
                             Computed:    true,
-                            Description: "Enabling restore after a delay. Provide UTC Time in Unix format",
+                            Description: "UTC Unix timestamp after which restore will be automatically re-enabled. Only takes effect when enablerestore = \"false\"; ignored when enablerestore = \"true\".",
                         },
                         "enablerestore": {
                             Type:        schema.TypeString,

@@ -123,9 +123,9 @@ Read-Only:
 Optional:
 
 - `enablebackup` (String) Enable or disable backup for cluster
-- `enablebackupafteradelay` (Number) Enabling backup after a delay. Provide UTC Time in Unix format
+- `enablebackupafteradelay` (Number) UTC Unix timestamp after which backup will be automatically re-enabled. Only takes effect when `enablebackup = "false"`; ignored when `enablebackup = "true"`.
 - `enablerestore` (String) Enable or disable restore for cluster
-- `enablerestoreafteradelay` (Number) Enabling restore after a delay. Provide UTC Time in Unix format
+- `enablerestoreafteradelay` (Number) UTC Unix timestamp after which restore will be automatically re-enabled. Only takes effect when `enablerestore = "false"`; ignored when `enablerestore = "true"`.
 
 
 <a id="nestedblock--etcdprotection"></a>
