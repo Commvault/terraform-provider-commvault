@@ -90,20 +90,20 @@ func resourceKubernetes_Cluster() *schema.Resource {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
-                            Description: "",
+                            Description: "Optional backup plan for etcd protection. If omitted, the cluster's default plan is used.",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "",
+                                        Description: "Name of the backup plan for etcd protection.",
                                     },
                                     "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "",
+                                        Description: "ID of the backup plan for etcd protection.",
                                     },
                                 },
                             },

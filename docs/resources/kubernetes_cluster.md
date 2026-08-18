@@ -59,6 +59,7 @@ resource "commvault_kubernetes_cluster" "kubernetes_cluster2" {
   }
   servicetype = "ONPREM"
   etcdprotection {
+    # plan is optional; if omitted the cluster's default plan is used
     plan {
       id = data.commvault_plan.plan1.id
     }
@@ -134,18 +135,15 @@ Optional:
 Optional:
 
 - `enabled` (String) Denote if etcd protection is enabled
-- `plan` (Block List) (see [below for nested schema](#nestedblock--etcdprotection--plan))
+- `plan` (Block List) Optional backup plan for etcd protection. If omitted, the cluster's default plan is used. (see [below for nested schema](#nestedblock--etcdprotection--plan))
 
 <a id="nestedblock--etcdprotection--plan"></a>
 ### Nested Schema for `etcdprotection.plan`
 
 Optional:
 
-- `name` (String)
-
-Read-Only:
-
-- `id` (Number) The ID of this resource.
+- `id` (Number) ID of the backup plan for etcd protection.
+- `name` (String) Name of the backup plan for etcd protection.
 
 
 
