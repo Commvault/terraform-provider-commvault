@@ -410,10 +410,10 @@ Optional:
 
 Optional:
 
-- `cpulimits` (String) Define limits.cpu to set on the worker Pod
-- `cpurequests` (String) Define requests.cpu to set on the worker Pod
-- `memorylimits` (String) Define limits.memory to set on the worker Pod
-- `memoryrequests` (String) Define requests.memory to set on the worker Pod
+- `cpulimits` (String) Maximum CPU for the worker Pod. Kubernetes quantity string, e.g. `"500m"`, `"1"`.
+- `cpurequests` (String) Minimum CPU for the worker Pod. Kubernetes quantity string, e.g. `"100m"`, `"0.5"`.
+- `memorylimits` (String) Maximum memory for the worker Pod. Kubernetes quantity string, e.g. `"512Mi"`, `"2Gi"`.
+- `memoryrequests` (String) Minimum memory for the worker Pod. Kubernetes quantity string, e.g. `"256Mi"`, `"1Gi"`.
 
 
 

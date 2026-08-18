@@ -2,6 +2,7 @@ package commvault
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -241,32 +242,36 @@ func resourceKubernetes_Appgroup() *schema.Resource {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
-                            Description: "",
+                            Description: "CPU and memory requests/limits for the Commvault worker Pod. Use Kubernetes quantity strings (e.g. \"256Mi\", \"500m\").",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "memoryrequests": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Define requests.memory to set on the worker Pod",
+                                        Type:         schema.TypeString,
+                                        Optional:     true,
+                                        Computed:     true,
+                                        Description:  "Minimum memory for the worker Pod. Kubernetes quantity string, e.g. \"256Mi\", \"1Gi\".",
+                                        ValidateFunc: validateKubernetesQuantity,
                                     },
                                     "memorylimits": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Define limits.memory to set on the worker Pod",
+                                        Type:         schema.TypeString,
+                                        Optional:     true,
+                                        Computed:     true,
+                                        Description:  "Maximum memory for the worker Pod. Kubernetes quantity string, e.g. \"512Mi\", \"2Gi\".",
+                                        ValidateFunc: validateKubernetesQuantity,
                                     },
                                     "cpulimits": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Define limits.cpu to set on the worker Pod",
+                                        Type:         schema.TypeString,
+                                        Optional:     true,
+                                        Computed:     true,
+                                        Description:  "Maximum CPU for the worker Pod. Kubernetes quantity string, e.g. \"500m\", \"1\".",
+                                        ValidateFunc: validateKubernetesQuantity,
                                     },
                                     "cpurequests": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Define requests.cpu to set on the worker Pod",
+                                        Type:         schema.TypeString,
+                                        Optional:     true,
+                                        Computed:     true,
+                                        Description:  "Minimum CPU for the worker Pod. Kubernetes quantity string, e.g. \"100m\", \"0.5\".",
+                                        ValidateFunc: validateKubernetesQuantity,
                                     },
                                 },
                             },
@@ -985,4 +990,15 @@ func serialize_kubernetes_appgroup_msgapplicationgroupactivitycontrol(d *schema.
     } else {
         return nil, false
     }
+}
+
+// validateKubernetesQuantity rejects values that are not valid Kubernetes resource quantity strings.
+var kubernetesQuantityRe = regexp.MustCompile(`^[0-9]+(\.[0-9]+)?(m|Ki|Mi|Gi|Ti|Pi|Ei|k|M|G|T|P|E)?$`)
+
+func validateKubernetesQuantity(val interface{}, key string) (warns []string, errs []error) {
+    v := val.(string)
+    if !kubernetesQuantityRe.MatchString(v) {
+        errs = append(errs, fmt.Errorf("%q must be a Kubernetes quantity string (e.g. \"256Mi\", \"500m\", \"1Gi\"), got: %q", key, v))
+    }
+    return
 }
