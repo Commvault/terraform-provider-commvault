@@ -21,7 +21,8 @@ type CreateCompanyReq struct {
 
 type PlanDetails struct {
 	Plan struct {
-		PlanName string `json:"planName"`
+		PlanId   *int   `json:"planId,omitempty"`
+		PlanName string `json:"planName,omitempty"`
 	} `json:"plan"`
 }
 
