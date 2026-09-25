@@ -19,7 +19,7 @@ func TestAccOracleInstallAgent_basic(t *testing.T) {
 				Config: testAccOracleInstallAgentConfig_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("commvault_oracle_install_agent.test", "client_name", "test-oracle-server"),
-					resource.TestCheckResourceAttrSet("commvault_oracle_install_agent.test", "task_id"),
+					resource.TestCheckResourceAttrSet("commvault_oracle_install_agent.test", "taskid"),
 				),
 			},
 		},

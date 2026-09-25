@@ -15,7 +15,7 @@ Use the commvault_oracle_rman_logs data source to retrieve RMAN (Recovery Manage
 
 ```hcl
 data "commvault_oracle_rman_logs" "backup_log" {
-  job_id = "29408"
+  jobid = "29408"
 }
 
 output "rman_output" {
@@ -30,7 +30,7 @@ output "rman_output" {
 # Job ID can be obtained from Commvault Command Center or other monitoring tools
 
 data "commvault_oracle_rman_logs" "backup_log" {
-  job_id = "12345"  # Replace with actual job ID
+  jobid = "12345"  # Replace with actual job ID
 }
 
 output "backup_rman_log" {
@@ -43,7 +43,7 @@ output "backup_rman_log" {
 
 ### Required
 
-- **job_id** (String) - The ID of the Oracle backup or restore job from Commvault.
+- **jobid** (String) - The ID of the Oracle backup or restore job from Commvault.
 
 ## Attribute Reference
 

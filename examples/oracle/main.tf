@@ -18,7 +18,7 @@ resource "commvault_oracle_instance" "example" {
   cross_check_timeout = 600       # 10 minutes
 
   # Uncomment to associate a Commvault protection plan
-  # plan_id = var.plan_id
+  # planid = var.planid
 }
 
 # -----------------------------------------------------------------------

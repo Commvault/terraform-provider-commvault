@@ -60,7 +60,7 @@ func resourceOracleInstallAgent() *schema.Resource {
 				ForceNew:    true,
 				Description: "OS type: 1 for Windows, 2 for Unix/Linux",
 			},
-			"plan_id": {
+			"planid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
@@ -151,12 +151,12 @@ func resourceOracleInstallAgent() *schema.Resource {
 				Description: "Firewall port number",
 			},
 			// Computed attributes
-			"task_id": {
+			"taskid": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "Task ID of the installation job",
 			},
-			"job_id": {
+			"jobid": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Job ID of the installation job",
@@ -269,7 +269,7 @@ func resourceCreateOracleInstallAgent(d *schema.ResourceData, m interface{}) err
 	}
 
 	// Add plan if specified
-	if planId, ok := d.GetOk("plan_id"); ok {
+	if planId, ok := d.GetOk("planid"); ok {
 		planIdVal := planId.(int)
 		req.TaskInfo.SubTasks[0].Options.AdminOpts.UpdateOption = &handler.MsgUpdateOption{
 			Plan: &handler.MsgPlanRef{
@@ -285,13 +285,13 @@ func resourceCreateOracleInstallAgent(d *schema.ResourceData, m interface{}) err
 
 	if resp.TaskId != nil {
 		d.SetId(strconv.Itoa(*resp.TaskId))
-		d.Set("task_id", *resp.TaskId)
+		d.Set("taskid", *resp.TaskId)
 	} else {
 		return fmt.Errorf("operation [InstallOracleAgent] failed, no task ID returned")
 	}
 
 	if resp.JobIds != nil && len(resp.JobIds) > 0 {
-		d.Set("job_id", resp.JobIds[0])
+		d.Set("jobid", resp.JobIds[0])
 	}
 
 	return nil

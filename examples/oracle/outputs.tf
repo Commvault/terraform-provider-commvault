@@ -1,9 +1,9 @@
-output "instance_id" {
+output "instanceid" {
   description = "The Commvault internal ID for the Oracle instance"
   value       = commvault_oracle_instance.example.id
 }
 
-output "subclient_id" {
+output "subclientid" {
   description = "The Commvault internal ID for the Oracle subclient"
   value       = commvault_oracle_subclient.example.id
 }

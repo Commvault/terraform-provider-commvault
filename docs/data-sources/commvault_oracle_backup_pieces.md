@@ -15,7 +15,7 @@ Use the commvault_oracle_backup_pieces data source to retrieve information about
 
 ```hcl
 data "commvault_oracle_backup_pieces" "recent" {
-  instance_id = "208"
+  instanceid = "208"
 }
 
 output "backup_pieces" {
@@ -27,7 +27,7 @@ output "backup_pieces" {
 
 ```hcl
 data "commvault_oracle_backup_pieces" "last_week" {
-  instance_id = "208"
+  instanceid = "208"
   from_time   = 1692334800  # 7 days ago (epoch)
   to_time     = 1692939600  # now (epoch)
 }
@@ -41,7 +41,7 @@ output "backup_count" {
 
 ```hcl
 data "commvault_oracle_backup_pieces" "full_backups" {
-  instance_id = "208"
+  instanceid = "208"
   from_time   = 1692334800
 }
 
@@ -54,7 +54,7 @@ output "full_backup_pieces" {
 
 ### Required
 
-- **instance_id** (String) - The ID of the Oracle instance.
+- **instanceid** (String) - The ID of the Oracle instance.
 
 ### Optional
 

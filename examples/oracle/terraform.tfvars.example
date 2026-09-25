@@ -19,7 +19,7 @@ oracle_home     = "/u01/app/oracle/product/19c/dbhome_1"
 oracle_user     = "oracle"
 
 # Optional: Commvault Plan ID (find it in Manage > Plans in the console)
-# plan_id = 2
+# planid = 2
 
 # Name for the subclient that will be created
 subclient_name  = "terraform_subclient"

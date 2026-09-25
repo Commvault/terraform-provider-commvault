@@ -20,7 +20,7 @@ data "commvault_oracle_subclient" "default" {
   subclient_name = "default"
 }
 
-output "subclient_id" {
+output "subclientid" {
   value = data.commvault_oracle_subclient.default.id
 }
 ```
@@ -52,9 +52,9 @@ output "storage_policy" {
 In addition to all arguments above, the following attributes are exported:
 
 - **id** (String) - The unique identifier of the Oracle subclient.
-- **subclient_id** (Number) - The ID of the subclient.
-- **client_id** (Number) - The ID of the client.
-- **instance_id** (Number) - The ID of the instance.
+- **subclientid** (Number) - The ID of the subclient.
+- **clientid** (Number) - The ID of the client.
+- **instanceid** (Number) - The ID of the instance.
 - **enable_backup** (Boolean) - Whether backup is enabled for this subclient.
 - **description** (String) - Description of the subclient.
 - **backup_archive_log** (Boolean) - Whether archive log backup is enabled.

@@ -25,7 +25,7 @@ func datasourceOracleInstance() *schema.Resource {
 				Required:    true,
 				Description: "Name of the Oracle instance",
 			},
-			"instance_id": {
+			"instanceid": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "ID of the Oracle instance",
@@ -80,7 +80,7 @@ func datasourceReadOracleInstance(d *schema.ResourceData, m interface{}) error {
 
 	instanceId := entityResp.InstanceId
 	d.SetId(strconv.Itoa(instanceId))
-	d.Set("instance_id", instanceId)
+	d.Set("instanceid", instanceId)
 
 	// Get instance properties
 	resp, err := handler.CvGetOracleInstanceProperties(strconv.Itoa(instanceId))

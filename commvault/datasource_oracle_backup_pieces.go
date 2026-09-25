@@ -14,7 +14,7 @@ func datasourceOracleBackupPieces() *schema.Resource {
 		Read: datasourceReadOracleBackupPieces,
 
 		Schema: map[string]*schema.Schema{
-			"instance_id": {
+			"instanceid": {
 				Type:        schema.TypeInt,
 				Required:    true,
 				Description: "ID of the Oracle instance",
@@ -73,7 +73,7 @@ func datasourceOracleBackupPieces() *schema.Resource {
 }
 
 func datasourceReadOracleBackupPieces(d *schema.ResourceData, m interface{}) error {
-	instanceId := d.Get("instance_id").(int)
+	instanceId := d.Get("instanceid").(int)
 
 	fromTime := 0
 	toTime := 0
