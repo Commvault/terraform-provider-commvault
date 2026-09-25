@@ -35,12 +35,6 @@ func resourceCredential_AWSWithRoleArn() *schema.Resource {
                 Required:    true,
                 Description: "Name of Credential",
             },
-            "password": {
-                Type:        schema.TypeString,
-                Optional:    true,
-                Computed:    true,
-                Description: "Role ARN of credential",
-            },
             "rolearn": {
                 Type:        schema.TypeString,
                 Required:    true,
@@ -71,10 +65,6 @@ func resourceCreateCredential_AWSWithRoleArn(d *schema.ResourceData, m interface
     if val, ok := d.GetOk("name"); ok {
         t_name = handler.ToStringValue(val, false)
     }
-    var t_password *string
-    if val, ok := d.GetOk("password"); ok {
-        t_password = handler.ToStringValue(val, false)
-    }
     var t_rolearn *string
     if val, ok := d.GetOk("rolearn"); ok {
         t_rolearn = handler.ToStringValue(val, false)
@@ -86,7 +76,7 @@ func resourceCreateCredential_AWSWithRoleArn(d *schema.ResourceData, m interface
     if val, ok := d.GetOk("description"); ok {
         t_description = handler.ToStringValue(val, false)
     }
-    var req = handler.MsgCreateCredentialAWSWithRoleArnRequest{VendorType:t_vendortype, AccountType:t_accounttype, Name:t_name, Password:t_password, RoleArn:t_rolearn, AuthType:t_authtype, Description:t_description}
+    var req = handler.MsgCreateCredentialAWSWithRoleArnRequest{VendorType:t_vendortype, AccountType:t_accounttype, Name:t_name, RoleArn:t_rolearn, AuthType:t_authtype, Description:t_description}
     h_err := handler.ConfigureCredential_AWSWithRoleArn(&req, d, m)
     if h_err != nil {
         return fmt.Errorf("operation [CreateCredentialAWSWithRoleArn] failed, Error %s", h_err)
@@ -126,9 +116,6 @@ func resourceReadCredential_AWSWithRoleArn(d *schema.ResourceData, m interface{}
     if resp.Name != nil {
         d.Set("name", resp.Name)
     }
-    if resp.Password != nil {
-        d.Set("password", resp.Password)
-    }
     if resp.RoleArn != nil {
         d.Set("rolearn", resp.RoleArn)
     }
@@ -140,10 +127,6 @@ func resourceReadCredential_AWSWithRoleArn(d *schema.ResourceData, m interface{}
 
 func resourceUpdateCredential_AWSWithRoleArn(d *schema.ResourceData, m interface{}) error {
     //API: (PUT) /V5/Credential/{credentialId}
-    var t_password *string
-    if val, ok := d.GetOk("password"); ok {
-        t_password = handler.ToStringValue(val, false)
-    }
     var t_newname *string
     if val, ok := d.GetOk("name"); ok {
         t_newname = handler.ToStringValue(val, false)
@@ -156,7 +139,7 @@ func resourceUpdateCredential_AWSWithRoleArn(d *schema.ResourceData, m interface
     if val, ok := d.GetOk("description"); ok {
         t_description = handler.ToStringValue(val, false)
     }
-    var req = handler.MsgUpdateCredentialAWSWithRoleArnRequest{Password:t_password, NewName:t_newname, RoleArn:t_rolearn, Description:t_description}
+    var req = handler.MsgUpdateCredentialAWSWithRoleArnRequest{NewName:t_newname, RoleArn:t_rolearn, Description:t_description}
     h_err := handler.UpdateCredential_AWSWithRoleArn(&req, d, m)
     if h_err != nil {
         return fmt.Errorf("operation [UpdateCredentialAWSWithRoleArn] failed, Error %s", h_err)
