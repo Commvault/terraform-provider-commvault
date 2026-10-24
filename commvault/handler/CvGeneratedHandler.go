@@ -1113,9 +1113,43 @@ func CvUpdateVMGroup(updateVMGroupRequest MsgUpdateVMGroupRequest, VmGroupId str
     url := os.Getenv("CV_CSIP") + "/V4/VmGroup/" + VmGroupId
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
-    var respObj MsgUpdateVMGroupResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
+    if err != nil {
+        return nil, err
+    }
+    var respObj struct {
+        MsgUpdateVMGroupResponse
+        Response json.RawMessage `json:"response,omitempty"`
+    }
+    if err := json.Unmarshal(respBody, &respObj); err != nil {
+        return nil, err
+    }
+    if respObj.ErrorCode != nil && *respObj.ErrorCode != 0 {
+        return &respObj.MsgUpdateVMGroupResponse, nil
+    }
+    // V4 returns response as an array on some servers and an object on others.
+    if len(respObj.Response) > 0 && string(respObj.Response) != "null" {
+        var responses []MsgUpdateVMGroupResponse
+        if respObj.Response[0] == '[' {
+            if err := json.Unmarshal(respObj.Response, &responses); err != nil {
+                return nil, err
+            }
+        } else {
+            var response MsgUpdateVMGroupResponse
+            if err := json.Unmarshal(respObj.Response, &response); err != nil {
+                return nil, err
+            }
+            responses = append(responses, response)
+        }
+        for i := range responses {
+            if responses[i].ErrorCode != nil && *responses[i].ErrorCode != 0 {
+                return &responses[i], nil
+            }
+        }
+        if len(responses) > 0 {
+            return &responses[0], nil
+        }
+    }
+    return &respObj.MsgUpdateVMGroupResponse, nil
 }
 
 func CvCreateVMGroupV5(createVMGroupRequest MsgCreateVMGroupV5Request) (*MsgCreateVMGroupV5Response, error) {

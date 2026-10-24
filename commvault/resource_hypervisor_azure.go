@@ -1237,6 +1237,14 @@ func serialize_hypervisor_azure_msgvmexistingcredential(d *schema.ResourceData, 
     val := make([]map[string]interface{}, 1)
     val[0] = make(map[string]interface{})
     added := false
+    if data.CredentialId != nil {
+        val[0]["id"] = data.CredentialId
+        added = true
+    }
+    if data.CredentialName != nil {
+        val[0]["name"] = data.CredentialName
+        added = true
+    }
     if added {
         return val, true
     } else {
