@@ -1,7 +1,9 @@
 package commvault
 
 import (
+    "encoding/json"
     "fmt"
+    "sort"
     "strconv"
     "strings"
 
@@ -1760,19 +1762,7 @@ func resourceCreateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
                         }
                     }
                     if rules, ok := rgMap["rules"]; ok {
-                        for _, ruleRaw := range rules.(*schema.Set).List() {
-                            ruleMap := ruleRaw.(map[string]interface{})
-                            rule := handler.MsgRuleContentSet{
-                                Condition:   handler.ToStringValue(ruleMap["condition"], true),
-                                DisplayName: handler.ToStringValue(ruleMap["displayname"], true),
-                                Name:        handler.ToStringValue(ruleMap["name"], true),
-                                GUID:        handler.ToStringValue(ruleMap["guid"], true),
-                                Description: handler.ToStringValue(ruleMap["description"], true),
-                                Type:        handler.ToStringValue(ruleMap["type"], true),
-                                Value:       handler.ToStringValue(ruleMap["value"], true),
-                            }
-                            rg.Rules = append(rg.Rules, rule)
-                        }
+                        rg.Rules = build_vmgroup_v2_msgrulecontentset_array(d, rules.(*schema.Set).List())
                     }
                     vmContent.RuleGroups = append(vmContent.RuleGroups, rg)
                 }
@@ -1831,6 +1821,13 @@ func resourceCreateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
         return fmt.Errorf("create vmgroup succeeded but no subclientId returned")
     }
     d.SetId(strconv.Itoa(*resp.SubclientId))
+    // The V5 create request has no disk filter field.
+    if val, ok := d.GetOk("diskfilters"); ok {
+        req := handler.MsgUpdateVMGroupRequest{DiskFilters:build_vmgroup_v2_msgvmdiskfilterprop(d, val.([]interface{}))}
+        if err := update_vmgroup_v2(req, d.Id()); err != nil {
+            return err
+        }
+    }
     return resourceReadVMGroup_V2(d, m)
 }
 
@@ -1865,12 +1862,12 @@ func resourceReadVMGroup_V2(d *schema.ResourceData, m interface{}) error {
     } else {
         d.Set("securityassociations", make([]map[string]interface{}, 0))
     }
-    if rtn, ok := serialize_vmgroup_v2_msgvmcontentset_array(d, resp.Filters); ok {
+    if rtn, ok := serialize_vmgroup_v2_msgvmcontentset_array(d, resp.Filters, "filters"); ok {
         d.Set("filters", rtn)
     } else {
         d.Set("filters", make([]map[string]interface{}, 0))
     }
-    if rtn, ok := serialize_vmgroup_v2_msgvmcontentset_array(d, resp.Content); ok {
+    if rtn, ok := serialize_vmgroup_v2_msgvmcontentset_array(d, resp.Content, "content"); ok {
         d.Set("content", rtn)
     } else {
         d.Set("content", make([]map[string]interface{}, 0))
@@ -1991,11 +1988,25 @@ func resourceUpdateVMGroup_V2(d *schema.ResourceData, m interface{}) error {
         t_meditechsystems = build_vmgroup_v2_msgmeditechpropresp(d, val.([]interface{}))
     }
     var req = handler.MsgUpdateVMGroupRequest{ActivityControl:t_activitycontrol, Settings:t_settings, DiskFilters:t_diskfilters, SecurityAssociations:t_securityassociations, TimeZone:t_timezone, Storage:t_storage, Filters:t_filters, AccessNode:t_accessnode, Content:t_content, SnapshotManagement:t_snapshotmanagement, EnableFileIndexing:t_enablefileindexing, NewName:t_newname, Name:t_name, ApplicationValidation:t_applicationvalidation, Plan:t_plan, RemovePlanAssociation:t_removeplanassociation, MeditechSystems:t_meditechsystems}
-    _, err := handler.CvUpdateVMGroup(req, d.Id())
+    if err := update_vmgroup_v2(req, d.Id()); err != nil {
+        return err
+    }
+    return resourceReadVMGroup_V2(d, m)
+}
+
+func update_vmgroup_v2(req handler.MsgUpdateVMGroupRequest, id string) error {
+    resp, err := handler.CvUpdateVMGroup(req, id)
     if err != nil {
         return fmt.Errorf("operation [UpdateVMGroup] failed, Error %s", err)
     }
-    return resourceReadVMGroup_V2(d, m)
+    if resp.ErrorCode != nil && *resp.ErrorCode != 0 {
+        msg := ""
+        if resp.ErrorMessage != nil {
+            msg = *resp.ErrorMessage
+        }
+        return fmt.Errorf("error updating vmgroup: code=%d, message=%s", *resp.ErrorCode, msg)
+    }
+    return nil
 }
 
 func resourceDeleteVMGroup_V2(d *schema.ResourceData, m interface{}) error {
@@ -2293,8 +2304,8 @@ func build_vmgroup_v2_msgvmcontent(d *schema.ResourceData, r []interface{}) *han
             t_rulegroups = build_vmgroup_v2_msgrulegroupcontentset_array(d, val.(*schema.Set).List())
         }
         var t_overwrite *bool
-        if val, ok := tmp["overwrite"]; ok {
-            t_overwrite = handler.ToBooleanValue(val, true)
+        if val, ok := tmp["overwrite"]; ok && val != "" {
+            t_overwrite = handler.ToBooleanValue(val, false)
         }
         return &handler.MsgvmContent{RuleGroups:t_rulegroups, Overwrite:t_overwrite}
     } else {
@@ -2377,7 +2388,24 @@ func build_vmgroup_v2_msgrulecontentset_array(d *schema.ResourceData, r []interf
             if val, ok := raw_a["value"]; ok {
                 t_value = handler.ToStringValue(val, true)
             }
-            tmp[a] = handler.MsgRuleContentSet{Condition:t_condition, Name:t_name, Type:t_type, Value:t_value}
+            var t_displayname *string
+            if val, ok := raw_a["displayname"]; ok {
+                t_displayname = handler.ToStringValue(val, true)
+            }
+            var t_guid *string
+            if val, ok := raw_a["guid"]; ok {
+                t_guid = handler.ToStringValue(val, true)
+            }
+            var t_description *string
+            if val, ok := raw_a["description"]; ok {
+                t_description = handler.ToStringValue(val, true)
+            }
+            // Azure DATACENTER rules require GUID on write and return value on read.
+            if t_type != nil && *t_type == "DATACENTER" && t_guid == nil && t_value != nil {
+                t_guid = t_value
+                t_value = nil
+            }
+            tmp[a] = handler.MsgRuleContentSet{Condition:t_condition, Name:t_name, Type:t_type, Value:t_value, DisplayName:t_displayname, GUID:t_guid, Description:t_description}
         }
         return tmp
     } else {
@@ -2530,8 +2558,8 @@ func build_vmgroup_v2_msgvmdiskfilterprop(d *schema.ResourceData, r []interface{
             t_rules = build_vmgroup_v2_msgvmdiskfilterset_array(d, val.(*schema.Set).List())
         }
         var t_overwrite *bool
-        if val, ok := tmp["overwrite"]; ok {
-            t_overwrite = handler.ToBooleanValue(val, true)
+        if val, ok := tmp["overwrite"]; ok && val != "" {
+            t_overwrite = handler.ToBooleanValue(val, false)
         }
         return &handler.MsgvmDiskFilterProp{Rules:t_rules, Overwrite:t_overwrite}
     } else {
@@ -2569,8 +2597,8 @@ func build_vmgroup_v2_msgvmdiskfilterset_array(d *schema.ResourceData, r []inter
                 t_filtertype = handler.ToStringValue(val, true)
             }
             var t_overwrite *bool
-            if val, ok := raw_a["overwrite"]; ok {
-                t_overwrite = handler.ToBooleanValue(val, true)
+            if val, ok := raw_a["overwrite"]; ok && val != "" {
+                t_overwrite = handler.ToBooleanValue(val, false)
             }
             var t_value *string
             if val, ok := raw_a["value"]; ok {
@@ -2614,8 +2642,8 @@ func build_vmgroup_v2_msg_vmdiskfilterset_array(d *schema.ResourceData, r []inte
                 t_filtertype = handler.ToStringValue(val, true)
             }
             var t_overwrite *bool
-            if val, ok := raw_a["overwrite"]; ok {
-                t_overwrite = handler.ToBooleanValue(val, true)
+            if val, ok := raw_a["overwrite"]; ok && val != "" {
+                t_overwrite = handler.ToBooleanValue(val, false)
             }
             var t_value *string
             if val, ok := raw_a["value"]; ok {
@@ -3224,23 +3252,33 @@ func serialize_vmgroup_v2_msgsnapcopyinfo(d *schema.ResourceData, data *handler.
     }
 }
 
-func serialize_vmgroup_v2_msgvmcontentset_array(d *schema.ResourceData, data []handler.MsgvmContentSet) ([]map[string]interface{}, bool) {
+func serialize_vmgroup_v2_msgvmcontentset_array(d *schema.ResourceData, data []handler.MsgvmContentSet, key string) ([]map[string]interface{}, bool) {
     //MsgvmContent
     //MsgvmContentSet
     if data == nil {
         return nil, false
     }
+    previous := d.Get(key).([]interface{})
     val := make([]map[string]interface{}, 0)
     for i := range data {
         tmp := make(map[string]interface{})
         added := false
-        if rtn, ok := serialize_vmgroup_v2_msgrulegroupcontentset_array(d, data[i].RuleGroups); ok {
+        var previousRules []interface{}
+        if i < len(previous) && previous[i] != nil {
+            for _, group := range previous[i].(map[string]interface{})["rulegroups"].(*schema.Set).List() {
+                previousRules = append(previousRules, group.(map[string]interface{})["rules"].(*schema.Set).List()...)
+            }
+        }
+        if rtn, ok := serialize_vmgroup_v2_msgrulegroupcontentset_array(d, data[i].RuleGroups, previousRules); ok {
             tmp["rulegroups"] = rtn
             added = true
         }
         if data[i].Overwrite != nil {
             tmp["overwrite"] = strconv.FormatBool(*data[i].Overwrite)
             added = true
+        } else if i < len(previous) && previous[i] != nil {
+            // GET may omit overwrite; keep the value from state.
+            tmp["overwrite"] = previous[i].(map[string]interface{})["overwrite"]
         }
         if added {
             val = append(val, tmp)
@@ -3249,11 +3287,17 @@ func serialize_vmgroup_v2_msgvmcontentset_array(d *schema.ResourceData, data []h
     return val, true
 }
 
-func serialize_vmgroup_v2_msgrulegroupcontentset_array(d *schema.ResourceData, data []handler.MsgRuleGroupContentSet) ([]map[string]interface{}, bool) {
+func serialize_vmgroup_v2_msgrulegroupcontentset_array(d *schema.ResourceData, data []handler.MsgRuleGroupContentSet, previousRules []interface{}) ([]map[string]interface{}, bool) {
     //MsgvmContent -> MsgRuleGroupContentSet
     //MsgvmContentSet -> MsgRuleGroupContentSet
     if data == nil {
         return nil, false
+    }
+    selectors := make(map[[4]string]int)
+    for _, group := range data {
+        for _, rule := range group.Rules {
+            selectors[vmgroup_v2_rule_selector(rule)]++
+        }
     }
     val := make([]map[string]interface{}, 0)
     for i := range data {
@@ -3275,7 +3319,7 @@ func serialize_vmgroup_v2_msgrulegroupcontentset_array(d *schema.ResourceData, d
             tmp["description"] = data[i].Description
             added = true
         }
-        if rtn, ok := serialize_vmgroup_v2_msgrulecontentset_array(d, data[i].Rules); ok {
+        if rtn, ok := serialize_vmgroup_v2_msgrulecontentset_array(d, data[i].Rules, previousRules, selectors); ok {
             tmp["rules"] = rtn
             added = true
         }
@@ -3314,7 +3358,32 @@ func serialize_vmgroup_v2_msgvmexistingcredential(d *schema.ResourceData, data *
     }
 }
 
-func serialize_vmgroup_v2_msgrulecontentset_array(d *schema.ResourceData, data []handler.MsgRuleContentSet) ([]map[string]interface{}, bool) {
+func vmgroup_v2_rule_selector(rule handler.MsgRuleContentSet) [4]string {
+    var selector [4]string
+    for i, value := range []*string{rule.Condition, rule.Name, rule.Type, rule.Value} {
+        if value != nil {
+            selector[i] = *value
+        }
+    }
+    return selector
+}
+
+func vmgroup_v2_unique_prior_rule(previousRules []interface{}, selector [4]string) map[string]interface{} {
+    var match map[string]interface{}
+    for _, raw := range previousRules {
+        rule := raw.(map[string]interface{})
+        if [4]string{rule["condition"].(string), rule["name"].(string), rule["type"].(string), rule["value"].(string)} != selector {
+            continue
+        }
+        if match != nil {
+            return nil
+        }
+        match = rule
+    }
+    return match
+}
+
+func serialize_vmgroup_v2_msgrulecontentset_array(d *schema.ResourceData, data []handler.MsgRuleContentSet, previousRules []interface{}, selectors map[[4]string]int) ([]map[string]interface{}, bool) {
     //MsgvmContent -> MsgRuleGroupContentSet -> MsgRuleContentSet
     //MsgvmContentSet -> MsgRuleGroupContentSet -> MsgRuleContentSet
     if data == nil {
@@ -3339,6 +3408,18 @@ func serialize_vmgroup_v2_msgrulecontentset_array(d *schema.ResourceData, data [
         if data[i].Value != nil {
             tmp["value"] = data[i].Value
             added = true
+        }
+        var prior map[string]interface{}
+        selector := vmgroup_v2_rule_selector(data[i])
+        if selectors[selector] == 1 {
+            prior = vmgroup_v2_unique_prior_rule(previousRules, selector)
+        }
+        // The API populates metadata the user may not manage; skip it for rules that match state unambiguously.
+        for key, value := range map[string]*string{"displayname":data[i].DisplayName, "guid":data[i].GUID, "description":data[i].Description} {
+            if value != nil && (prior == nil || prior[key] != "") {
+                tmp[key] = value
+                added = true
+            }
         }
         if added {
             val = append(val, tmp)
@@ -3491,23 +3572,93 @@ func serialize_vmgroup_v2_msgvmdiskfilterpropset_array(d *schema.ResourceData, d
     if data == nil {
         return nil, false
     }
+    previous := d.Get("diskfilters").([]interface{})
     val := make([]map[string]interface{}, 0)
     for i := range data {
         tmp := make(map[string]interface{})
         added := false
+        var prior map[string]interface{}
+        if i < len(previous) && previous[i] != nil {
+            prior = previous[i].(map[string]interface{})
+        }
         if rtn, ok := serialize_vmgroup_v2_msgvmdiskfilterset_array(d, data[i].Rules); ok {
+            if prior != nil {
+                preserve_vmgroup_v2_disk_filter_overwrite(rtn, prior["rules"].(*schema.Set).List())
+            }
             tmp["rules"] = rtn
             added = true
         }
         if data[i].Overwrite != nil {
             tmp["overwrite"] = strconv.FormatBool(*data[i].Overwrite)
             added = true
+        } else if prior != nil {
+            tmp["overwrite"] = prior["overwrite"]
         }
         if added {
             val = append(val, tmp)
         }
     }
     return val, true
+}
+
+func vmgroup_v2_disk_filter_key(rule map[string]interface{}) string {
+    values := make([]string, 7)
+    for i, key := range []string{"condition", "vmname", "name", "filtersubresource", "filtertype", "value", "vmguid"} {
+        switch value := rule[key].(type) {
+        case string:
+            values[i] = value
+        case *string:
+            if value != nil {
+                values[i] = *value
+            }
+        }
+    }
+    var children []string
+    switch nested := rule["children"].(type) {
+    case *schema.Set:
+        for _, child := range nested.List() {
+            children = append(children, vmgroup_v2_disk_filter_key(child.(map[string]interface{})))
+        }
+    case []map[string]interface{}:
+        for _, child := range nested {
+            children = append(children, vmgroup_v2_disk_filter_key(child))
+        }
+    }
+    sort.Strings(children)
+    encoded, _ := json.Marshal(append(values, children...))
+    return string(encoded)
+}
+
+func preserve_vmgroup_v2_disk_filter_overwrite(rules []map[string]interface{}, previous []interface{}) {
+    prior := make(map[string]map[string]interface{})
+    priorCounts := make(map[string]int)
+    remoteCounts := make(map[string]int)
+    for _, raw := range previous {
+        rule := raw.(map[string]interface{})
+        key := vmgroup_v2_disk_filter_key(rule)
+        prior[key] = rule
+        priorCounts[key]++
+    }
+    for _, rule := range rules {
+        remoteCounts[vmgroup_v2_disk_filter_key(rule)]++
+    }
+    for _, rule := range rules {
+        key := vmgroup_v2_disk_filter_key(rule)
+        // Rules are an unordered set, so only restore overwrite for an unambiguous match.
+        if priorCounts[key] != 1 || remoteCounts[key] != 1 {
+            continue
+        }
+        if _, ok := rule["overwrite"]; !ok {
+            if value, ok := prior[key]["overwrite"].(string); ok && value != "" {
+                rule["overwrite"] = value
+            }
+        }
+        children, ok := rule["children"].([]map[string]interface{})
+        oldChildren, priorOK := prior[key]["children"].(*schema.Set)
+        if ok && priorOK {
+            preserve_vmgroup_v2_disk_filter_overwrite(children, oldChildren.List())
+        }
+    }
 }
 
 func serialize_vmgroup_v2_msgvmdiskfilterset_array(d *schema.ResourceData, data []handler.MsgvmDiskFilterSet) ([]map[string]interface{}, bool) {
