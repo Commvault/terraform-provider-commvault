@@ -114,6 +114,31 @@ For each field (`user_name`, `password`, `api_token`):
 
 
 
+## S3 Source Workload Protection
+
+The [S3 object storage resource](resources/s3_object_storage.md) registers source
+buckets for protection, unlike the existing S3 backup-destination resources.
+Use [S3 subclients](resources/s3_object_storage_subclient.md) for path- or tag-based
+content groups. Read-only lookups are available for
+[instances](data-sources/commvault_s3_object_storage.md),
+[subclients](data-sources/commvault_s3_object_storage_subclient.md), and
+[access nodes](data-sources/commvault_s3_object_storage_access_nodes.md).
+These resources and data sources are not included in the published 1.2.18
+provider.
+
+## RDS and Aurora Registration
+
+Use `commvault_rds_instance` to register RDS and
+`commvault_rds_instance_group` to manage its protection groups. Data sources
+with the same names look up instances by `instance_id` and groups by
+`subclient_id`. These resources and data sources are not included in the
+published 1.2.18 provider. Aurora snapshot registrations share these RDS resources.
+Names and access nodes support in-place updates; account/resource-pool changes
+still require replacement. Group content is restricted to supported flat
+REGION/Instance/Cluster selections. The separate
+[deconfigure operation](resources/cloud_instance_deconfigure.md) disables
+RDS/Aurora or S3 instances with explicit identity confirmation.
+
 ## Support Matrix
 | SOFTWARE VERSION  | SUPPORTED RESOURCES |
 | --------  | ------------------- | 

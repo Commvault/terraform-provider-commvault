@@ -112,6 +112,11 @@ func Provider() *schema.Provider {
 			"commvault_oracle_install_agent":         resourceOracleInstallAgent(),
 			"commvault_oracle_backup":                resourceOracleBackup(),
 			"commvault_oracle_restore":               resourceOracleRestore(),
+			"commvault_s3_object_storage":            resourceS3ObjectStorage(),
+			"commvault_s3_object_storage_subclient":  resourceS3ObjectStorageSubclient(),
+			"commvault_rds_instance":                 resourceRDSInstance(),
+			"commvault_rds_instance_group":           resourceRDSInstanceGroup(),
+			"commvault_cloud_instance_deconfigure":   resourceCloudInstanceDeconfigure(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"commvault_user":                    datasourceUser(),
@@ -135,6 +140,11 @@ func Provider() *schema.Provider {
 			"commvault_oracle_subclient":     datasourceOracleSubclient(),
 			"commvault_oracle_backup_pieces": datasourceOracleBackupPieces(),
 			"commvault_oracle_rman_logs":     datasourceOracleRMANLogs(),
+			"commvault_s3_object_storage": datasourceS3ObjectStorage(),
+			"commvault_s3_object_storage_subclient": datasourceS3ObjectStorageSubclient(),
+			"commvault_s3_object_storage_access_nodes": datasourceS3ObjectStorageAccessNodes(),
+			"commvault_rds_instance": datasourceRDSInstance(),
+			"commvault_rds_instance_group": datasourceRDSInstanceGroup(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
