@@ -16,10 +16,11 @@ The Commvault Terraform provider provides a set of named resource types, and spe
 ```
 provider "commvault" {
 	web_service_url = "URL of the commserver webservice/webconsole api endpoint"
-	user_name = "username that is used to call APIs" 
+	user_name = "username that is used to call APIs"
 	password = "password in base 64 encoded format"
 	api_token = "access token to be used"
-    ignore_cert = "true/false to ignore certificate warnings for https endpoints"
+
+	ignore_cert = "true/false to ignore certificate warnings for https endpoints"
 }
 ```
 ## Example Usage
@@ -27,9 +28,78 @@ provider "commvault" {
 ```
 provider "commvault" {
 	web_service_url = "https://webconsole.domain.com/webconsole/api"
-	user_name       = "your-admin-username" 
+	user_name       = "your-admin-username"
 	password = "QnVebFRgciEoMg=="
+	ignore_cert = true
+}
 ```
+
+## Azure Key Vault Usage
+
+Use Azure Key Vault through Terraform `azurerm` provider and pass resolved secret values directly to `provider "commvault"`.
+
+The Commvault provider is vault-agnostic and does not call vault APIs directly.
+
+### Prerequisites
+
+- Configure `azurerm` provider.
+- Ensure the Azure identity used by `azurerm` has Key Vault secret `get` permission.
+
+### Terraform Configuration with Key Vault (`azurerm`)
+
+Use this complete example as a starting point.
+
+```
+provider "azurerm" {
+	features {}
+	subscription_id = "00000000-0000-0000-0000-000000000000"
+}
+
+data "azurerm_key_vault" "commvault" {
+	name                = "your-key-vault-name"
+	resource_group_name = "your-key-vault-resource-group"
+}
+
+data "azurerm_key_vault_secret" "api_token" {
+	name         = "commvault-api-token"
+	key_vault_id = data.azurerm_key_vault.commvault.id
+}
+
+provider "commvault" {
+	web_service_url = "https://webconsole.domain.com/webconsole/api"
+	api_token       = data.azurerm_key_vault_secret.api_token.value
+
+	ignore_cert = true
+}
+```
+
+If you prefer username/password from Key Vault instead of token-based authentication:
+
+```
+data "azurerm_key_vault_secret" "user_name" {
+	name         = "commvault-user-name"
+	key_vault_id = data.azurerm_key_vault.commvault.id
+}
+
+data "azurerm_key_vault_secret" "password" {
+	name         = "commvault-password"
+	key_vault_id = data.azurerm_key_vault.commvault.id
+}
+
+provider "commvault" {
+	web_service_url = "https://webconsole.domain.com/webconsole/api"
+	user_name       = data.azurerm_key_vault_secret.user_name.value
+	password        = data.azurerm_key_vault_secret.password.value
+	ignore_cert     = true
+}
+```
+
+### Credential Precedence
+
+For each field (`user_name`, `password`, `api_token`):
+
+1. Use inline provider value when non-empty.
+2. If using Key Vault, resolve value with Terraform data sources and pass it directly into the provider field.
 
 ### Required
 
@@ -39,7 +109,7 @@ provider "commvault" {
 
 - `password` (String) Specifies the Password for the user name to authentication to Web Server. Alternatively set CV_TER_PASSWORD environment variable for terraform to pick it.
 - `user_name` (String) Specifies the User name used for authentication to Web Server.
-- `api_token` (String) Specifies the access token for the user. Alternatively set CV_TER_TOKEN environment variable for terraform to pick it. 
+- `api_token` (String) Specifies the access token for the user. Alternatively set CV_TER_TOKEN environment variable for terraform to pick it.
 - `ignore_cert` (Bool) true/false to ignore certificate warnings for https endpoints.
 
 

@@ -1,8 +1,10 @@
 package commvault
 
 import (
+	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"terraform-provider-commvault/commvault/handler"
 
@@ -20,13 +22,14 @@ func Provider() *schema.Provider {
 			},
 			"user_name": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("CV_USERNAME", os.Getenv("CV_USERNAME")),
 				Description: "Specifies the User name used for authentication to Web Server",
 			},
 			"password": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
+				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("CV_PASSWORD", os.Getenv("CV_PASSWORD")),
 				Description: "Specifies the Password for the user name to authentication to Web Server.",
 			},
@@ -39,7 +42,8 @@ func Provider() *schema.Provider {
 			"api_token": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Specifies the encrypted token for the user to authentication to Web Server.",
+				Sensitive:   true,
+				Description: "Bootstrap token for initial /V4/AccessToken call. Used to re-create the access token on renewal.",
 			},
 			"logging": {
 				Type:        schema.TypeBool,
@@ -150,14 +154,29 @@ func providerConfigure(data *schema.ResourceData) (i interface{}, err error) {
 	os.Setenv("CV_LOGGING", strconv.FormatBool(logging))
 	os.Setenv("IGNORE_CERT", strconv.FormatBool(ignore_cert))
 
+	if api_token == "" && os.Getenv("CV_TER_TOKEN") == "" && os.Getenv("CV_TER_PASSWORD") == "" && (username == "" || password == "") {
+		return nil, fmt.Errorf("authentication requires either api_token or both user_name and password")
+	}
+
 	if api_token != "" {
-		os.Setenv("AuthToken", api_token)
+		os.Setenv("CV_BOOTSTRAP_TOKEN", api_token)
+		if tokenErr := handler.CreateAccessTokenWithBootstrapToken(api_token); tokenErr != nil {
+			if strings.Contains(tokenErr.Error(), "Access token creation not allowed using another access token") {
+				// The supplied api_token is already an access token; use it directly.
+				os.Setenv("AuthToken", api_token)
+			} else {
+				return nil, tokenErr
+			}
+		}
 	} else if os.Getenv("CV_TER_TOKEN") != "" {
 		os.Setenv("AuthToken", os.Getenv("CV_TER_TOKEN"))
+		os.Setenv("CV_BOOTSTRAP_TOKEN", "")
 	} else if os.Getenv("CV_TER_PASSWORD") != "" {
 		handler.LoginWithProviderCredentials(username, os.Getenv("CV_TER_PASSWORD"))
+		os.Setenv("CV_BOOTSTRAP_TOKEN", "")
 	} else {
 		handler.LoginWithProviderCredentials(username, password)
+		os.Setenv("CV_BOOTSTRAP_TOKEN", "")
 	}
 
 	if data.Get("company") != nil {

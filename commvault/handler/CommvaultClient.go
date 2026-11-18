@@ -17,6 +17,30 @@ import (
 var XML = "application/xml"
 var JSON = "application/json"
 
+func normalizeAuthToken(authToken string) string {
+	token := strings.TrimSpace(authToken)
+	if strings.HasPrefix(strings.ToLower(token), "bearer ") {
+		token = strings.TrimSpace(token[len("Bearer "):])
+	}
+	return token
+}
+
+func setAuthHeaders(req *http.Request, authToken string) {
+	token := normalizeAuthToken(authToken)
+	if token == "" {
+		return
+	}
+
+	// Legacy login tokens begin with QSDK and must be sent via AuthToken.
+	if strings.HasPrefix(strings.ToUpper(token), "QSDK ") {
+		req.Header.Set("AuthToken", token)
+		return
+	}
+
+	// Access tokens created via /V4/AccessToken are bearer tokens.
+	req.Header.Set("Authorization", "Bearer "+token)
+}
+
 func buildHttpReq(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) (*http.Request, error) {
 	if !strings.HasSuffix(url, "login") {
 		LogEntry("REQUEST: ", "("+method+") "+url+"\nBODY: "+string(requestBody))
@@ -27,7 +51,7 @@ func buildHttpReq(url string, method string, accept string, requestBody []byte, 
 	}
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept", accept)
-	req.Header.Set("AuthToken", authToken)
+	setAuthHeaders(req, authToken)
 	if method == "POST" {
 		req.Header.Set("operatorCompanyId", strconv.Itoa(companyID))
 	}
@@ -61,12 +85,22 @@ func executeHttpReq(req *http.Request) ([]byte, error) {
 	return data, nil
 }
 
-func makeHttpRequestErr(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) ([]byte, error) {
+func execHttpRequestErr(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) ([]byte, error) {
 	req, err := buildHttpReq(url, method, accept, requestBody, contentType, authToken, companyID)
 	if err != nil {
 		return nil, err
 	}
 	return executeHttpReq(req)
+}
+
+func makeHttpRequestErr(url string, method string, accept string, requestBody []byte, contentType string, authToken string, companyID int) ([]byte, error) {
+	data, err := execHttpRequestErr(url, method, accept, requestBody, contentType, authToken, companyID)
+	if err != nil && strings.Contains(err.Error(), "status: 401") {
+		if renewErr := RenewAccessToken(authToken); renewErr == nil {
+			return execHttpRequestErr(url, method, accept, requestBody, contentType, os.Getenv("AuthToken"), companyID)
+		}
+	}
+	return data, err
 }
 
 // makeHttpRequestBody always returns the response body, even on non-200 status codes.
@@ -91,6 +125,25 @@ func makeHttpRequestBody(url string, method string, accept string, requestBody [
 	if err != nil {
 		return nil, resp.StatusCode, err
 	}
+	if resp.StatusCode == 401 {
+		if renewErr := RenewAccessToken(authToken); renewErr == nil {
+			retryReq, retryReqErr := buildHttpReq(url, method, accept, requestBody, contentType, os.Getenv("AuthToken"), companyID)
+			if retryReqErr != nil {
+				return nil, 0, retryReqErr
+			}
+			retryResp, retryErr := client.Do(retryReq)
+			if retryErr != nil {
+				return nil, 0, retryErr
+			}
+			defer retryResp.Body.Close()
+			retryData, retryReadErr := ioutil.ReadAll(retryResp.Body)
+			if retryReadErr != nil {
+				return nil, retryResp.StatusCode, retryReadErr
+			}
+			LogEntry("RESPONSE: ", string(retryData))
+			return retryData, retryResp.StatusCode, nil
+		}
+	}
 	LogEntry("RESPONSE: ", string(data))
 	return data, resp.StatusCode, nil
 }
@@ -99,7 +152,7 @@ func makeHttpRequest(url string, method string, accept string, requestBody []byt
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept", accept)
-	req.Header.Set("AuthToken", authToken)
+	setAuthHeaders(req, authToken)
 	if method == "POST" {
 		req.Header.Set("operatorCompanyId", strconv.Itoa(companyID))
 	}
@@ -120,6 +173,30 @@ func makeHttpRequest(url string, method string, accept string, requestBody []byt
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
+	}
+	if resp.StatusCode == 401 {
+		if renewErr := RenewAccessToken(authToken); renewErr == nil {
+			retryReq, retryReqErr := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
+			if retryReqErr != nil {
+				panic(retryReqErr)
+			}
+			retryReq.Header.Set("Content-Type", contentType)
+			retryReq.Header.Set("Accept", accept)
+			setAuthHeaders(retryReq, os.Getenv("AuthToken"))
+			if method == "POST" {
+				retryReq.Header.Set("operatorCompanyId", strconv.Itoa(companyID))
+			}
+			retryResp, retryErr := client.Do(retryReq)
+			if retryErr != nil {
+				panic(retryErr)
+			}
+			defer retryResp.Body.Close()
+			retryData, retryReadErr := ioutil.ReadAll(retryResp.Body)
+			if retryReadErr != nil {
+				panic(retryReadErr)
+			}
+			return retryData
+		}
 	}
 	return data
 }
