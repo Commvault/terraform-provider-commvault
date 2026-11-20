@@ -289,7 +289,7 @@ resource "commvault_kubernetes_appgroup" "kubernetes_appgroup2" {
 - `content` (Block List) Item describing the content for Application Group (see [below for nested schema](#nestedblock--content))
 
 ### Optional
-- `activitycontrol` (Block List) (see [below for nested schema](#nestedblock--activitycontrol))
+- `activitycontrol` (Block List) Application group activity control. The API supports `enablebackup` only; restore activity control and delayed re-enable fields are not available at the application-group level. (see [below for nested schema](#nestedblock--activitycontrol))
 - `filters` (Block List) (see [below for nested schema](#nestedblock--filters))
 - `options` (Block List) Appgroup-level operational settings including schedule start time, worker configuration, and snapshot behaviour. (see [below for nested schema](#nestedblock--options))
 - `tags` (Block Set) Commvault entity tags (key-value metadata) on the application group resource in CommCell. Use content.labelselectors for Kubernetes label-based content selection. (see [below for nested schema](#nestedblock--tags))
@@ -301,6 +301,8 @@ resource "commvault_kubernetes_appgroup" "kubernetes_appgroup2" {
 
 <a id="nestedblock--activitycontrol"></a>
 ### Nested Schema for `activitycontrol`
+
+The current Kubernetes Application Group API supports backup activity control only. Restore activity control and delayed re-enable fields are available on clusters, not application groups.
 
 Optional:
 
@@ -345,7 +347,7 @@ Optional:
 Required:
 
 - `guid` (String) GUID of the Kubernetes resource as tracked by CommCell. Retrieve via the `commvault_kubernetes_namespaces`, `commvault_kubernetes_applications`, or `commvault_kubernetes_volumes` data source. For unsupported types, construct manually: `` namespace`Kind`name`<k8s-uid> ``.
-- `type` (String) Type of the Kubernetes application [NAMESPACE, APPLICATION, PVC, LABELS]
+- `type` (String) Required Kubernetes resource type: `NAMESPACE`, `APPLICATION`, `PVC`, or `LABELS`. Match it to the resource represented by `guid` (for example, namespaces use `NAMESPACE`, applications use `APPLICATION`, and volumes use `PVC`).
 
 Optional:
 
@@ -369,7 +371,7 @@ Optional:
 
 - `applications` (Block Set) List of applications to be added as content (see [below for nested schema](#nestedblock--filters--applications))
 - `labelselectors` (Block Set) List of label selectors to be added as content (see [below for nested schema](#nestedblock--filters--labelselectors))
-- `skipstatelessapps` (String) Specify whether to skip backup of stateless applications
+- `skipstatelessapps` (String) Whether to skip backup of stateless applications. Set as the string `"true"` or `"false"`.
 
 <a id="nestedblock--filters--applications"></a>
 ### Nested Schema for `filters.applications`
@@ -377,7 +379,7 @@ Optional:
 Required:
 
 - `guid` (String) GUID of the Kubernetes resource as tracked by CommCell. Retrieve via the `commvault_kubernetes_namespaces`, `commvault_kubernetes_applications`, or `commvault_kubernetes_volumes` data source. For unsupported types, construct manually: `` namespace`Kind`name`<k8s-uid> ``.
-- `type` (String) Type of the Kubernetes application [NAMESPACE, APPLICATION, PVC, LABELS]
+- `type` (String) Required Kubernetes resource type: `NAMESPACE`, `APPLICATION`, `PVC`, or `LABELS`. Match it to the resource represented by `guid` (for example, namespaces use `NAMESPACE`, applications use `APPLICATION`, and volumes use `PVC`).
 
 Optional:
 
@@ -396,6 +398,8 @@ Required:
 
 <a id="nestedblock--options"></a>
 ### Nested Schema for `options`
+
+`timezone` and `jobstarttime` are application-group API inputs separate from the assigned `plan`. The API contract does not specify whether `jobstarttime` overrides or supplements a schedule configured on the plan; verify precedence in Command Center before relying on both.
 
 Optional:
 
