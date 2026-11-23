@@ -623,43 +623,6 @@ func buildOracleIdName(r []interface{}) *handler.MsgIdName {
 	return nil
 }
 
-func boolPtrFromResource(d *schema.ResourceData, key string) *bool {
-	// Always get the value directly from state to handle explicit false
-	val := d.Get(key).(bool)
-	return &val
-}
-
-func intPtrFromResource(d *schema.ResourceData, key string) *int {
-	if val, ok := d.GetOkExists(key); ok {
-		tmp := val.(int)
-		return &tmp
-	}
-	return nil
-}
-
-func stringPtrFromResource(d *schema.ResourceData, key string) *string {
-	if val, ok := d.GetOk(key); ok {
-		tmp := val.(string)
-		return &tmp
-	}
-	return nil
-}
-
-func parseIntFromValue(v interface{}) (int, bool) {
-	switch val := v.(type) {
-	case float64:
-		return int(val), true
-	case int:
-		return val, true
-	case string:
-		parsed, err := strconv.Atoi(val)
-		if err == nil {
-			return parsed, true
-		}
-	}
-	return 0, false
-}
-
 func buildOracleContentRaw(contentItems []interface{}) []json.RawMessage {
 	if len(contentItems) == 0 {
 		return nil
