@@ -66,10 +66,6 @@ A literal plan name is also accepted.
 
 ## Usage Notes
 
-Configurations using the previous `comm_cell_id` name must rename that argument
-to `commcell_id`, preserving its value. Existing resource state is upgraded
-automatically to retain the CommCell ID, including when refresh omits it.
-
 Destroy deconfigures protection;
 it does not delete AWS buckets, IAM roles, or credentials, and does not promise
 to remove the enclosing Commvault client or retained backup data.

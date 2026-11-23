@@ -12,34 +12,13 @@ import (
 
 func resourceS3ObjectStorage() *schema.Resource {
 	return &schema.Resource{
-		Create:        resourceCreateS3ObjectStorage,
-		Read:          resourceReadS3ObjectStorage,
-		Update:        resourceUpdateS3ObjectStorage,
-		Delete:        resourceDeleteS3ObjectStorage,
-		Importer:      &schema.ResourceImporter{State: schema.ImportStatePassthrough},
-		Schema:        s3ObjectStorageSchema(),
-		SchemaVersion: 1,
-		StateUpgraders: []schema.StateUpgrader{{
-			Version: 0,
-			Type:    s3ObjectStorageSchemaV0().CoreConfigSchema().ImpliedType(),
-			Upgrade: upgradeS3ObjectStorageStateV0,
-		}},
+		Create:   resourceCreateS3ObjectStorage,
+		Read:     resourceReadS3ObjectStorage,
+		Update:   resourceUpdateS3ObjectStorage,
+		Delete:   resourceDeleteS3ObjectStorage,
+		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
+		Schema:   s3ObjectStorageSchema(),
 	}
-}
-
-func s3ObjectStorageSchemaV0() *schema.Resource {
-	fields := s3ObjectStorageSchema()
-	fields["comm_cell_id"] = fields["commcell_id"]
-	delete(fields, "commcell_id")
-	return &schema.Resource{Schema: fields}
-}
-
-func upgradeS3ObjectStorageStateV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
-	if value, ok := rawState["comm_cell_id"]; ok {
-		rawState["commcell_id"] = value
-		delete(rawState, "comm_cell_id")
-	}
-	return rawState, nil
 }
 
 func s3ObjectStorageSchema() map[string]*schema.Schema {
