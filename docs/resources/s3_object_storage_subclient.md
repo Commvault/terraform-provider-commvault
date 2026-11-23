@@ -16,11 +16,15 @@ backup plan is required.
 ### Path-Based Content
 
 ```hcl
+data "commvault_plan" "protection" {
+  name = "S3 protection"
+}
+
 resource "commvault_s3_object_storage_subclient" "buckets" {
   client_id      = commvault_s3_object_storage.source.client_id
   instance_id    = commvault_s3_object_storage.source.instance_id
   subclient_name = "production-buckets"
-  plan_id        = 42
+  plan_id        = tonumber(data.commvault_plan.protection.id)
   collect_acl    = false
   job_start_time = 75600
 
@@ -39,11 +43,15 @@ resource "commvault_s3_object_storage_subclient" "buckets" {
 ### Tag-Based Content
 
 ```hcl
+data "commvault_plan" "protection" {
+  name = "S3 protection"
+}
+
 resource "commvault_s3_object_storage_subclient" "tagged" {
   client_id      = commvault_s3_object_storage.source.client_id
   instance_id    = commvault_s3_object_storage.source.instance_id
   subclient_name = "production-tagged-buckets"
-  plan_id        = 42
+  plan_id        = tonumber(data.commvault_plan.protection.id)
 
   tag_filter {
     rules {
@@ -53,6 +61,13 @@ resource "commvault_s3_object_storage_subclient" "tagged" {
   }
 }
 ```
+
+Use the [commvault_plan data source](../data-sources/commvault_plan.md) to look
+up an existing compatible plan by name. Unlike the RDS resources and S3
+instance resource, this resource accepts a numeric `plan_id`, not an input
+`plan_name`. Convert the data source's string `id` using `tonumber()`.
+A literal numeric plan ID is also accepted. The examples show alternative
+content groups; declare a shared plan lookup only once when combining them.
 
 ## Argument Reference
 

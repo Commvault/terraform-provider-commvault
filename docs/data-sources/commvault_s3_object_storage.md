@@ -46,7 +46,7 @@ output "s3_client_id" {
 - **object_storage_indexing_schema_v2** (Boolean) - Indexing-schema-v2 setting, when returned.
 - **object_storage_multinode** (Number) - Multinode setting, when returned.
 - **is_cloud_encryption_key_set** (Boolean) - Encryption-key status flag.
-- **comm_cell_id** (Number) - CommCell ID, when available.
+- **commcell_id** (Number) - CommCell ID, when available.
 - **use_resource_pool_info** (Boolean) - Resource-pool setting, when available.
 
 The fields correspond to the [resource](../resources/s3_object_storage.md).

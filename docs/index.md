@@ -128,10 +128,12 @@ provider.
 
 ## RDS and Aurora Registration
 
-Use `commvault_rds_instance` to register RDS and
-`commvault_rds_instance_group` to manage its protection groups. Data sources
-with the same names look up instances by `instance_id` and groups by
-`subclient_id`. These resources and data sources are not included in the
+Use [commvault_rds_instance](resources/rds_instance.md) to register RDS and
+[commvault_rds_instance_group](resources/rds_instance_group.md) to manage its
+protection groups. Read-only lookups are available for
+[instances](data-sources/commvault_rds_instance.md) by `instance_id` and
+[groups](data-sources/commvault_rds_instance_group.md) by `subclient_id`.
+These resources and data sources are not included in the
 published 1.2.18 provider. Aurora snapshot registrations share these RDS resources.
 Names and access nodes support in-place updates; account/resource-pool changes
 still require replacement. Group content is restricted to supported flat

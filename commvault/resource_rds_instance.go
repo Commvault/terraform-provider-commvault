@@ -5,7 +5,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"terraform-provider-commvault/commvault/handler"
 
@@ -199,23 +198,6 @@ func resourceUpdateRDSInstance(d *schema.ResourceData, m interface{}) error {
 	return resourceReadRDSInstance(d, m)
 }
 
-func refreshCloudInstanceRename(d *schema.ResourceData, m interface{}, expected string, read func(*schema.ResourceData, interface{}) error) error {
-	for attempt := 0; attempt < 30; attempt++ {
-		if err := read(d, m); err != nil {
-			return err
-		}
-		if d.Id() == "" {
-			return fmt.Errorf("renamed cloud instance disappeared during refresh")
-		}
-		if d.Get("instance_name").(string) == expected {
-			return nil
-		}
-		// Reads can lag a successful rename; never repeat the write.
-		time.Sleep(time.Second)
-	}
-	return fmt.Errorf("cloud instance %s rename was accepted but %q was not observed within 30 seconds; inspect before retrying", d.Id(), expected)
-}
-
 func resourceReadRDSInstance(d *schema.ResourceData, m interface{}) error {
 	return readRDSInstance(d, false)
 }
@@ -321,28 +303,6 @@ func rdsResourceAbsent(d *schema.ResourceData, datasource bool, err error, count
 	return false
 }
 
-func rdsPutString(values map[string]interface{}, key string, value *string) {
-	if value != nil {
-		values[key] = *value
-	}
-}
-
-func cloudOptionalBool(d *schema.ResourceData, key string) *bool {
-	if value, ok := d.GetOkExists(key); ok {
-		result := value.(bool)
-		return &result
-	}
-	return nil
-}
-
-func cloudOptionalString(d *schema.ResourceData, key string) *string {
-	if value, ok := d.GetOkExists(key); ok {
-		result := value.(string)
-		return &result
-	}
-	return nil
-}
-
 func setRDSState(d *schema.ResourceData, values map[string]interface{}) error {
 	for key, value := range values {
 		if err := d.Set(key, value); err != nil {
@@ -350,15 +310,4 @@ func setRDSState(d *schema.ResourceData, values map[string]interface{}) error {
 		}
 	}
 	return nil
-}
-
-func validateRDSStringEnum(allowed ...string) schema.SchemaValidateFunc {
-	return func(value interface{}, key string) ([]string, []error) {
-		for _, candidate := range allowed {
-			if value.(string) == candidate {
-				return nil, nil
-			}
-		}
-		return nil, []error{fmt.Errorf("%s must be one of %v", key, allowed)}
-	}
 }

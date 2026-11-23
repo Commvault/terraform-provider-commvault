@@ -21,15 +21,3 @@ func datasourceS3ObjectStorage() *schema.Resource {
 		},
 	}
 }
-
-func makeComputed(fields map[string]*schema.Schema) {
-	for _, field := range fields {
-		field.Required, field.Optional, field.ForceNew = false, false, false
-		field.Computed = true
-		field.Default, field.DefaultFunc, field.ValidateFunc = nil, nil, nil
-		field.MinItems, field.MaxItems = 0, 0
-		if nested, ok := field.Elem.(*schema.Resource); ok {
-			makeComputed(nested.Schema)
-		}
-	}
-}

@@ -14,14 +14,22 @@ This resource is not included in release 1.2.18.
 ## Example Usage
 
 ```hcl
+data "commvault_plan" "protection" {
+  name = "S3 protection"
+}
+
 resource "commvault_s3_object_storage" "source" {
   client_name     = "s3-production"
   instance_name   = "s3-production"
-  plan_name       = "S3 protection"
+  plan_name       = data.commvault_plan.protection.name
   credential_name = "existing-aws-credential"
   member_servers  = ["existing-backup-gateway"]
 }
 ```
+
+Use the [commvault_plan data source](../data-sources/commvault_plan.md) to look
+up an existing compatible plan by name and pass its `name` to `plan_name`.
+A literal plan name is also accepted.
 
 ## Argument Reference
 
@@ -44,7 +52,7 @@ resource "commvault_s3_object_storage" "source" {
 - **object_storage_indexing_schema_v2** (Boolean) - Indexing-schema-v2 setting. Omission retains the server setting. Some deployments do not return this value during refresh.
 - **object_storage_multinode** (Number) - Nonnegative multinode setting supported by your deployment. Omission retains the server setting.
 - **is_cloud_encryption_key_set** (Boolean) - Encryption-key status flag. Default: `false`. Does not provision an encryption key.
-- **comm_cell_id** (Number) - CommCell ID. Default: `2`. Changing this requires replacement.
+- **commcell_id** (Number) - CommCell ID. Default: `2`. Changing this requires replacement.
 - **use_resource_pool_info** (Boolean) - Whether to use resource-pool information. Default: `false`. Changing this requires replacement.
 - **company_name** (String) - Company used for deconfiguration. Default: `Commcell`. Set correctly for tenant-owned registrations.
 - **multi_commcell_id** (Number) - Deconfiguration metadata. Default: `0`. Changing this or `company_name` only updates Terraform state.
@@ -57,6 +65,10 @@ resource "commvault_s3_object_storage" "source" {
 - **use_iam_role** (Boolean) - Whether the instance uses an IAM role; `true` for `AMAZON_IAM_ROLE`.
 
 ## Usage Notes
+
+Configurations using the previous `comm_cell_id` name must rename that argument
+to `commcell_id`, preserving its value. Existing resource state is upgraded
+automatically to retain the CommCell ID, including when refresh omits it.
 
 Destroy deconfigures protection;
 it does not delete AWS buckets, IAM roles, or credentials, and does not promise

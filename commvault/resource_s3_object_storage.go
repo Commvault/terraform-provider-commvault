@@ -12,13 +12,34 @@ import (
 
 func resourceS3ObjectStorage() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceCreateS3ObjectStorage,
-		Read:     resourceReadS3ObjectStorage,
-		Update:   resourceUpdateS3ObjectStorage,
-		Delete:   resourceDeleteS3ObjectStorage,
-		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
-		Schema:   s3ObjectStorageSchema(),
+		Create:        resourceCreateS3ObjectStorage,
+		Read:          resourceReadS3ObjectStorage,
+		Update:        resourceUpdateS3ObjectStorage,
+		Delete:        resourceDeleteS3ObjectStorage,
+		Importer:      &schema.ResourceImporter{State: schema.ImportStatePassthrough},
+		Schema:        s3ObjectStorageSchema(),
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{{
+			Version: 0,
+			Type:    s3ObjectStorageSchemaV0().CoreConfigSchema().ImpliedType(),
+			Upgrade: upgradeS3ObjectStorageStateV0,
+		}},
 	}
+}
+
+func s3ObjectStorageSchemaV0() *schema.Resource {
+	fields := s3ObjectStorageSchema()
+	fields["comm_cell_id"] = fields["commcell_id"]
+	delete(fields, "commcell_id")
+	return &schema.Resource{Schema: fields}
+}
+
+func upgradeS3ObjectStorageStateV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if value, ok := rawState["comm_cell_id"]; ok {
+		rawState["commcell_id"] = value
+		delete(rawState, "comm_cell_id")
+	}
+	return rawState, nil
 }
 
 func s3ObjectStorageSchema() map[string]*schema.Schema {
@@ -27,7 +48,7 @@ func s3ObjectStorageSchema() map[string]*schema.Schema {
 		"instance_name": {Type: schema.TypeString, Required: true, ValidateFunc: validateS3NonEmptyString},
 		"client_id":     {Type: schema.TypeInt, Computed: true},
 		"instance_id":   {Type: schema.TypeInt, Computed: true},
-		"comm_cell_id":  {Type: schema.TypeInt, Optional: true, Default: 2, ForceNew: true, ValidateFunc: validateS3IntRange(0, 2147483647)},
+		"commcell_id":   {Type: schema.TypeInt, Optional: true, Default: 2, ForceNew: true, ValidateFunc: validateS3IntRange(0, 2147483647)},
 		"plan_name":     {Type: schema.TypeString, Required: true, ValidateFunc: validateS3NonEmptyString},
 		"host_url":      {Type: schema.TypeString, Optional: true, Default: "s3.amazonaws.com", ValidateFunc: validateS3NonEmptyString},
 		"credential_type": {
@@ -96,7 +117,7 @@ func buildS3ObjectStorageProperties(d *schema.ResourceData) (*handler.MsgS3Insta
 			InstanceName:  stringPtrFromResource(d, "instance_name"),
 			ClientName:    stringPtrFromResource(d, "client_name"),
 			ApplicationId: &applicationID,
-			CommCellId:    intPtrFromResource(d, "comm_cell_id"),
+			CommCellId:    intPtrFromResource(d, "commcell_id"),
 		},
 		CloudAppsInstance: &handler.MsgS3CloudAppsInstance{
 			InstanceType: &instanceType, InstanceTypeDisplayName: &displayName,
@@ -184,7 +205,7 @@ func readS3ObjectStorage(d *schema.ResourceData, datasource bool) error {
 	s3PutString(values, "client_name", prop.Instance.ClientName)
 	s3PutString(values, "instance_name", prop.Instance.InstanceName)
 	s3PutInt(values, "client_id", prop.Instance.ClientId)
-	s3PutInt(values, "comm_cell_id", prop.Instance.CommCellId)
+	s3PutInt(values, "commcell_id", prop.Instance.CommCellId)
 	if prop.UseResourcePoolInfo != nil {
 		values["use_resource_pool_info"] = *prop.UseResourcePoolInfo
 	}
@@ -300,18 +321,6 @@ func validateS3ID(value string) error {
 	return nil
 }
 
-func s3PutString(values map[string]interface{}, key string, value *string) {
-	if value != nil {
-		values[key] = *value
-	}
-}
-
-func s3PutInt(values map[string]interface{}, key string, value *int) {
-	if value != nil {
-		values[key] = *value
-	}
-}
-
 func setS3State(d *schema.ResourceData, values map[string]interface{}) error {
 	for key, value := range values {
 		if err := d.Set(key, value); err != nil {
@@ -325,25 +334,8 @@ func validateS3NonEmptyString(value interface{}, key string) ([]string, []error)
 	return validateNonEmptyString(value, key)
 }
 
-func validateNonEmptyString(value interface{}, key string) ([]string, []error) {
-	if strings.TrimSpace(value.(string)) == "" {
-		return nil, []error{fmt.Errorf("%s must not be empty", key)}
-	}
-	return nil, nil
-}
-
 func validateS3IntRange(min, max int) schema.SchemaValidateFunc {
 	return validateIntRange(min, max)
-}
-
-func validateIntRange(min, max int) schema.SchemaValidateFunc {
-	return func(value interface{}, key string) ([]string, []error) {
-		number := value.(int)
-		if number < min || number > max {
-			return nil, []error{fmt.Errorf("%s must be between %d and %d", key, min, max)}
-		}
-		return nil, nil
-	}
 }
 
 func validateS3CredentialType(value interface{}, key string) ([]string, []error) {
