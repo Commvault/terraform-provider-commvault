@@ -2,6 +2,7 @@ package handler
 
 import (
     "encoding/json"
+    "fmt"
     "net/http"
     "os"
 )
@@ -632,9 +633,28 @@ func CvGetPlanById(planId string) (*MsgGetPlanByIdResponse, error) {
     url := os.Getenv("CV_CSIP") + "/V4/ServerPlan/" + planId
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    if err != nil {
+        return nil, err
+    }
     var respObj MsgGetPlanByIdResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
+    if err := json.Unmarshal(respBody, &respObj); err != nil {
+        return nil, fmt.Errorf("decode server plan response: %w", err)
+    }
+    return &respObj, nil
+}
+
+func CvGetServerPlanBackupDestinationDetails(planId string, destinationId string) (*MsgPlanBackupDestinationDetailsSet, error) {
+    url := os.Getenv("CV_CSIP") + "/V5/ServerPlan/" + planId + "/BackupDestination/" + destinationId
+    token := os.Getenv("AuthToken")
+    respBody, err := makeHttpRequestErr(url, http.MethodGet, JSON, nil, "", token, 0)
+    if err != nil {
+        return nil, err
+    }
+    var respObj MsgPlanBackupDestinationDetailsSet
+    if err := json.Unmarshal(respBody, &respObj); err != nil {
+        return nil, fmt.Errorf("decode server plan backup destination details: %w", err)
+    }
+    return &respObj, nil
 }
 
 func CvDeletePlan(planId string) (*MsgDeletePlanResponse, error) {
@@ -649,24 +669,40 @@ func CvDeletePlan(planId string) (*MsgDeletePlanResponse, error) {
 
 func CvModifyPlan(modifyPlanRequest MsgModifyPlanRequest, planId string) (*MsgModifyPlanResponse, error) {
     //API: (PUT) /V4/ServerPlan/{planId}
-    reqBody, _ := json.Marshal(modifyPlanRequest)
+    reqBody, err := json.Marshal(modifyPlanRequest)
+    if err != nil {
+        return nil, fmt.Errorf("encode modify server plan request: %w", err)
+    }
     url := os.Getenv("CV_CSIP") + "/V4/ServerPlan/" + planId
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodPut, JSON, reqBody, JSON, token, 0)
+    if err != nil {
+        return nil, err
+    }
     var respObj MsgModifyPlanResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
+    if err := json.Unmarshal(respBody, &respObj); err != nil {
+        return nil, fmt.Errorf("decode modify server plan response: %w", err)
+    }
+    return &respObj, nil
 }
 
 func CvCreateServerPlan(createServerPlanRequest MsgCreateServerPlanRequest) (*MsgCreateServerPlanResponse, error) {
     //API: (POST) /V4/ServerPlan
-    reqBody, _ := json.Marshal(createServerPlanRequest)
+    reqBody, err := json.Marshal(createServerPlanRequest)
+    if err != nil {
+        return nil, fmt.Errorf("encode create server plan request: %w", err)
+    }
     url := os.Getenv("CV_CSIP") + "/V4/ServerPlan"
     token := os.Getenv("AuthToken")
     respBody, err := makeHttpRequestErr(url, http.MethodPost, JSON, reqBody, JSON, token, 0)
+    if err != nil {
+        return nil, err
+    }
     var respObj MsgCreateServerPlanResponse
-    json.Unmarshal(respBody, &respObj)
-    return &respObj, err
+    if err := json.Unmarshal(respBody, &respObj); err != nil {
+        return nil, fmt.Errorf("decode create server plan response: %w", err)
+    }
+    return &respObj, nil
 }
 
 func CvCreateBucketforCloudStorageAzure(createBucketforCloudStorageAzureRequest MsgCreateBucketforCloudStorageAzureRequest, cloudStorageId string) (*MsgCreateBucketforCloudStorageAzureResponse, error) {

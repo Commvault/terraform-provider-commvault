@@ -46,7 +46,9 @@ Commvault credential, set `credential_name`; set `use_iam_role = true` only
 when using a compatible IAM-role credential.
 
 For selected databases or Aurora clusters, create an
-[RDS instance group](rds_instance_group.md) under the registration.
+[RDS instance group](rds_instance_group.md) under the registration. Configure
+cross-account snapshot sharing/copying and subclient-specific cross-region
+snapshot replica mappings on that group, not on this registration.
 
 ## Argument Reference
 

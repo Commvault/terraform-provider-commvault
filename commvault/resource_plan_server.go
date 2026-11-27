@@ -16,6 +16,7 @@ func resourcePlan_Server() *schema.Resource {
         Read:   resourceReadPlan_Server,
         Update: resourceUpdatePlan_Server,
         Delete: resourceDeletePlan_Server,
+        CustomizeDiff: customizeServerPlanDestinations,
 
         Schema: map[string]*schema.Schema{
             "settings": {
@@ -347,6 +348,8 @@ func resourcePlan_Server() *schema.Resource {
             "backupdestinations": {
                 Type:        schema.TypeSet,
                 Optional:    true,
+                Computed:    true,
+                Set:         hashServerPlanDestination,
                 Description: "Backup destinations for the plan. Specify where you want to store your backup data.",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
@@ -374,6 +377,7 @@ func resourcePlan_Server() *schema.Resource {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Description: "Backup destination details. Enter the name during creation.",
+                            ValidateFunc: validateNonEmptyString,
                         },
                         "extendedretentionrules": {
                             Type:        schema.TypeList,
@@ -1453,7 +1457,8 @@ func resourcePlan_Server() *schema.Resource {
                 Type:        schema.TypeString,
                 Optional:    true,
                 Computed:    true,
-                Description: "Specifies the operation to be performed on backupDestinations list [NONE, OVERWRITE, ADD, MODIFY, DELETE]",
+                Description: "Specifies the operation to be performed on backupDestinations list [NONE, OVERWRITE, ADD, MODIFY, DELETE]. Required when changing destinations on an existing plan; ADD submits only newly added destinations.",
+                ValidateFunc: validateRDSStringEnum("NONE", "OVERWRITE", "ADD", "MODIFY", "DELETE"),
             },
         },
     }
@@ -1461,6 +1466,9 @@ func resourcePlan_Server() *schema.Resource {
 
 func resourceCreatePlan_Server(d *schema.ResourceData, m interface{}) error {
     //API: (POST) /V4/ServerPlan
+    if _, err := serverPlanDestinationsByName(d.Get("backupdestinations").(*schema.Set).List()); err != nil {
+        return err
+    }
     var response_id = strconv.Itoa(0)
     var t_settings *handler.MsgServerPlanSettings
     if val, ok := d.GetOk("settings"); ok {
@@ -1495,8 +1503,22 @@ func resourceCreatePlan_Server(d *schema.ResourceData, m interface{}) error {
         t_plantier = handler.ToStringValue(val, false)
     }
     var t_backupdestinations []handler.MsgCreatePlanBackupDestinationSet
+    var deferredDestinations []interface{}
     if val, ok := d.GetOk("backupdestinations"); ok {
-        t_backupdestinations = build_plan_server_msgcreateplanbackupdestinationset_array(d, val.(*schema.Set).List())
+        items := val.(*schema.Set).List()
+        for index, destination := range build_plan_server_msgcreateplanbackupdestinationset_array(d, items) {
+            if err := validateServerPlanDestinationMappings(destination); err != nil {
+                return err
+            }
+            if destination.IsSnapCopy != nil && *destination.IsSnapCopy && destination.SourceCopy != nil {
+                if err := validateServerPlanDestinationUpdateFields(items[index].(map[string]interface{})); err != nil {
+                    return err
+                }
+                deferredDestinations = append(deferredDestinations, items[index])
+            } else {
+                t_backupdestinations = append(t_backupdestinations, destination)
+            }
+        }
     }
     var t_overriderestrictions *handler.MsgPlanOverrideSettings
     if val, ok := d.GetOk("overriderestrictions"); ok {
@@ -1519,12 +1541,24 @@ func resourceCreatePlan_Server(d *schema.ResourceData, m interface{}) error {
         if resp.Plan.Id != nil {
             response_id = strconv.Itoa(*resp.Plan.Id)
         }
+        for _, component := range resp.Errors {
+            if component.ErrorCode != nil && *component.ErrorCode != 0 {
+                if response_id != "0" {
+                    d.SetId(response_id)
+                }
+                return fmt.Errorf("create server plan component failed: code %d, message %v", *component.ErrorCode, planDestinationErrorMessage(component.ErrorMessage))
+            }
+        }
     }
     if response_id == "0" {
         return fmt.Errorf("operation [CreateServerPlan] failed")
     } else {
         d.SetId(response_id)
-        return resourceCreateUpdatePlan_Server(d, m)
+        expected := expectedServerPlanDestinations(d)
+        if err := resourceCreateUpdatePlan_Server(d, m, deferredDestinations); err != nil {
+            return err
+        }
+        return verifyServerPlanDestinations(d, expected)
     }
 }
 
@@ -1538,6 +1572,12 @@ func resourceReadPlan_Server(d *schema.ResourceData, m interface{}) error {
             return nil
         }
         return fmt.Errorf("operation [GetPlanById] failed, Error %s", err)
+    }
+    if resp.Plan == nil {
+        return fmt.Errorf("read server plan %s: response omitted plan identity", d.Id())
+    }
+    if resp.BackupDestinations == nil && d.Get("backupdestinations").(*schema.Set).Len() > 0 {
+        return fmt.Errorf("read server plan %s: response omitted backupDestinations; refusing to discard known destinations", d.Id())
     }
     if rtn, ok := serialize_plan_server_msgserverplansettings(d, resp.Settings); ok {
         d.Set("settings", rtn)
@@ -1573,10 +1613,12 @@ func resourceReadPlan_Server(d *schema.ResourceData, m interface{}) error {
     } else {
         d.Set("rpo", make([]map[string]interface{}, 0))
     }
-    if rtn, ok := statecopy_plan_server_backupdestinations(d); ok {
-        d.Set("backupdestinations", rtn)
-    } else {
-        d.Set("backupdestinations", make([]map[string]interface{}, 0))
+    destinations, err := flattenServerPlanDestinations(d, resp.BackupDestinations)
+    if err != nil {
+        return err
+    }
+    if err := d.Set("backupdestinations", destinations); err != nil {
+        return fmt.Errorf("read server plan backup destinations: %w", err)
     }
     if rtn, ok := serialize_plan_server_msgplanoverridesettings(d, resp.OverrideRestrictions); ok {
         d.Set("overriderestrictions", rtn)
@@ -1658,8 +1700,11 @@ func resourceUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
     }
     var t_backupdestinations []handler.MsgPlanBackupDestinationDetailsSet
     if d.HasChange("backupdestinations") {
-        val := d.Get("backupdestinations")
-        t_backupdestinations = build_plan_server_msgplanbackupdestinationdetailsset_array(d, val.(*schema.Set).List())
+        var err error
+        t_backupdestinations, err = buildServerPlanDestinationUpdate(d)
+        if err != nil {
+            return err
+        }
     }
     var t_overriderestrictions *handler.MsgPlanOverrideSettings
     if d.HasChange("overriderestrictions") {
@@ -1667,7 +1712,7 @@ func resourceUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
         t_overriderestrictions = build_plan_server_msgplanoverridesettings(d, val.([]interface{}))
     }
     var t_backupdestinationsoperationtype *string
-    if d.HasChange("backupdestinationsoperationtype") {
+    if d.HasChange("backupdestinations") {
         val := d.Get("backupdestinationsoperationtype")
         t_backupdestinationsoperationtype = handler.ToStringValue(val, false)
     }
@@ -1677,14 +1722,21 @@ func resourceUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
         t_snapshotoptions = build_plan_server_msgplansnapshotoptions(d, val.([]interface{}))
     }
     var req = handler.MsgModifyPlanRequest{RegionToConfigure:t_regiontoconfigure, Settings:t_settings, BackupContent:t_backupcontent, DatabaseOptions:t_databaseoptions, OverrideInheritSettings:t_overrideinheritsettings, FilesystemAddon:t_filesystemaddon, AllowPlanOverride:t_allowplanoverride, Workload:t_workload, BackupDestinationIds:t_backupdestinationids, PlanTier:t_plantier, Rpo:t_rpo, NewName:t_newname, BackupDestinations:t_backupdestinations, OverrideRestrictions:t_overriderestrictions, BackupDestinationsOperationType:t_backupdestinationsoperationtype, SnapshotOptions:t_snapshotoptions}
-    _, err := handler.CvModifyPlan(req, d.Id())
+    resp, err := handler.CvModifyPlan(req, d.Id())
     if err != nil {
         return fmt.Errorf("operation [ModifyPlan] failed, Error %s", err)
     }
-    return resourceReadPlan_Server(d, m)
+    if resp.ErrorCode != nil && *resp.ErrorCode != 0 {
+        return fmt.Errorf("modify server plan failed: code %d, message %s", *resp.ErrorCode, planDestinationErrorMessage(resp.ErrorMessage))
+    }
+    expected := expectedServerPlanDestinations(d)
+    if err := resourceReadPlan_Server(d, m); err != nil {
+        return err
+    }
+    return verifyServerPlanDestinations(d, expected)
 }
 
-func resourceCreateUpdatePlan_Server(d *schema.ResourceData, m interface{}) error {
+func resourceCreateUpdatePlan_Server(d *schema.ResourceData, m interface{}, deferredDestinations []interface{}) error {
     //API: (PUT) /V4/ServerPlan/{planId}
     var execUpdate bool = false
     var t_regiontoconfigure *handler.MsgIdName
@@ -1707,16 +1759,26 @@ func resourceCreateUpdatePlan_Server(d *schema.ResourceData, m interface{}) erro
         t_rpo = build_plan_server_msgserverplanupdaterpo(d, val.([]interface{}))
         execUpdate = true
     }
-    var t_backupdestinationsoperationtype *string
-    if val, ok := d.GetOk("backupdestinationsoperationtype"); ok {
-        t_backupdestinationsoperationtype = handler.ToStringValue(val, false)
+    var destinations []handler.MsgPlanBackupDestinationDetailsSet
+    var destinationOperation *string
+    if len(deferredDestinations) > 0 {
+        var err error
+        destinations, err = buildServerPlanSelectedDestinationUpdate(d, "ADD", deferredDestinations)
+        if err != nil {
+            return err
+        }
+        operation := "ADD"
+        destinationOperation = &operation
         execUpdate = true
     }
     if execUpdate {
-        var req = handler.MsgModifyPlanRequest{RegionToConfigure:t_regiontoconfigure, DatabaseOptions:t_databaseoptions, OverrideInheritSettings:t_overrideinheritsettings, Rpo:t_rpo, BackupDestinationsOperationType:t_backupdestinationsoperationtype}
-        _, err := handler.CvModifyPlan(req, d.Id())
+        var req = handler.MsgModifyPlanRequest{RegionToConfigure:t_regiontoconfigure, DatabaseOptions:t_databaseoptions, OverrideInheritSettings:t_overrideinheritsettings, Rpo:t_rpo, BackupDestinations:destinations, BackupDestinationsOperationType:destinationOperation}
+        resp, err := handler.CvModifyPlan(req, d.Id())
         if err != nil {
             return fmt.Errorf("operation [ModifyPlan] failed, Error %s", err)
+        }
+        if resp.ErrorCode != nil && *resp.ErrorCode != 0 {
+            return fmt.Errorf("modify server plan failed: code %d, message %s", *resp.ErrorCode, planDestinationErrorMessage(resp.ErrorMessage))
         }
     }
     return resourceReadPlan_Server(d, m)
@@ -2321,59 +2383,6 @@ func build_plan_server_msgplanoverridesettings(d *schema.ResourceData, r []inter
             t_storagepool = handler.ToStringValue(val, true)
         }
         return &handler.MsgPlanOverrideSettings{RPO:t_rpo, BackupContent:t_backupcontent, StoragePool:t_storagepool}
-    } else {
-        return nil
-    }
-}
-
-func build_plan_server_msgplanbackupdestinationdetailsset_array(d *schema.ResourceData, r []interface{}) []handler.MsgPlanBackupDestinationDetailsSet {
-    if r != nil {
-        tmp := make([]handler.MsgPlanBackupDestinationDetailsSet, len(r))
-        for a, iter_a := range r {
-            raw_a := iter_a.(map[string]interface{})
-            var t_general *handler.MsgPlanBackupDestinationGeneralInfo
-            if val, ok := raw_a["general"]; ok {
-                t_general = build_plan_server_msgplanbackupdestinationgeneralinfo(d, val.([]interface{}))
-            }
-            var t_mappings []handler.MsgSnapshotCopyMappingSet
-            if val, ok := raw_a["mappings"]; ok {
-                t_mappings = build_plan_server_msgsnapshotcopymappingset_array(d, val.(*schema.Set).List())
-            }
-            var t_planbackupdestination *handler.MsgIdName
-            if val, ok := raw_a["planbackupdestination"]; ok {
-                t_planbackupdestination = build_plan_server_msgidname(d, val.([]interface{}))
-            }
-            var t_retentionrules *handler.MsgPlanBackupDestinationRetentionRuleInfo
-            if val, ok := raw_a["retentionrules"]; ok {
-                t_retentionrules = build_plan_server_msgplanbackupdestinationretentionruleinfo(d, val.([]interface{}))
-            }
-            var t_globalconfiginfo *handler.MsgGlobalConfigInfo
-            if val, ok := raw_a["globalconfiginfo"]; ok {
-                t_globalconfiginfo = build_plan_server_msgglobalconfiginfo(d, val.([]interface{}))
-            }
-            var t_region *handler.MsgIdNameDisplayName
-            if val, ok := raw_a["region"]; ok {
-                t_region = build_plan_server_msgidnamedisplayname(d, val.([]interface{}))
-            }
-            var t_plan *handler.MsgIdName
-            if val, ok := raw_a["plan"]; ok {
-                t_plan = build_plan_server_msgidname(d, val.([]interface{}))
-            }
-            var t_configurable *bool
-            if val, ok := raw_a["configurable"]; ok {
-                t_configurable = handler.ToBooleanValue(val, true)
-            }
-            var t_backuptype *handler.MsgPlanBackupDestinationBackupTypeInfo
-            if val, ok := raw_a["backuptype"]; ok {
-                t_backuptype = build_plan_server_msgplanbackupdestinationbackuptypeinfo(d, val.([]interface{}))
-            }
-            var t_snapoptions *handler.MsgPlanBackupDestinationSnapOptions
-            if val, ok := raw_a["snapoptions"]; ok {
-                t_snapoptions = build_plan_server_msgplanbackupdestinationsnapoptions(d, val.([]interface{}))
-            }
-            tmp[a] = handler.MsgPlanBackupDestinationDetailsSet{General:t_general, Mappings:t_mappings, PlanBackupDestination:t_planbackupdestination, RetentionRules:t_retentionrules, GlobalConfigInfo:t_globalconfiginfo, Region:t_region, Plan:t_plan, Configurable:t_configurable, BackupType:t_backuptype, SnapOptions:t_snapoptions}
-        }
-        return tmp
     } else {
         return nil
     }
@@ -3108,7 +3117,7 @@ func build_plan_server_msgcreateplanbackupdestinationset_array(d *schema.Resourc
             raw_a := iter_a.(map[string]interface{})
             var t_ismirrorcopy *bool
             if val, ok := raw_a["ismirrorcopy"]; ok {
-                t_ismirrorcopy = handler.ToBooleanValue(val, true)
+                t_ismirrorcopy = handler.ToBooleanValue(val, false)
             }
             var t_retentionperioddays *int
             if val, ok := raw_a["retentionperioddays"]; ok {
@@ -3116,7 +3125,7 @@ func build_plan_server_msgcreateplanbackupdestinationset_array(d *schema.Resourc
             }
             var t_isconfiguredforreplication *bool
             if val, ok := raw_a["isconfiguredforreplication"]; ok {
-                t_isconfiguredforreplication = handler.ToBooleanValue(val, true)
+                t_isconfiguredforreplication = handler.ToBooleanValue(val, false)
             }
             var t_backupstocopy *string
             if val, ok := raw_a["backupstocopy"]; ok {
@@ -3152,7 +3161,7 @@ func build_plan_server_msgcreateplanbackupdestinationset_array(d *schema.Resourc
             }
             var t_useextendedretentionrules *bool
             if val, ok := raw_a["useextendedretentionrules"]; ok {
-                t_useextendedretentionrules = handler.ToBooleanValue(val, true)
+                t_useextendedretentionrules = handler.ToBooleanValue(val, false)
             }
             var t_backupstarttime *int
             if val, ok := raw_a["backupstarttime"]; ok {
@@ -3160,15 +3169,15 @@ func build_plan_server_msgcreateplanbackupdestinationset_array(d *schema.Resourc
             }
             var t_overrideretentionsettings *bool
             if val, ok := raw_a["overrideretentionsettings"]; ok {
-                t_overrideretentionsettings = handler.ToBooleanValue(val, true)
+                t_overrideretentionsettings = handler.ToBooleanValue(val, false)
             }
             var t_optimizeforinstantclone *bool
             if val, ok := raw_a["optimizeforinstantclone"]; ok {
-                t_optimizeforinstantclone = handler.ToBooleanValue(val, true)
+                t_optimizeforinstantclone = handler.ToBooleanValue(val, false)
             }
             var t_netappcloudtarget *bool
             if val, ok := raw_a["netappcloudtarget"]; ok {
-                t_netappcloudtarget = handler.ToBooleanValue(val, true)
+                t_netappcloudtarget = handler.ToBooleanValue(val, false)
             }
             var t_mappings []handler.MsgSnapshotCopyMappingSet
             if val, ok := raw_a["mappings"]; ok {
@@ -3176,7 +3185,7 @@ func build_plan_server_msgcreateplanbackupdestinationset_array(d *schema.Resourc
             }
             var t_issnapcopy *bool
             if val, ok := raw_a["issnapcopy"]; ok {
-                t_issnapcopy = handler.ToBooleanValue(val, true)
+                t_issnapcopy = handler.ToBooleanValue(val, false)
             }
             var t_storagetype *string
             if val, ok := raw_a["storagetype"]; ok {
@@ -3196,7 +3205,10 @@ func build_plan_server_msgcreateplanbackupdestinationset_array(d *schema.Resourc
             }
             var t_isdefault *bool
             if val, ok := raw_a["isdefault"]; ok {
-                t_isdefault = handler.ToBooleanValue(val, true)
+                key := fmt.Sprintf("backupdestinations.%d.isdefault", d.Get("backupdestinations").(*schema.Set).F(raw_a))
+                if _, exists := d.GetOkExists(key); exists {
+                    t_isdefault = handler.ToBooleanValue(val, false)
+                }
             }
             var t_copytype *string
             if val, ok := raw_a["copytype"]; ok {
@@ -3337,15 +3349,6 @@ func serialize_plan_server_msgplanoverridesettings(d *schema.ResourceData, data 
     } else {
         return nil, false
     }
-}
-
-func statecopy_plan_server_backupdestinations(d *schema.ResourceData) ([]interface{}, bool) {
-    //STATE COPY
-    var_a := d.Get("backupdestinations")
-    if var_a != nil {
-        return var_a.(*schema.Set).List(), true
-    }
-    return nil, false
 }
 
 func serialize_plan_server_msgserverplanrpo(d *schema.ResourceData, data *handler.MsgServerPlanRPO) ([]map[string]interface{}, bool) {

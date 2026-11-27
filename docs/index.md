@@ -141,6 +141,28 @@ REGION/Instance/Cluster selections. The separate
 [deconfigure operation](resources/cloud_instance_deconfigure.md) disables
 RDS/Aurora or S3 instances with explicit identity confirmation.
 
+RDS and Aurora groups also support mutually exclusive cross-account share-only
+or full-copy modes using an existing destination cloud account, plus
+subclient-specific cross-region mappings on an explicitly selected plan snapshot
+replica. Group mapping updates leave copy-level defaults and other groups
+unchanged; removing the replica block resumes plan-level inheritance. Group
+lookups can read the effective mappings for an explicitly selected copy.
+These settings do not create AWS permissions or run snapshot replication jobs.
+
+## Server Plan Snapshot Replicas
+
+Use inline backup destinations on
+[commvault_plan_server](resources/plan_server.md) to create a plan with a snapshot
+replica or add a replica to an existing Terraform-managed plan. Creation stages
+replicas after their source copies exist. Destination updates use explicit
+`ADD`, `MODIFY`, `DELETE`, or `OVERWRITE` operations and are confirmed against
+server readback. Cloud mappings use region display names. See the resource
+documentation for operation restrictions, required API permissions, and the
+primary-snapshot retention limitation.
+
+These enhancements require a provider build containing this support; they are
+not included in the published 1.2.18 provider.
+
 ## Support Matrix
 | SOFTWARE VERSION  | SUPPORTED RESOURCES |
 | --------  | ------------------- | 

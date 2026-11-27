@@ -25,6 +25,12 @@ func datasourceRDSInstance() *schema.Resource {
 func datasourceRDSInstanceGroup() *schema.Resource {
 	fields := resourceRDSInstanceGroup().Schema
 	makeComputed(fields)
+	replica := rdsSnapshotReplicaSchema()
+	makeComputed(replica.Elem.(*schema.Resource).Schema)
+	replica.Elem.(*schema.Resource).Schema["copy_id"] = &schema.Schema{
+		Type: schema.TypeInt, Required: true, ValidateFunc: validateIntRange(1, 2147483647),
+	}
+	fields["snapshot_replica"] = replica
 	fields["subclient_id"] = &schema.Schema{Type: schema.TypeInt, Required: true, ValidateFunc: validateIntRange(1, 2147483647)}
 	return &schema.Resource{
 		Schema: fields,

@@ -185,3 +185,63 @@ func CvDeleteRDSInstanceGroup(id string) (*MsgRDSOperationResponse, error) {
 	}
 	return rdsOperation(http.MethodDelete, "/Subclient/"+id, nil)
 }
+
+func CvGetRDSRegionMappings(copyID, subclientID string) ([]MsgRDSReadRegionMapping, error) {
+	if err := rdsPathID(copyID); err != nil {
+		return nil, err
+	}
+	path := "/Replication/" + copyID + "/RegionMapping"
+	if subclientID != "" {
+		if err := rdsPathID(subclientID); err != nil {
+			return nil, err
+		}
+		path += "?subclientId=" + subclientID
+	}
+	var response MsgRDSRegionMapResponse
+	if err := rdsRead(path, &response); err != nil {
+		return nil, err
+	}
+	if response.Status == nil || response.RegionMap == nil {
+		return nil, fmt.Errorf("RDS region mapping response is missing status or regionMap")
+	}
+	// The API returns -1 with an empty list when no mapping exists.
+	if *response.Status != 0 && (*response.Status != -1 || len(*response.RegionMap) != 0) {
+		return nil, fmt.Errorf("RDS region mapping read failed with status %d", *response.Status)
+	}
+	return *response.RegionMap, nil
+}
+
+func CvSetRDSRegionMappings(copyID string, request MsgRDSRegionMapRequest) error {
+	if err := rdsPathID(copyID); err != nil {
+		return err
+	}
+	for _, mapping := range request.RegionMap {
+		if mapping.SubClient == nil || mapping.SubClient.SubclientId == nil || *mapping.SubClient.SubclientId <= 0 ||
+			mapping.SourceRegion == nil || *mapping.SourceRegion == "" || mapping.DestinationRegion == nil {
+			return fmt.Errorf("RDS region mapping requires a positive subclient ID, source region and explicit destination")
+		}
+	}
+	body, err := json.Marshal(request)
+	if err != nil {
+		return fmt.Errorf("encode RDS region mappings: %w", err)
+	}
+	path := "/Replication/" + copyID + "/RegionMapping"
+	data, err := makeHttpRequestErr(os.Getenv("CV_CSIP")+path, http.MethodPost, JSON, body, JSON, os.Getenv("AuthToken"), 0)
+	if err != nil {
+		return err
+	}
+	var response struct {
+		ErrorCode    *int    `json:"errorCode"`
+		ErrorMessage *string `json:"errorMessage"`
+	}
+	if err := json.Unmarshal(data, &response); err != nil {
+		return fmt.Errorf("decode RDS region mapping update: %w", err)
+	}
+	if response.ErrorCode == nil {
+		return fmt.Errorf("RDS region mapping update response is missing errorCode")
+	}
+	if *response.ErrorCode != 0 {
+		return rdsAPIError(*response.ErrorCode, response.ErrorMessage)
+	}
+	return nil
+}
