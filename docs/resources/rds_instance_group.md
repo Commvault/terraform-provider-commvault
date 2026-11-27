@@ -198,6 +198,10 @@ Cross-account and cross-region settings can be used independently. Set
 for full-copy mode. Set both flags explicitly when switching modes and set both
 to `false` to disable cross-account operations.
 
+Existing groups with cross-account protection disabled can return an empty
+destination account object. Refresh treats this as no destination account;
+existing configurations do not need to add the new cross-account settings.
+
 The destination account must already be registered with the appropriate AWS
 permissions and snapshot/KMS sharing access. These group settings do not create
 AWS accounts, IAM policies, KMS grants, or a plan replica copy.

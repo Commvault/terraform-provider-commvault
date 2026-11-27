@@ -302,12 +302,17 @@ func readRDSInstanceGroup(d *schema.ResourceData, datasource bool) error {
 			}
 			if account := settings.DestinationAccount; account != nil && account.AmazonClient != nil {
 				client := account.AmazonClient
-				if client.ClientId == nil || *client.ClientId <= 0 {
-					return fmt.Errorf("RDS group %s destination account omits a positive clientId", d.Id())
+				empty := client.ClientId == nil && (client.ClientName == nil || *client.ClientName == "")
+				enabled := values["is_cross_account_enabled"].(bool) || values["is_cross_account_copy_enabled"].(bool)
+				// Disabled legacy groups can return an empty amazonClient object.
+				if !empty || enabled {
+					if client.ClientId == nil || *client.ClientId <= 0 {
+						return fmt.Errorf("RDS group %s destination account omits a positive clientId", d.Id())
+					}
+					item := map[string]interface{}{"client_id": *client.ClientId}
+					rdsPutString(item, "client_name", client.ClientName)
+					values["destination_account"] = []interface{}{item}
 				}
-				item := map[string]interface{}{"client_id": *client.ClientId}
-				rdsPutString(item, "client_name", client.ClientName)
-				values["destination_account"] = []interface{}{item}
 			}
 		}
 		if err := readRDSReplicaMappings(d, prop, values); err != nil {
