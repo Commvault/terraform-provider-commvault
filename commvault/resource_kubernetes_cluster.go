@@ -68,7 +68,7 @@ func resourceKubernetes_Cluster() *schema.Resource {
                         "type": {
                             Type:        schema.TypeString,
                             Optional:    true,
-                            Description: "",
+                            Description: "Client type identifier for the access node, passed as a string (for example, \"3\").",
                         },
                     },
                 },
@@ -90,20 +90,20 @@ func resourceKubernetes_Cluster() *schema.Resource {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
-                            Description: "",
+                            Description: "Optional backup plan for etcd protection. If omitted, the cluster's default plan is used.",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "name": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "",
+                                        Description: "Name of the backup plan for etcd protection.",
                                     },
                                     "id": {
                                         Type:        schema.TypeInt,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "",
+                                        Description: "ID of the backup plan for etcd protection.",
                                     },
                                 },
                             },
@@ -215,13 +215,13 @@ func resourceKubernetes_Cluster() *schema.Resource {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "Specify image pull secret to authenticate with the image repository",
+                                        Description: "Name of the Kubernetes image pull secret in the config namespace, used to authenticate with the image registry.",
                                     },
                                     "url": {
                                         Type:        schema.TypeString,
                                         Optional:    true,
                                         Computed:    true,
-                                        Description: "Specify image registry URL for internal image repository",
+                                        Description: "URL of the image registry used for Commvault worker images.",
                                     },
                                 },
                             },

@@ -2,6 +2,7 @@ package commvault
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -35,7 +36,7 @@ func resourceKubernetes_Appgroup() *schema.Resource {
                             Type:        schema.TypeString,
                             Optional:    true,
                             Computed:    true,
-                            Description: "Specify whether to skip backup of stateless applications",
+                            Description: "Whether to skip backup of stateless applications. Set as the string \"true\" or \"false\".",
                         },
                         "labelselectors": {
                             Type:        schema.TypeSet,
@@ -75,7 +76,7 @@ func resourceKubernetes_Appgroup() *schema.Resource {
                                     "type": {
                                         Type:        schema.TypeString,
                                         Required:    true,
-                                        Description: "Type of the Kubernetes application [NAMESPACE, APPLICATION, PVC, LABELS]",
+                                        Description: "Required Kubernetes resource type: NAMESPACE, APPLICATION, PVC, or LABELS. Match the type to the resource represented by guid.",
                                     },
                                 },
                             },
@@ -150,7 +151,7 @@ func resourceKubernetes_Appgroup() *schema.Resource {
                                     "type": {
                                         Type:        schema.TypeString,
                                         Required:    true,
-                                        Description: "Type of the Kubernetes application [NAMESPACE, APPLICATION, PVC, LABELS]",
+                                        Description: "Required Kubernetes resource type: NAMESPACE, APPLICATION, PVC, or LABELS. Match the type to the resource represented by guid.",
                                     },
                                 },
                             },
@@ -184,7 +185,7 @@ func resourceKubernetes_Appgroup() *schema.Resource {
                 Type:        schema.TypeList,
                 Optional:    true,
                 Computed:    true,
-                Description: "",
+                Description: "Application group activity control. The API supports enablebackup only; restore activity control and delayed re-enable fields are not available at the application-group level.",
                 Elem: &schema.Resource{
                     Schema: map[string]*schema.Schema{
                         "enablebackup": {
@@ -241,32 +242,36 @@ func resourceKubernetes_Appgroup() *schema.Resource {
                             Type:        schema.TypeList,
                             Optional:    true,
                             Computed:    true,
-                            Description: "",
+                            Description: "CPU and memory requests/limits for the Commvault worker Pod. Use Kubernetes quantity strings (e.g. \"256Mi\", \"500m\").",
                             Elem: &schema.Resource{
                                 Schema: map[string]*schema.Schema{
                                     "memoryrequests": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Define requests.memory to set on the worker Pod",
+                                        Type:         schema.TypeString,
+                                        Optional:     true,
+                                        Computed:     true,
+                                        Description:  "Minimum memory for the worker Pod. Kubernetes quantity string, e.g. \"256Mi\", \"1Gi\".",
+                                        ValidateFunc: validateKubernetesQuantity,
                                     },
                                     "memorylimits": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Define limits.memory to set on the worker Pod",
+                                        Type:         schema.TypeString,
+                                        Optional:     true,
+                                        Computed:     true,
+                                        Description:  "Maximum memory for the worker Pod. Kubernetes quantity string, e.g. \"512Mi\", \"2Gi\".",
+                                        ValidateFunc: validateKubernetesQuantity,
                                     },
                                     "cpulimits": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Define limits.cpu to set on the worker Pod",
+                                        Type:         schema.TypeString,
+                                        Optional:     true,
+                                        Computed:     true,
+                                        Description:  "Maximum CPU for the worker Pod. Kubernetes quantity string, e.g. \"500m\", \"1\".",
+                                        ValidateFunc: validateKubernetesQuantity,
                                     },
                                     "cpurequests": {
-                                        Type:        schema.TypeString,
-                                        Optional:    true,
-                                        Computed:    true,
-                                        Description: "Define requests.cpu to set on the worker Pod",
+                                        Type:         schema.TypeString,
+                                        Optional:     true,
+                                        Computed:     true,
+                                        Description:  "Minimum CPU for the worker Pod. Kubernetes quantity string, e.g. \"100m\", \"0.5\".",
+                                        ValidateFunc: validateKubernetesQuantity,
                                     },
                                 },
                             },
@@ -985,4 +990,15 @@ func serialize_kubernetes_appgroup_msgapplicationgroupactivitycontrol(d *schema.
     } else {
         return nil, false
     }
+}
+
+// validateKubernetesQuantity rejects values that are not valid Kubernetes resource quantity strings.
+var kubernetesQuantityRe = regexp.MustCompile(`^[+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)(([eE][+-]?[0-9]+)|n|u|m|k|M|G|T|P|E|Ki|Mi|Gi|Ti|Pi|Ei)?$`)
+
+func validateKubernetesQuantity(val interface{}, key string) (warns []string, errs []error) {
+    v := val.(string)
+    if !kubernetesQuantityRe.MatchString(v) {
+        errs = append(errs, fmt.Errorf("%q must use valid Kubernetes quantity syntax (e.g. \"256Mi\", \"500m\", \"1\", \"1e3\"), got: %q", key, v))
+    }
+    return
 }

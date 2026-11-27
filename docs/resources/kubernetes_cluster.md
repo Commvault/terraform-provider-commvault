@@ -25,7 +25,7 @@ resource "commvault_kubernetes_cluster" "kubernetes_cluster1" {
   servicetoken   = "##############"
   accessnodes {
     id   = data.commvault_client.access_node1.id
-    type = 3
+    type = "3"
   }
 }
 ```
@@ -51,14 +51,15 @@ resource "commvault_kubernetes_cluster" "kubernetes_cluster2" {
   servicetoken   = "#########"
   accessnodes {
     id   = data.commvault_client.access_node1.id
-    type = 3
+    type = "3"
   }
   accessnodes {
     id   = 3986
-    type = 3
+    type = "3"
   }
   servicetype = "ONPREM"
   etcdprotection {
+    # plan is optional; if omitted the cluster's default plan is used
     plan {
       id = data.commvault_plan.plan1.id
     }
@@ -79,6 +80,23 @@ resource "commvault_kubernetes_cluster" "kubernetes_cluster2" {
     name  = "testK8s-2"
     value = "K8s-2"
   }
+  options {
+    confignamespace = "cv-config"
+    imageregistry {
+      url        = "registry.example.com"
+      pullsecret = "cv-registry-credentials"
+    }
+  }
+}
+```
+
+For a private registry, create a `kubernetes.io/dockerconfigjson` image-pull secret in the configured `confignamespace` before applying the cluster. For example, use `kubectl create secret docker-registry cv-registry-credentials --docker-server=<registry> --docker-username=<username> --docker-password=<password> --namespace=cv-config` and set `pullsecret` to that secret's name.
+
+To enable etcd protection while using the cluster's default plan, omit the `plan` block:
+
+```hcl
+etcdprotection {
+  enabled = "true"
 }
 ```
 
@@ -110,7 +128,7 @@ resource "commvault_kubernetes_cluster" "kubernetes_cluster2" {
 
 Optional:
 
-- `type` (String)
+- `type` (String) Client type identifier for the access node, passed as a string (for example, `"3"`).
 
 Read-Only:
 
@@ -134,18 +152,15 @@ Optional:
 Optional:
 
 - `enabled` (String) Denote if etcd protection is enabled
-- `plan` (Block List) (see [below for nested schema](#nestedblock--etcdprotection--plan))
+- `plan` (Block List) Optional backup plan for etcd protection. If omitted, the cluster's default plan is used. (see [below for nested schema](#nestedblock--etcdprotection--plan))
 
 <a id="nestedblock--etcdprotection--plan"></a>
 ### Nested Schema for `etcdprotection.plan`
 
 Optional:
 
-- `name` (String)
-
-Read-Only:
-
-- `id` (Number) The ID of this resource.
+- `id` (Number) ID of the backup plan for etcd protection.
+- `name` (String) Name of the backup plan for etcd protection.
 
 
 
@@ -161,8 +176,8 @@ Optional:
 
 Optional:
 
-- `imagepullsecret` (String) Specify image pull secret to authenticate with the image repository
-- `registryurl` (String) Specify image registry URL for internal image repository
+- `pullsecret` (String) Name of the Kubernetes image pull secret in the config namespace, used to authenticate with the image registry.
+- `url` (String) URL of the image registry used for Commvault worker images.
 
 
 
