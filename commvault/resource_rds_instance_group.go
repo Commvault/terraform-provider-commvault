@@ -13,11 +13,12 @@ import (
 
 func resourceRDSInstanceGroup() *schema.Resource {
 	return &schema.Resource{
-		Create:   resourceCreateRDSInstanceGroup,
-		Read:     resourceReadRDSInstanceGroup,
-		Update:   resourceUpdateRDSInstanceGroup,
-		Delete:   resourceDeleteRDSInstanceGroup,
-		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
+		Create:        resourceCreateRDSInstanceGroup,
+		Read:          resourceReadRDSInstanceGroup,
+		Update:        resourceUpdateRDSInstanceGroup,
+		Delete:        resourceDeleteRDSInstanceGroup,
+		CustomizeDiff: customizeRDSGroupReplication,
+		Importer:      &schema.ResourceImporter{State: schema.ImportStatePassthrough},
 		Schema: map[string]*schema.Schema{
 			"client_name": {Type: schema.TypeString, Required: true, ForceNew: true,
 				ValidateFunc: validateNonEmptyString},
@@ -35,6 +36,17 @@ func resourceRDSInstanceGroup() *schema.Resource {
 			"enable_external_snapshot_discovery": {Type: schema.TypeBool, Optional: true, Computed: true},
 			"enable_snapshot_backup_copy":        {Type: schema.TypeBool, Optional: true, Computed: true},
 			"wait_for_snapshot":                  {Type: schema.TypeBool, Optional: true, Computed: true},
+			"is_cross_account_enabled":           {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Share snapshots with the destination AWS account."},
+			"is_cross_account_copy_enabled":      {Type: schema.TypeBool, Optional: true, Computed: true, Description: "Copy snapshots into the destination AWS account."},
+			"destination_account": {
+				Type: schema.TypeList, Optional: true, Computed: true, MaxItems: 1,
+				Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+					"client_id": {Type: schema.TypeInt, Required: true, ValidateFunc: validateIntRange(1, 2147483647),
+						Description: "Commvault destination cloud account client ID, not the AWS account number."},
+					"client_name": {Type: schema.TypeString, Computed: true},
+				}},
+			},
+			"snapshot_replica": rdsSnapshotReplicaSchema(),
 			"content": {
 				Type: schema.TypeList, Required: true, MinItems: 1,
 				Elem: &schema.Resource{Schema: map[string]*schema.Schema{
@@ -77,6 +89,11 @@ func buildRDSGroupContent(d *schema.ResourceData) ([]handler.MsgRDSCreateContent
 }
 
 func resourceCreateRDSInstanceGroup(d *schema.ResourceData, m interface{}) error {
+	if err := validateRDSGroupReplication(d.Get("is_cross_account_enabled"), d.Get("is_cross_account_copy_enabled"),
+		d.Get("destination_account"), d.Get("snapshot_replica")); err != nil {
+		return err
+	}
+	expectedAccount := buildRDSSubclient(d)
 	appName, instanceType := "Cloud Apps", "AMAZON_RDS"
 	subclientID, contentOperation := -1, 2
 	content, _ := buildRDSGroupContent(d)
@@ -110,7 +127,8 @@ func resourceCreateRDSInstanceGroup(d *schema.ResourceData, m interface{}) error
 	}
 	// The create endpoint can ignore snapshot settings (notably explicit false).
 	for _, key := range []string{"number_of_backup_streams", "job_start_time", "auto_update_list",
-		"enable_external_snapshot_discovery", "enable_snapshot_backup_copy", "wait_for_snapshot"} {
+		"enable_external_snapshot_discovery", "enable_snapshot_backup_copy", "wait_for_snapshot",
+		"is_cross_account_enabled", "is_cross_account_copy_enabled", "destination_account"} {
 		if _, configured := d.GetOkExists(key); !configured {
 			continue
 		}
@@ -131,10 +149,24 @@ func resourceCreateRDSInstanceGroup(d *schema.ResourceData, m interface{}) error
 		}
 		break
 	}
-	return resourceReadRDSInstanceGroup(d, m)
+	if err := syncRDSReplicaMappings(d, true); err != nil {
+		return fmt.Errorf("set initial RDS replica mappings (created ID retained): %w", err)
+	}
+	if err := resourceReadRDSInstanceGroup(d, m); err != nil {
+		return err
+	}
+	return verifyRDSCrossAccount(d, expectedAccount)
 }
 
 func resourceUpdateRDSInstanceGroup(d *schema.ResourceData, m interface{}) error {
+	if err := validateRDSGroupReplication(d.Get("is_cross_account_enabled"), d.Get("is_cross_account_copy_enabled"),
+		d.Get("destination_account"), d.Get("snapshot_replica")); err != nil {
+		return err
+	}
+	if err := validateRDSReplicaPlanChange(d); err != nil {
+		return err
+	}
+	expectedAccount := buildRDSSubclient(d)
 	if d.HasChange("instance_name") {
 		properties, err := handler.CvGetRDSInstanceGroup(d.Id())
 		if err != nil {
@@ -152,7 +184,11 @@ func resourceUpdateRDSInstanceGroup(d *schema.ResourceData, m interface{}) error
 		}
 	}
 	if !d.HasChanges("content", "plan_name", "subclient_name", "instance_name", "number_of_backup_streams",
-		"job_start_time", "auto_update_list", "enable_external_snapshot_discovery", "enable_snapshot_backup_copy", "wait_for_snapshot") {
+		"job_start_time", "auto_update_list", "enable_external_snapshot_discovery", "enable_snapshot_backup_copy", "wait_for_snapshot",
+		"is_cross_account_enabled", "is_cross_account_copy_enabled", "destination_account") {
+		if err := syncRDSReplicaMappings(d, false); err != nil {
+			return err
+		}
 		return resourceReadRDSInstanceGroup(d, m)
 	}
 	_, content := buildRDSGroupContent(d)
@@ -163,7 +199,8 @@ func resourceUpdateRDSInstanceGroup(d *schema.ResourceData, m interface{}) error
 			NumberOfBackupStreams: intPtrFromResource(d, "number_of_backup_streams"), JobStartTime: intPtrFromResource(d, "job_start_time"),
 		}
 	}
-	if d.HasChanges("auto_update_list", "enable_external_snapshot_discovery", "enable_snapshot_backup_copy", "wait_for_snapshot") {
+	if d.HasChanges("auto_update_list", "enable_external_snapshot_discovery", "enable_snapshot_backup_copy", "wait_for_snapshot",
+		"is_cross_account_enabled", "is_cross_account_copy_enabled", "destination_account") {
 		properties.CloudAppsSubclientProp = &handler.MsgRDSCloudAppsSubclientProperties{InstanceType: &instanceType, RDSSubclient: buildRDSSubclient(d)}
 	}
 	if d.HasChange("content") {
@@ -206,7 +243,13 @@ func resourceUpdateRDSInstanceGroup(d *schema.ResourceData, m interface{}) error
 	if err != nil {
 		return fmt.Errorf("modify RDS instance group: %w", err)
 	}
-	return resourceReadRDSInstanceGroup(d, m)
+	if err := syncRDSReplicaMappings(d, false); err != nil {
+		return err
+	}
+	if err := resourceReadRDSInstanceGroup(d, m); err != nil {
+		return err
+	}
+	return verifyRDSCrossAccount(d, expectedAccount)
 }
 
 func resourceReadRDSInstanceGroup(d *schema.ResourceData, m interface{}) error {
@@ -247,6 +290,33 @@ func readRDSInstanceGroup(d *schema.ResourceData, datasource bool) error {
 			if value != nil {
 				values[key] = *value
 			}
+		}
+		values["is_cross_account_enabled"], values["is_cross_account_copy_enabled"] = false, false
+		values["destination_account"] = []interface{}{}
+		if settings := prop.CloudAppsSubclientProp.RDSSubclient; settings != nil {
+			if settings.IsCrossAccountEnabled != nil {
+				values["is_cross_account_enabled"] = *settings.IsCrossAccountEnabled
+			}
+			if settings.IsCrossAccountCopyEnabled != nil {
+				values["is_cross_account_copy_enabled"] = *settings.IsCrossAccountCopyEnabled
+			}
+			if account := settings.DestinationAccount; account != nil && account.AmazonClient != nil {
+				client := account.AmazonClient
+				empty := client.ClientId == nil && (client.ClientName == nil || *client.ClientName == "")
+				enabled := values["is_cross_account_enabled"].(bool) || values["is_cross_account_copy_enabled"].(bool)
+				// Disabled legacy groups can return an empty amazonClient object.
+				if !empty || enabled {
+					if client.ClientId == nil || *client.ClientId <= 0 {
+						return fmt.Errorf("RDS group %s destination account omits a positive clientId", d.Id())
+					}
+					item := map[string]interface{}{"client_id": *client.ClientId}
+					rdsPutString(item, "client_name", client.ClientName)
+					values["destination_account"] = []interface{}{item}
+				}
+			}
+		}
+		if err := readRDSReplicaMappings(d, prop, values); err != nil {
+			return err
 		}
 	}
 	rdsPutString(values, "client_name", entity.ClientName)
@@ -362,6 +432,9 @@ func buildRDSSubclient(d *schema.ResourceData) *handler.MsgRDSSubclient {
 		EnableExternalSnapshotDiscovery: cloudOptionalBool(d, "enable_external_snapshot_discovery"),
 		EnableSnapshotBackupCopy:        cloudOptionalBool(d, "enable_snapshot_backup_copy"),
 		WaitForSnapshot:                 cloudOptionalBool(d, "wait_for_snapshot"),
+		IsCrossAccountEnabled:           cloudOptionalBool(d, "is_cross_account_enabled"),
+		IsCrossAccountCopyEnabled:       cloudOptionalBool(d, "is_cross_account_copy_enabled"),
+		DestinationAccount:              buildRDSDestinationAccount(d),
 	}
 }
 

@@ -141,10 +141,42 @@ type MsgRDSCloudAppsSubclientProperties struct {
 }
 
 type MsgRDSSubclient struct {
-	AutoUpdateList                  *bool `json:"autoUpdateList,omitempty"`
-	EnableExternalSnapshotDiscovery *bool `json:"enableExternalSnapshotDiscovery,omitempty"`
-	EnableSnapshotBackupCopy        *bool `json:"enableSnapshotBackupCopy,omitempty"`
-	WaitForSnapshot                 *bool `json:"waitForSnapshot,omitempty"`
+	AutoUpdateList                  *bool                      `json:"autoUpdateList,omitempty"`
+	EnableExternalSnapshotDiscovery *bool                      `json:"enableExternalSnapshotDiscovery,omitempty"`
+	EnableSnapshotBackupCopy        *bool                      `json:"enableSnapshotBackupCopy,omitempty"`
+	WaitForSnapshot                 *bool                      `json:"waitForSnapshot,omitempty"`
+	IsCrossAccountEnabled           *bool                      `json:"isCrossAccountEnabled,omitempty"`
+	IsCrossAccountCopyEnabled       *bool                      `json:"isCrossAccountCopyEnabled,omitempty"`
+	DestinationAccount              *MsgRDSCrossAccountDetails `json:"destinationAccount,omitempty"`
+}
+
+type MsgRDSCrossAccountDetails struct {
+	AmazonClient *MsgRDSAccountClient `json:"amazonClient,omitempty"`
+}
+
+type MsgRDSAccountClient struct {
+	ClientId   *int    `json:"clientId,omitempty"`
+	ClientName *string `json:"clientName,omitempty"`
+}
+
+type MsgRDSRegionMapping struct {
+	SourceRegion      *string                `json:"sourceRegion,omitempty"`
+	DestinationRegion *string                `json:"destinationRegion,omitempty"`
+	SubClient         *MsgRDSSubclientEntity `json:"subClient,omitempty"`
+}
+
+type MsgRDSRegionMapRequest struct {
+	RegionMap []MsgRDSRegionMapping `json:"regionMap"`
+}
+
+type MsgRDSReadRegionMapping struct {
+	SourceRegionName      *string `json:"srcRegionName,omitempty"`
+	DestinationRegionName *string `json:"destRegionName,omitempty"`
+}
+
+type MsgRDSRegionMapResponse struct {
+	RegionMap *[]MsgRDSReadRegionMapping `json:"regionMap"`
+	Status    *int                       `json:"status"`
 }
 
 func (m *MsgRDSCloudAppsSubclientProperties) UnmarshalJSON(data []byte) error {

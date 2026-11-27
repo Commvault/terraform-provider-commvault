@@ -1,18 +1,18 @@
 ---
-page_title: " Commvault : commvault_plan_server Resource "
+page_title: "Commvault: commvault_plan_server Resource"
 subcategory: "Plans"
 description: |-
-  Use the commvault_plan_server resource type to create or delete server plan in the CommCell environment.
+  Use the commvault_plan_server resource type to create, update, or delete a server plan in the CommCell environment.
 
 ---
 
 # commvault_plan_server (Resource)
 
-Use the commvault_plan_server resource type to create or delete server plan in the CommCell environment.
+Use the commvault_plan_server resource type to create, update, or delete a server plan in the CommCell environment.
 
 ## Backup Destinations
 
-Define backup destinations **inline** using the `backupdestinations` block. This creates the plan and its destinations atomically in a single API call:
+Define backup destinations **inline** using the `backupdestinations` block. The provider creates the plan with its primary destinations; snapshot replicas are added after their source copies exist.
 
 ```hcl
 resource "commvault_plan_server" "my_plan" {
@@ -31,6 +31,144 @@ resource "commvault_plan_server" "my_plan" {
 
 > **Note:** The `backupdestinationids` attribute (referencing pre-created `commvault_plan_backupdestination` resources) is not supported by the API. Always use inline `backupdestinations` blocks.
 
+### Snapshot Replica Copies
+
+Use the same inline destination configuration when creating a plan with a snapshot
+replica or adding a replica to an existing Terraform-managed plan:
+
+```hcl
+data "commvault_storagepool" "pool" {
+  name = "Snapshot-Capable-Pool"
+}
+
+resource "commvault_plan_server" "snapshot_plan" {
+  planname = "Snapshot-Plan"
+
+  # Used for subsequent destination additions, not for initial plan creation.
+  backupdestinationsoperationtype = "ADD"
+
+  backupdestinations {
+    backupdestinationname = "Primary-Destination"
+    retentionperioddays   = 14
+    storagepool {
+      id = data.commvault_storagepool.pool.id
+    }
+  }
+
+  backupdestinations {
+    backupdestinationname = "Primary-Snapshot"
+    issnapcopy            = "true"
+    storagepool {
+      id = data.commvault_storagepool.pool.id
+    }
+  }
+
+  backupdestinations {
+    backupdestinationname = "Snapshot-Replica"
+    issnapcopy            = "true"
+    ismirrorcopy          = "false"
+    retentionperioddays   = 14
+    sourcecopy {
+      name = "Primary-Snapshot"
+    }
+    storagepool {
+      id = data.commvault_storagepool.pool.id
+    }
+  }
+}
+```
+
+Creation with snapshot replicas is staged: create the plan and primary copies,
+resolve each replica's source copy ID, then send `ADD` for only the replicas.
+The create API does not reliably create multiple snapshot copies in one request.
+If the follow-up addition fails, the provider reports the error and retains the
+new plan's ID for refresh or cleanup; it does not claim success or delete the plan.
+
+The example omits retention on the primary snapshot copy. On the tested SaaS
+deployment, explicitly configured primary-snapshot `retentionperioddays` and
+`snaprecoverypoints` were returned as zero during staged creation, causing
+post-write confirmation to fail. This limitation remains unresolved; confirm
+support in your deployment before managing these settings. Replica retention
+is configured separately.
+
+`issnapcopy = "true"` selects a snapshot copy; `ismirrorcopy = "false"` selects
+Vault/Replica rather than a mirror copy. Configure any required `region` and
+`mappings` blocks for your deployment. These flags do not enable snapshot support
+on an incompatible workload or storage system.
+
+For `AMAZON` and `AZURE` mappings, supply cloud region display names using
+`source.name` and `target.name`. Use the `regionName` returned by
+`GET /Cloud/Regions?vendor=4` for AWS, not its `regionCode` or IDs from `/Regions`.
+For example, the following maps AWS `ap-south-1` to `us-east-1`:
+
+```hcl
+mappings {
+  vendor = "AMAZON"
+  source {
+    name = "Asia Pacific (Mumbai)"
+  }
+  target {
+    name = "US East (N. Virginia)"
+  }
+}
+```
+
+For an existing plan, retain its existing destination blocks unchanged and append
+the replica block. `ADD` sends only the new destination; it does not resend existing
+copies. Every configured destination must have a unique, non-empty
+`backupdestinationname`.
+
+Set `backupdestinationsoperationtype` explicitly when changing existing destinations:
+
+- `ADD`: add new destinations while retaining existing blocks unchanged.
+- `MODIFY`: change existing destinations without adding, removing, or renaming them.
+- `DELETE`: remove destination blocks while retaining the remaining blocks unchanged.
+- `OVERWRITE`: submit the complete desired list. This can remove existing copies;
+  do not use it as an alternative to `ADD`.
+- `NONE` (or an omitted operation): does not authorize a destination change.
+
+Refresh reads destinations from the server, including snapshot/replica flags,
+storage, source copy, retention, region, and mappings. Server-populated names do
+not create a difference when an entity was configured only by ID. Omitting
+false snapshot/mirror flags in a server response is interpreted as `false`.
+When an optimized V4 plan response omits a secondary snapshot copy's mappings,
+refresh retrieves them from `GET /V5/ServerPlan/{planId}/BackupDestination/{id}`.
+The server must support and permit that endpoint; read errors are not hidden.
+Omitting `backupdestinations` leaves the server's destination list computed; declaring
+blocks manages the complete list. Missing copies and changed configured fields
+are reflected in subsequent plans.
+
+The current update contract does not expose `isconfiguredforreplication`,
+`backupstarttime`, `optimizeforinstantclone`, or `storagepolicy`. The provider
+rejects these fields on destination additions/modifications rather than silently
+dropping them. Their creation support is unchanged.
+`optimizeforinstantclone` and `storagepolicy` are not included in the current
+plan-read model, so their configured values cannot be verified by refresh.
+The current SDK also cannot reliably diff changes to the optional/computed
+`isdefault`, `copytype`, and `copyprecedence` fields within an existing destination.
+Such changes are rejected during planning. Set them during plan creation or when
+adding a new destination instead. Their server values are still read back.
+
+An HTTP-success response is not sufficient by itself: component/server errors
+and destination settings not confirmed by readback cause an explicit error.
+If creation partially succeeds, the plan ID is retained in state; inspect and
+refresh the existing plan before retrying.
+
+### RDS and Aurora Group Overrides
+
+Plan `mappings` define copy-level defaults. Use
+[commvault_rds_instance_group](rds_instance_group.md) to configure cross-account
+settings and subclient-specific region overrides on an existing secondary
+snapshot replica. Select its copy ID from
+`backupDestinations[].planBackupDestination.id` in
+`GET /V4/ServerPlan/{planId}`. The inline Terraform destination blocks do not
+export individual copy IDs.
+
+Removing a group's overrides restores inheritance from these defaults without
+changing the plan mappings. Applying a plan or group configures protection; it
+does not submit an immediate backup or snapshot replication job or verify AWS
+permissions and recoverability.
+
 ## Example Usage
 
 **Configure commvault server plan with required fields**
@@ -39,16 +177,14 @@ data "commvault_storagepool" "storagepool1" {
   name = "Test-Terraform-Pool"
 }
 
-resource "commvault_plan_backupdestination" "plan_backupdestination1" {
-  name = "Primary-Test-BkpDst"
-   storagepool {
-    id = data.commvault_storagepool.storagepool1.id
-   }
-}
-
 resource "commvault_plan_server" "Terraform-Plan1" {
   planname = "Terraform-Test-Plan"
-  backupdestinationids = [commvault_plan_backupdestination.plan_backupdestination1.id]
+  backupdestinations {
+    backupdestinationname = "Primary-Test-BkpDst"
+    storagepool {
+      id = data.commvault_storagepool.storagepool1.id
+    }
+  }
 }
 ```
 
@@ -62,13 +198,18 @@ data "commvault_region" "region1" {
     name = "us-east-2"
 }
 
-resource "commvault_plan_backupdestination" "plan_backupdestination2" {
-   name = "Primary-Test-BkpDst-custom"
-   storagepool {
-    id = data.commvault_storagepool.storagepool1.id
-   }
-   retentionperioddays       = 7
-   enabledataaging = "true"
+data "commvault_storagepool" "storagepool2" {
+  name = "Test-Terraform-Pool-2"
+}
+
+resource "commvault_plan_server" "Terraform-Plan3" {
+  planname = "Terraform-Test-Plan-Custom-2"
+  backupdestinations {
+    backupdestinationname = "Primary-Test-BkpDst-custom"
+    storagepool {
+      id = data.commvault_storagepool.storagepool1.id
+    }
+    retentionperioddays = 7
     useextendedretentionrules = "true"
     retentionruletype = "RETENTION_PERIOD"
     extendedretentionrules {
@@ -81,26 +222,20 @@ resource "commvault_plan_backupdestination" "plan_backupdestination2" {
    region {
       id = data.commvault_region.region1.id
     }
-}
-
-resource "commvault_plan_backupdestination" "plan_backupdestination3" {
-   name = "Secondary-Test-BkpDst-custom"
-   storagepool {
-    id = data.commvault_storagepool.storagepool2.id
-   }
-   backupstocopy = "All_JOBS"
-   backupstarttime = -1
-   sourcecopy {
-    id = commvault_plan_backupdestination.plan_backupdestination2.id
-   }
-   region {
+  }
+  backupdestinations {
+    backupdestinationname = "Secondary-Test-BkpDst-custom"
+    storagepool {
+      id = data.commvault_storagepool.storagepool2.id
+    }
+    backupstocopy = "All_JOBS"
+    sourcecopy {
+      name = "Primary-Test-BkpDst-custom"
+    }
+    region {
       id = data.commvault_region.region1.id
     }
-}
-
-resource "commvault_plan_server" "Terraform-Plan3" {
-  planname = "Terraform-Test-Plan-Custom-2"
-  backupdestinationids = [commvault_plan_backupdestination.plan_backupdestination2.id, commvault_plan_backupdestination.plan_backupdestination3.id]
+  }
   backupcontent {
     windowsincludedpaths = ["Music", "Pictures"]
     unixincludedpaths    = ["Dropbox", "OneDrive", "Content Edge Drive", "iCloud Drive", "Google Drive", "Desktop"]
@@ -249,12 +384,14 @@ resource "commvault_plan_server" "plan_with_copies" {
 ### Required
 
 - `planname` (String) Name of the new plan
-- `backupdestinationids` (Set of Number) Primary Backup Destination Ids (which were created before plan creation). This is only considered when backupDestinations array object is not defined.
 
 ### Optional
 
 - `allowplanoverride` (String) Flag to enable overriding of plan. Plan cannot be overriden by default.
 - `backupcontent` (Block List) This feature applies only to file system agents (see [below for nested schema](#nestedblock--backupcontent))
+- `backupdestinationids` (Set of Number) Legacy destination references; not supported by the server-plan API used here. Use inline `backupdestinations` instead.
+- `backupdestinations` (Block Set) Complete managed destination list. Omission leaves the server list computed. Each configured destination must have a unique, non-empty name (see [below for nested schema](#nestedblock--backupdestinations)).
+- `backupdestinationsoperationtype` (String) Operation for changing destinations on an existing plan: `NONE`, `ADD`, `MODIFY`, `DELETE`, or `OVERWRITE`. Required only when changing the destination list or its settings. `ADD` sends only new destinations; `OVERWRITE` can remove existing copies. This setting is not sent during initial plan creation.
 - `databaseoptions` (Block List) This feature applies only to database agents (see [below for nested schema](#nestedblock--databaseoptions))
 - `filesystemaddon` (String) flag to enable backup content association for applicable file system workload.
 - `overrideinheritsettings` (Block List) This feature applies to derived plans when inherit mode is optional.Provides user to set entity preference between parent and derived plan. (see [below for nested schema](#nestedblock--overrideinheritsettings))
@@ -331,14 +468,14 @@ Optional:
 
 Optional:
 
-- `backupdestinationname` (String) Backup destination details. Enter the name during creation.
+- `backupdestinationname` (String) Unique, non-empty destination name. Required for every configured destination; used to resolve server copy identity on updates.
 - `backupstarttime` (Int) Backup start time in seconds. The time is provided in unix time format.
 - `backupstocopy` (String) All_JOBS means SYNCHRONOUS copy type, others are applicable for SELECTIVE copy Type only. [All_JOBS, ALL_FULLS, HOURLY_FULLS, DAILY_FULLS, WEEKLY_FULLS, MONTHLY_FULLS, QUARTERLY_FULLS, HALF_YEARLY_FULLS, YEARLY_FULLS, ADVANCED, MANUAL_JOBS]
 - `copytype` (String) Type of copy for this backup destination [PRIMARY, AUXILIARY, etc.] **Use to explicitly designate primary vs auxiliary copies.**
 - `copyprecedence` (Int) Precedence/priority of this backup destination copy. Lower numbers = higher precedence. **Use to control copy priority.**
 - `isdefault` (Boolean) Set to true to designate this backup destination as the primary/default copy. **Use to explicitly mark the primary copy.**
-- `ismirrorcopy` (String) Is this a mirror copy? Only considered when isSnapCopy is true.
-- `issnapcopy` (String) Is this a snap copy? If isMirrorCopy is not set, then default is Vault/Replica.
+- `ismirrorcopy` (String) `"true"` for a mirror copy; `"false"` for a Vault/Replica copy. Only considered when `issnapcopy` is `"true"`.
+- `issnapcopy` (String) `"true"` for a snapshot copy. Set `sourcecopy` to identify the primary snapshot source when configuring a replica.
 - `isconfiguredforreplication` (String) Used if the copy is used for replication group
 - `fullbackuptypestocopy` (String) Which type of backup type should be copied for the given backup destination when backup type is not all jobs. Default is LAST while adding new backup destination. [FIRST, LAST]
 - `extendedretentionrules` (Block List) If you want to update, specify the whole object. Extended retention rules should be bigger than retention period.
@@ -350,12 +487,75 @@ Optional:
 - `snaprecoverypoints` (Int) Number of snap recovery points for snap copy for retention. Can be specified instead of retention period in Days for snap copy.
 - `storagetype` (String) [ALL, DISK, CLOUD, HYPERSCALE, TAPE]
 - `useextendedretentionrules` (String) Use extended retention rules
-- `mappings` (Block Set) Snapshot copy mapping configurations
-- `region` (Block List) Region for the backup destination
-- `sourcecopy` (Block List) Source copy details for secondary/auxiliary copies
+- `mappings` (Block Set) Snapshot copy mapping configurations (see [below for nested schema](#nestedblock--backupdestinations--mappings)).
+- `region` (Block List) Region for the backup destination (see [below for nested schema](#nestedblock--backupdestinations--region)).
+- `sourcecopy` (Block List) Source copy details for secondary/auxiliary copies (see [below for nested schema](#nestedblock--backupdestinations--sourcecopy)).
 - `storagepolicy` (Block List) Storage policy details
-- `storagepool` (Block List) Storage pool details
+- `storagepool` (Block List) Storage pool details (see [below for nested schema](#nestedblock--backupdestinations--storagepool)).
 - `storagetemplatetags` (Block Set) Storage template tags
+
+The fields `backupstarttime`, `isconfiguredforreplication`,
+`optimizeforinstantclone`, and `storagepolicy` are not supported when adding or
+modifying destinations through the update API, including staged replica
+creation. Configure `isdefault`, `copytype`, and `copyprecedence` only when
+creating or adding a destination; changes on existing destinations are rejected.
+
+<a id="nestedblock--backupdestinations--mappings"></a>
+### Nested Schema for `backupdestinations.mappings`
+
+Optional:
+
+- `mappingtype` (String) Mapping type for Pure Storage replication: `DEFAULT_MAPPING` or `SUBCLIENT_MAPPING`.
+- `source` (Block List) Source mapping entity (see [below for nested schema](#nestedblock--backupdestinations--mappings--source)).
+- `sourcevendor` (Block List) Source vendor reference with optional `id` (Number) and `name` (String).
+- `subclients` (Block Set) Subclient references, each with optional `id` (Number).
+- `target` (Block List) Target mapping entity (see [below for nested schema](#nestedblock--backupdestinations--mappings--target)).
+- `targetvendor` (Block List) Target vendor reference with optional `id` (Number) and `name` (String).
+- `vendor` (String) Snapshot mapping vendor: `NETAPP`, `AMAZON`, `PURE`, or `AZURE`.
+
+For `AMAZON` and `AZURE`, non-empty `source.name` and `target.name` cloud region
+display names are required. Numeric region IDs alone are rejected.
+
+<a id="nestedblock--backupdestinations--mappings--source"></a>
+### Nested Schema for `backupdestinations.mappings.source`
+
+Optional:
+
+- `id` (Number) Source mapping entity ID.
+- `name` (String) Source mapping entity name. Required for cloud mappings, such as `Asia Pacific (Mumbai)` for AWS.
+
+<a id="nestedblock--backupdestinations--mappings--target"></a>
+### Nested Schema for `backupdestinations.mappings.target`
+
+Optional:
+
+- `id` (Number) Target mapping entity ID.
+- `name` (String) Target mapping entity name. Required for cloud mappings, such as `US East (N. Virginia)` for AWS.
+
+<a id="nestedblock--backupdestinations--region"></a>
+### Nested Schema for `backupdestinations.region`
+
+Optional:
+
+- `guid` (String) Region GUID in the creation schema.
+- `id` (Number) Destination region ID.
+- `name` (String) Destination region name.
+
+<a id="nestedblock--backupdestinations--sourcecopy"></a>
+### Nested Schema for `backupdestinations.sourcecopy`
+
+Optional:
+
+- `id` (Number) Existing source copy ID.
+- `name` (String) Source copy name. The provider resolves it against the current plan before adding or modifying a destination when `id` is omitted.
+
+<a id="nestedblock--backupdestinations--storagepool"></a>
+### Nested Schema for `backupdestinations.storagepool`
+
+Optional:
+
+- `id` (Number) Existing storage pool ID.
+- `name` (String) Existing storage pool name.
 
 <a id="nestedblock--databaseoptions"></a>
 ### Nested Schema for `databaseoptions`
